@@ -61,6 +61,21 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
+        //Register custom shortcode library used by this add-on
+        EE_Register_Messages_Shortcode_Library::register(
+            'specific_datetime_shortcode_library',
+            array(
+                'name' => 'specific_datetime',
+                'autoloadpaths' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/shortcodes/',
+                'msgr_validator_callback' => array(__CLASS__, 'messenger_validator_callback')
+            )
+        );
+        // make sure the shortcode library is deregistered if this add-on is deregistered.
+        add_action('AHEE__EE_Register_Addon__deregister__after', function ($addon_name) {
+            if ($addon_name === 'Automated_Upcoming_Event_Notification') {
+                EE_Register_Messages_Shortcode_Library::deregister('specific_datetime_shortcode_library');
+            }
+        });
         /**
          * @todo:
          * - make sure ticketing shortcodes are registered (I think they should just "show up" we'll see)
@@ -90,6 +105,16 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         );
     }
 
+
+    public static function messenger_validator_callback($validator_config, EE_messenger $messenger)
+    {
+        if ($messenger->name !== 'email') {
+            return $validator_config;
+        }
+
+        $validator_config['content']['shortcodes'][] = 'specific_datetime';
+        return $validator_config;
+    }
 
 }
 // End of file EE_Automated_Upcoming_Event_Notification.class.php
