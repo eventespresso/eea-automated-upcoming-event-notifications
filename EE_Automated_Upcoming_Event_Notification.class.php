@@ -119,15 +119,13 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             10,
             2
         );
-        if (is_admin()) {
-            add_action(
-                'init',
-                array(
-                    '\EventEspresso\AutomatedEventNotifications\core\messages\admin\CustomTemplateSettings',
-                    'instance'
-                )
-            );
-        }
+        add_action(
+            'AHEE__EE_Admin__loaded',
+            array(
+                '\EventEspresso\AutomatedEventNotifications\core\messages\admin\CustomTemplateSettings',
+                'instance'
+            )
+        );
         /**
          * @todo:
          * - make sure ticketing shortcodes are registered (I think they should just "show up" we'll see)
