@@ -1,5 +1,5 @@
 <?php
-defined('EVENT_ESPRESSO_VERSION') || exit;
+defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 // define the plugin directory path and URL
 define(
     'EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_BASENAME',
@@ -42,14 +42,18 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                     'checkPeriod'     => '24',
                     'use_wp_update'   => false,
                 ),
-               'message_types' => array(
+                'message_types' => array(
                    'automate_upcoming_event' => self::get_message_type_settings(
                        'EE_Automate_Upcoming_Event_message_type.class.php'
                    ),
                    'automate_upcoming_datetime' => self::get_message_type_settings(
                        'EE_Automate_Upcoming_Datetime_message_type.class.php'
                    )
-               )
+                ),
+                'namespace' => array(
+                    'FQNS' => 'EventEspresso\AutomatedEventNotifications',
+                    'DIR' => __DIR__
+                )
             )
         );
     }
@@ -61,21 +65,69 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
-        //Register custom shortcode library used by this add-on
-        EE_Register_Messages_Shortcode_Library::register(
-            'specific_datetime_shortcode_library',
-            array(
-                'name' => 'specific_datetime',
-                'autoloadpaths' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/shortcodes/',
-                'msgr_validator_callback' => array(__CLASS__, 'messenger_validator_callback')
-            )
-        );
+        add_action('EE_Brewing_Regular___messages_caf', function () {
+            //Register custom shortcode library used by this add-on
+            EE_Register_Messages_Shortcode_Library::register(
+                'specific_datetime_shortcode_library',
+                array(
+                    'name'                    => 'specific_datetime',
+                    'autoloadpaths'           => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/shortcodes/',
+                    'msgr_validator_callback' => array(__CLASS__, 'messenger_validator_callback')
+                )
+            );
+        }, 20);
         // make sure the shortcode library is deregistered if this add-on is deregistered.
         add_action('AHEE__EE_Register_Addon__deregister__after', function ($addon_name) {
             if ($addon_name === 'Automated_Upcoming_Event_Notification') {
                 EE_Register_Messages_Shortcode_Library::deregister('specific_datetime_shortcode_library');
             }
         });
+        add_action(
+            'FHEE__EE_Messages_Base__get_valid_shortcodes',
+            function ($valid_shortcodes, $message_type) {
+                if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type) {
+                    $valid_shortcodes['admin'][]    = 'specific_datetime';
+                    $valid_shortcodes['attendee'][] = 'specific_datetime';
+                }
+
+                if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type
+                    || $message_type instanceof EE_Automate_Upcoming_Event_message_type
+                ) {
+                    //now we need to remove the primary_registrant shortcodes
+                    $shortcode_libraries_to_remove = array(
+                        'primary_registration_details',
+                        'primary_registration_list'
+                    );
+                    $contexts = array_keys($valid_shortcodes);
+                    foreach ($shortcode_libraries_to_remove as $shortcode_library_to_remove) {
+                        array_walk(
+                            $contexts,
+                            function ($context) use ($shortcode_library_to_remove, &$valid_shortcodes) {
+                                $key_to_remove = array_search(
+                                    $shortcode_library_to_remove,
+                                    $valid_shortcodes[$context]
+                                );
+                                if ($key_to_remove !== false) {
+                                    unset($valid_shortcodes[$context][$key_to_remove]);
+                                }
+                            }
+                        );
+                    }
+                }
+                return $valid_shortcodes;
+            },
+            10,
+            2
+        );
+        if (is_admin()) {
+            add_action(
+                'init',
+                array(
+                    '\EventEspresso\AutomatedEventNotifications\core\messages\admin\CustomTemplateSettings',
+                    'instance'
+                )
+            );
+        }
         /**
          * @todo:
          * - make sure ticketing shortcodes are registered (I think they should just "show up" we'll see)
