@@ -2,7 +2,6 @@
 namespace EventEspresso\AutomatedEventNotifications\core\messages\admin;
 
 use WP_Screen;
-use LogicException;
 use EE_Registry;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
