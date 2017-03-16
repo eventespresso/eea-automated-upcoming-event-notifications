@@ -86,7 +86,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_Re
     {
         $registrations = is_array($data) && isset($data[1]) ? $data[1] : array();
         $registrations = parent::convert_data_from_persistent_storage($registrations);
-        $specific_datetime = is_array($data) && isset($data[0]) && $data[0] instanceof EE_Datetime
+        $specific_datetime = is_array($data) && isset($data[0])
             ? EEM_Datetime::instance()->get_one_by_ID($data[0])
             : null;
         return array($specific_datetime, $registrations);
