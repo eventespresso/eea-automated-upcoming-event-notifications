@@ -101,20 +101,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
                 'html_class' => 'form-table',
                 'layout_strategy' => new EE_No_Layout(array('use_break_tags' => false)),
                 'form_html_filter' => new VsprintfFilter(
-                    esc_html(
-                        _n(
-                            '%1$sSend notifications %2$s day before the datetime.%2$s%1$s%$3s%2$s',
-                            '%1$sSend notifications %2$s days before the datetime.%2$s%1$s%$3s%2$s',
-                            $this->scheduling_settings->currentThreshold(),
-                            'event_espresso'
-                        )
-                    ),
-                    array()
+                    $this->getContentString(),
+                    array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
                 'subsections' => array(
-                    'opening_paragraph_tag' => new EE_Form_Section_HTML(
-                        '<p class="automated-message-scheduling-input-wrapper">'
-                    ),
                     SchedulingSettings::DAYS_BEFORE_THRESHOLD => new EE_Text_Input(array(
                         'validation_strategies' => new EE_Int_Validation_Strategy(),
                         'normalization_strategy' => new EE_Int_Normalization(),
@@ -122,7 +112,6 @@ class SchedulingMetaboxFormHandler extends FormHandler
                         'html_label_text' => '',
                         'default' => $this->scheduling_settings->currentThreshold()
                     )),
-                    'closing_paragraph_tag' => new EE_Form_Section_HTML('</p>'),
                     SchedulingSettings::AUTOMATION_ACTIVE => new EE_Select_Input(
                         array(
                             true => esc_html__('On', 'event_espresso'),
