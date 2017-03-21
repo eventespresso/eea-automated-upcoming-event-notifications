@@ -51,7 +51,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                    )
                 ),
                 'module_paths' => array(
-                    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'EED_Automated_Upcoming_Event_Notifications.module.php'
+                    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/modules/EED_Automated_Upcoming_Event_Notifications.module.php'
                 ),
                 'namespace' => array(
                     'FQNS' => 'EventEspresso\AutomatedUpcomingEventNotifications',
