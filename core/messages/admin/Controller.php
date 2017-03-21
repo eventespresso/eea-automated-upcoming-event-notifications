@@ -91,6 +91,18 @@ class Controller
             //get out because we don't want this loading on this request.
             return false;
         }
+
+        //made to the first check, the next check is to make sure we're only adding this to editors for the new message
+        //types
+        $message_template_group = $this->messageTemplateGroup();
+        if (! $message_template_group instanceof EE_Message_Template_Group
+            || ! (
+                $message_template_group->message_type() === 'automate_upcoming_event'
+                || $message_template_group->message_type() === 'automate_upcoming_datetime'
+            )
+        ) {
+            return false;
+        }
         return true;
     }
 
