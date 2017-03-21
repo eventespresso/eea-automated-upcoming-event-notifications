@@ -50,8 +50,11 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                        'EE_Automate_Upcoming_Datetime_message_type.class.php'
                    )
                 ),
+                'module_paths' => array(
+                    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'EED_Automated_Upcoming_Event_Notifications.module.php'
+                ),
                 'namespace' => array(
-                    'FQNS' => 'EventEspresso\AutomatedEventNotifications',
+                    'FQNS' => 'EventEspresso\AutomatedUpcomingEventNotifications',
                     'DIR' => __DIR__
                 )
             )
@@ -65,72 +68,29 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
-        add_action('EE_Brewing_Regular___messages_caf', function () {
-            //Register custom shortcode library used by this add-on
-            EE_Register_Messages_Shortcode_Library::register(
-                'specific_datetime_shortcode_library',
-                array(
-                    'name'                    => 'specific_datetime',
-                    'autoloadpaths'           => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/shortcodes/',
-                    'msgr_validator_callback' => array(__CLASS__, 'messenger_validator_callback')
-                )
-            );
-        }, 20);
-        // make sure the shortcode library is deregistered if this add-on is deregistered.
-        add_action('AHEE__EE_Register_Addon__deregister__after', function ($addon_name) {
-            if ($addon_name === 'Automated_Upcoming_Event_Notification') {
-                EE_Register_Messages_Shortcode_Library::deregister('specific_datetime_shortcode_library');
-            }
-        });
-        add_action(
-            'FHEE__EE_Messages_Base__get_valid_shortcodes',
-            function ($valid_shortcodes, $message_type) {
-                if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type) {
-                    $valid_shortcodes['admin'][]    = 'specific_datetime';
-                    $valid_shortcodes['attendee'][] = 'specific_datetime';
-                }
+        static $controller;
 
-                if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type
-                    || $message_type instanceof EE_Automate_Upcoming_Event_message_type
-                ) {
-                    //now we need to remove the primary_registrant shortcodes
-                    $shortcode_libraries_to_remove = array(
-                        'primary_registration_details',
-                        'primary_registration_list'
-                    );
-                    $contexts = array_keys($valid_shortcodes);
-                    foreach ($shortcode_libraries_to_remove as $shortcode_library_to_remove) {
-                        array_walk(
-                            $contexts,
-                            function ($context) use ($shortcode_library_to_remove, &$valid_shortcodes) {
-                                $key_to_remove = array_search(
-                                    $shortcode_library_to_remove,
-                                    $valid_shortcodes[$context]
-                                );
-                                if ($key_to_remove !== false) {
-                                    unset($valid_shortcodes[$context][$key_to_remove]);
-                                }
-                            }
-                        );
-                    }
-                }
-                return $valid_shortcodes;
-            },
-            10,
-            2
-        );
+        //load cron scheduler
         add_action(
-            'AHEE__EE_Admin__loaded',
+            'AHEE__EE_System__load_espresso_addons__complete',
             array(
-                '\EventEspresso\AutomatedEventNotifications\core\messages\admin\CustomTemplateSettings',
-                'instance'
+                __CLASS__,
+                'controller'
             )
         );
-        /**
-         * @todo:
-         * - make sure ticketing shortcodes are registered (I think they should just "show up" we'll see)
-         * - call/set cron schedule for these two message types.
-         */
+    }
+
+    public static function controller($reset = false)
+    {
+        static $controller;
+        if (! $controller instanceof \EventEspresso\AutomatedUpcomingEventNotifications\core\service\Controller
+            || $reset
+        ) {
+            $controller = new \EventEspresso\AutomatedUpcomingEventNotifications\core\service\Controller(
+                new \EventEspresso\AutomatedUpcomingEventNotifications\core\factory\Registry
+            );
+        }
+        return $controller;
     }
 
     /**
@@ -156,15 +116,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     }
 
 
-    public static function messenger_validator_callback($validator_config, EE_messenger $messenger)
-    {
-        if ($messenger->name !== 'email') {
-            return $validator_config;
-        }
 
-        $validator_config['content']['shortcodes'][] = 'specific_datetime';
-        return $validator_config;
-    }
 
 }
 // End of file EE_Automated_Upcoming_Event_Notification.class.php
