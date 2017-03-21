@@ -83,7 +83,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
         }
 
         $this->scheduling_settings->setCurrentThreshold($valid_data[SchedulingSettings::DAYS_BEFORE_THRESHOLD]);
-        $this->scheduling_settings->setIsActive($valid_data[SchedulingSettings::DAYS_BEFORE_THRESHOLD]);
+        $this->scheduling_settings->setIsActive($valid_data[SchedulingSettings::AUTOMATION_ACTIVE]);
         return true;
     }
 
