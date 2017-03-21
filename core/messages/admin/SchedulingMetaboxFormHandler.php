@@ -159,19 +159,23 @@ class SchedulingMetaboxFormHandler extends FormHandler
             );
         }
 
+        /**
+         * Note because of the way the form is setup, the 3rd argument is the fully rendered html for the form. So we
+         * need to make sure to exclude that from our format strings.
+         */
         return $message_type === 'automate_upcoming_datetime'
             ? esc_html(
                 _n(
-                    '%1$sSend notifications %2$s day before the datetime.%2$s%1$s%$3s%2$s',
-                    '%1$sSend notifications %2$s days before the datetime.%2$s%1$s%$3s%2$s',
+                    '%1$sSend notifications %4$s day before the datetime.%2$s%1$s%5$s%2$s',
+                    '%1$sSend notifications %4$s days before the datetime.%2$s%1$s%5$s%2$s',
                     $this->scheduling_settings->currentThreshold(),
                     'event_espresso'
                 )
             )
             : esc_html(
                 _n(
-                    '%1$sSend notifications %2$s day before the event.%2$s%1$s%$3s%2$s',
-                    '%1$sSend notifications %2$s days before the event.%2$s%1$s%$3s%2$s',
+                    '%1$sSend notifications %4$s day before the event.%2$s%1$s%5$s%2$s',
+                    '%1$sSend notifications %4$s days before the event.%2$s%1$s%5$s%2$s',
                     $this->scheduling_settings->currentThreshold(),
                     'event_espresso'
                 )
