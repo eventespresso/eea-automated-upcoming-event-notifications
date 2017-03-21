@@ -146,11 +146,18 @@ class Controller
      */
     private function messageTemplateGroup($id = 0)
     {
-        //if the id is 0 then let's attempt to get from request
-        $id = $id
-            ? $id
-            : $this->request->get('id');
-        return EEM_Message_Template_Group::instance()->get_one_by_ID($id);
+        static $message_template_group;
+        if (! $message_template_group instanceof EE_Message_Template_Group
+            || ( $id && $message_template_group->ID() !== $id )
+        ) {
+            //if the id is 0 then let's attempt to get from request
+            $id = $id
+                ? $id
+                : $this->request->get('id');
+            /** @var EE_Message_Template_Group $message_template_group */
+            $message_template_group = EEM_Message_Template_Group::instance()->get_one_by_ID($id);
+        }
+        return $message_template_group;
     }
 
 
