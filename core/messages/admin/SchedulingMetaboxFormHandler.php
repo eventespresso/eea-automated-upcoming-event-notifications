@@ -16,6 +16,15 @@ use EE_Select_Input;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
+
+/**
+ * Form (and handler) for the scheduling metabox content.
+ *
+ * @package    EventEspresso\AutomatedUpcomingEventNotifications
+ * @subpackage core\messages\admin
+ * @author     Darren Ethier
+ * @since      1.0.0
+ */
 class SchedulingMetaboxFormHandler extends FormHandler
 {
 
@@ -30,6 +39,12 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected $scheduling_settings;
 
 
+    /**
+     * SchedulingMetaboxFormHandler constructor.
+     *
+     * @param \EE_Message_Template_Group $message_template_group
+     * @param \EE_Registry               $registry
+     */
     public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry)
     {
         $this->message_template_group = $message_template_group;
@@ -56,7 +71,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
-
+    /**
+     * @param array $form_data
+     * @return bool
+     */
     public function process($form_data = array())
     {
         $valid_data = (array) parent::process($form_data);
@@ -70,6 +88,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
+    /**
+     * Get the form for the metabox content
+     * @return \EE_Form_Section_Proper
+     */
     protected function getSchedulingForm()
     {
         return new EE_Form_Section_Proper(
@@ -118,6 +140,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
+    /**
+     * Return the correct content string for the metabox content based on what message type is for this view.
+     * @return string
+     */
     protected function getContentString()
     {
         $message_type = $this->message_template_group->message_type();
