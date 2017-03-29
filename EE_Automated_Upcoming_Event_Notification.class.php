@@ -68,8 +68,6 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
-        static $controller;
-
         //load cron scheduler
         add_action(
             'AHEE__EE_System__load_espresso_addons__complete',
