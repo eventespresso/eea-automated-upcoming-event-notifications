@@ -6,6 +6,7 @@ use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
 use EE_messenger;
+use EE_message_type;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -72,7 +73,8 @@ class Controller
 
 
     /**
-     * Callback set (on registering a shortcode library) that handles the validation of this new library.
+     * Callback on `FHEE__EE_Messages_Base__get_valid_shortcodes` that is used to ensure the new shortcode library is
+     * registered with the appropriate message type as a valid library.
      * Also using this to remove shortcodes we don't want exposed for the new message types.
      * @param array             $valid_shortcodes   Existing array of valid shortcodes.
      * @param EE_Message_Type   $message_type
@@ -113,6 +115,13 @@ class Controller
     }
 
 
+
+    /**
+     * Callback set (on registering a shortcode library) that handles the validation of this new library.
+     * @param array         $validator_config
+     * @param EE_messenger $messenger
+     * @return array
+     */
     public function messengerValidatorCallback($validator_config, EE_messenger $messenger)
     {
         if ($messenger->name !== 'email') {
@@ -124,7 +133,9 @@ class Controller
     }
 
 
-
+    /**
+     * Takes care of setting any admin hooks that run early.
+     */
     protected function setAdminHooks()
     {
         add_action(
@@ -134,6 +145,9 @@ class Controller
     }
 
 
+    /**
+     * Callback for `AHEE__EE_Admin__loaded`
+     */
     public function loadAdminController()
     {
         $this->registry->call('\EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin\Controller');
