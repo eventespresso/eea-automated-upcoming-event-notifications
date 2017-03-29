@@ -4,7 +4,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 /**
  * Module for handling automated upcoming event and datetime notification sends.
  *
- * @package    EventEspresso/AutomatedUpcomingEventNotifications
+ * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage modules
  * @author     Darren Ethier
  * @since      1.0.0
