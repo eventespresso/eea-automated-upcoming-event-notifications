@@ -8,8 +8,8 @@
  */
 
 define( 'EE_PLUGIN_DIR', dirname( dirname( dirname( dirname(__FILE__ ) ) ) ) . '/event-espresso-core/');
-define( 'EEADDON_TESTS_DIR', dirname( dirname( __FILE__ ) ) . '/'  );
-define( 'EEADDON_PLUGIN_DIR' , dirname( dirname( dirname(__FILE__)  ) ). '/' );
+define( 'EE_AUTOMATED_UPCOMING_EVENT_TESTS_DIR', dirname( dirname( __FILE__ ) ) . '/'  );
+define( 'EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR' , dirname( dirname( dirname(__FILE__)  ) ). '/' );
 
 if ( ! defined( 'EE_TESTS_DIR' ) ) {
 	define( 'EE_TESTS_DIR', EE_PLUGIN_DIR .  'tests/' );

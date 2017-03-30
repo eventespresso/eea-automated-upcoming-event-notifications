@@ -8,4 +8,4 @@
  */
 
 // Bootstrap EE4 Addon
-require EEADDON_PLUGIN_DIR . 'eea-automated-upcoming-event-notification.php';
+require EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR . 'eea-automated-upcoming-event-notification.php';
