@@ -7,7 +7,7 @@ use WP_Screen;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 use EEM_Base;
-use EE_Request;
+use EE_Request_Handler;
 use Exception;
 use EE_Error;
 
@@ -33,14 +33,14 @@ class Controller
 
 
     /**
-     * @var  EE_Request
+     * @var  EE_Request_Handler
      */
     protected $request;
 
 
     public function __construct()
     {
-        $this->request = EE_Registry::instance()->load_core('Request');
+        $this->request = EE_Registry::instance()->load_core('Request_Handler');
 
         if (!$this->canLoad()) {
             return;
@@ -114,7 +114,7 @@ class Controller
      */
     protected function isDisplay()
     {
-        return ! EE_Registry::instance()->load_core('Request')->get('noheader', false);
+        return ! EE_Registry::instance()->load_core('Request_Handler')->get('noheader', false);
     }
 
 
