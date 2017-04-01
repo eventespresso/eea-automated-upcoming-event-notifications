@@ -2,6 +2,16 @@
 
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\AdminControllerMock;
 
+/**
+ * AdminControllerTest
+ * Tests for the EventEspresso\AutomateUpcomingEventNotifications\core\messages\admin\Controller class.
+ *
+ * @package EventEspresso\AutomateUpcomingEventNotifications
+ * @subpackage tests
+ * @author  Darren Ethier
+ * @since   1.0.0
+ * @group admin_controller
+ */
 class AdminControllerTest extends EE_UnitTestCase
 {
 
@@ -103,6 +113,7 @@ class AdminControllerTest extends EE_UnitTestCase
         $this->assertFalse($this->admin_controller_mock->canLoad());
     }
 
+
     public function testCanLoadIsValid()
     {
         $message_template_group = $this->messageTemplateGroup('automate_upcoming_datetime');
@@ -126,14 +137,14 @@ class AdminControllerTest extends EE_UnitTestCase
         $this->assertTrue($this->admin_controller_mock->isDisplay());
     }
 
-
+    
     public function testIsDisplayFail()
     {
         $this->go_to(
             add_query_arg(
-                array('noheader' => true)
-            ),
-            admin_url()
+                array('noheader' => true),
+                admin_url()
+            )
         );
         $this->assertFalse($this->admin_controller_mock->isDisplay());
     }
