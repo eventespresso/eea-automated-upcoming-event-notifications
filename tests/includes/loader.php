@@ -10,7 +10,9 @@
 // Bootstrap EE4 Addon
 require EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR . 'eea-automated-upcoming-event-notification.php';
 //autoloader for tests
-EE_Psr4AutoloaderInit::psr4_loader()->addNamespace(
-    'EventEspresso\AutomateUpcomingEventNotificationsTests',
-    EE_AUTOMATED_UPCOMING_EVENT_TESTS_DIR
-);
+add_action('plugins_loaded', function () {
+    EE_Psr4AutoloaderInit::psr4_loader()->addNamespace(
+        'EventEspresso\AutomateUpcomingEventNotificationsTests',
+        EE_AUTOMATED_UPCOMING_EVENT_TESTS_DIR
+    );
+}, 1);
