@@ -44,14 +44,10 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Messages
         ) {
             return;
         }
-
         self::_load_controller();
 
         try {
-            $messages_to_generate = self::$_MSG_PROCESSOR->setup_mtgs_for_all_active_messengers($message_type_name, $data);
-            //batch queue and initiate request
-            self::$_MSG_PROCESSOR->batch_queue_for_generation_and_persist($messages_to_generate);
-            self::$_MSG_PROCESSOR->get_queue()->initiate_request_by_priority();
+            self::$_MSG_PROCESSOR->generate_for_all_active_messengers($message_type_name, $data);
         } catch (EE_Error $e) {
             EE_Error::add_error($e->getMessage(), __FILE__, __FUNCTION__, __LINE__);
         }
@@ -64,6 +60,6 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Messages
      */
     protected static function allowed_message_types()
     {
-        return array('automated_upcoming_datetime', 'automated_upcoming_event');
+        return array('automate_upcoming_datetime', 'automate_upcoming_event');
     }
 }
