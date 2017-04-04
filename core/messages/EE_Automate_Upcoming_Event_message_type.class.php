@@ -67,6 +67,28 @@ class EE_Automate_Upcoming_Event_message_type extends EE_Registration_Base_messa
 
 
     /**
+     * Sets the data handler for this message type.
+     */
+    protected function _set_data_handler()
+    {
+        $this->_data_handler = 'Registrations';
+        $this->_single_message = $this->_data instanceof EE_Registration;
+    }
+
+
+    /**
+     * This message type's datahandler is registrations and it expects an array of registrations.
+     * @param \EE_Registration $registration
+     * @param int              $id
+     * @return EE_Registration[]
+     */
+    protected function _get_data_for_context($context, EE_Registration $registration, $id)
+    {
+        return array($registration);
+    }
+
+
+    /**
      * @see parent::get_priority() for documentation.
      * @return int
      */
