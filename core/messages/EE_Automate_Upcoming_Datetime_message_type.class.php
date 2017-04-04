@@ -7,15 +7,14 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
  * threshold set by the user (i.e. within x days), then send a notification based on the template generated for this
  * message type.  No matter how many datetimes are present on the event, the notification for this message type is only
  * sent ONCE.
- *
  */
 class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_message_type
 {
 
     public function __construct()
     {
-        $this->name = 'automate_upcoming_datetime';
-        $this->description = esc_html__(
+        $this->name              = 'automate_upcoming_datetime';
+        $this->description       = esc_html__(
             'This message type automates sending messages to registrations for an upcoming datetime.'
             . 'Messages are sent at the threshold you define (eg 3 days before) prior to a datetime'
             . ' on an event. Messages for this message type are sent to approved registrations and are'
@@ -23,12 +22,12 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
             . ' Note that this will send a the message for each datetime on the event.',
             'event_espresso'
         );
-        $this->label = array(
+        $this->label             = array(
             'singular' => esc_html__('automated upcoming datetime notification', 'event_espresso'),
-            'plural' => esc_html__('automated upcoming datetime notifications', 'event_espresso')
+            'plural'   => esc_html__('automated upcoming datetime notifications', 'event_espresso'),
         );
         $this->_master_templates = array(
-            'email' => 'registration'
+            'email' => 'registration',
         );
         parent::__construct();
     }
@@ -43,26 +42,27 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
     protected function _set_contexts()
     {
         $this->_context_label = array(
-            'label' => esc_html__('recipient', 'event_espresso'),
-            'plural' => esc_html__('recipients', 'event_espresso'),
+            'label'       => esc_html__('recipient', 'event_espresso'),
+            'plural'      => esc_html__('recipients', 'event_espresso'),
             'description' => esc_html__(
                 'Recipient\'s are who will receive the message. There is only one message sent per attendee, no'
                 . ' no matter how many registrations are attached to that attendee.',
                 'event_espresso'
-            )
+            ),
         );
-        $this->_contexts = array(
-            'admin' => array(
-                'label' => esc_html__('Event Admin', 'event_espresso'),
-                'description' => esc_html__('This template is what event administrators will receive with an approved registration', 'event_espresso')
+        $this->_contexts      = array(
+            'admin'    => array(
+                'label'       => esc_html__('Event Admin', 'event_espresso'),
+                'description' => esc_html__('This template is what event administrators will receive with an approved registration',
+                    'event_espresso'),
             ),
             'attendee' => array(
-                'label' => esc_html__('Registrant', 'event_espresso'),
+                'label'       => esc_html__('Registrant', 'event_espresso'),
                 'description' => esc_html__(
                     'This is the template used to generate the message for the attendee.',
                     'event_espresso'
-                )
-            )
+                ),
+            ),
         );
     }
 
@@ -71,23 +71,23 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
      * @see parent::get_priority() for documentation.
      * @return int
      */
-    public function get_priority() {
+    public function get_priority()
+    {
         return EEM_Message::priority_low;
     }
-
 
 
     /**
      * Sets the data handler for this message type.
      */
-    protected function _set_data_handler() {
+    protected function _set_data_handler()
+    {
         $this->_data_handler = 'Registrations_By_Datetime';
         //set whether this is a single message or not.
         if (is_array($this->_data) && isset($this->_data[1]) && ! is_array($this->_data[1])) {
             $this->_single_message = $this->_data[1] instanceof EE_Registration ? true : $this->_single_message;
         }
     }
-
 
 
     /**
@@ -109,9 +109,9 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
      *
      * @param string           $context
      * @param \EE_Registration $registration
-     * @param int              $id  In this message type, the ID corresponds to a Datetime.
+     * @param int              $id In this message type, the ID corresponds to a Datetime.
      */
-    public function _get_data_for_context( $context, EE_Registration $registration, $id)
+    public function _get_data_for_context($context, EE_Registration $registration, $id)
     {
         //all contexts require the $id to be set because the data handler for this message type _requires_ a datetime.
         $datetime = EEM_Datetime::instance()->get_one_by_ID($id);
@@ -128,9 +128,9 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
             ? EEM_Registration::instance()->get_all(
                 array(
                     array(
-                        'Ticket.Datetime.DTT_ID' => $id
+                        'Ticket.Datetime.DTT_ID' => $id,
                     ),
-                    'default_where_conditions' => EEM_Base::default_where_conditions_this_only
+                    'default_where_conditions' => EEM_Base::default_where_conditions_this_only,
                 )
             )
             //yes this is intentionally not an array.  The format for a single registration view (which is what the
@@ -138,5 +138,4 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
             : $registration;
         return array($datetime, $registrations);
     }
-
 }
