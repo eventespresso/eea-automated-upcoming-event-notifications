@@ -35,16 +35,15 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
 
         //loop through each Message Template Group and it queue up its registrations for generation.
         foreach ($data as $message_template_group_id => $registrations) {
-            EED_Automated_Upcoming_Event_Notifications::prep_and_queue_messages(
-                'automate_upcoming_event',
-                $registrations
-            );
+            $this->triggerMessages($registrations, 'automate_upcoming_event');
             $this->setRegistrationsProcessed($registrations, 'EVT');
         }
     }
 
     /**
      * This should handle setting up the data that would be sent into the process method.
+     * The expectation is that all registrations in an event that belong to the trigger threshold for ANY datetime in
+     * the event are returned.
      *
      * @return array
      */
@@ -55,8 +54,12 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
         if (! empty($this->message_template_groups)) {
             array_walk(
                 $this->message_template_groups,
-                function (EE_Message_Template_Group $message_template_group) use (&$data) {
+                function (EE_Message_Template_Group $message_template_group) use (&$data, &$registrations_queued) {
                     $settings = new SchedulingSettings($message_template_group);
+                    //fail-safe ... dont' do anything if this group isn't active for automation
+                    if (! $settings->isActive()) {
+                        return $data;
+                    }
                     $where = array(
                         'Event.status' => 'publish',
                         'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
@@ -83,8 +86,8 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
                                 &$registrations_queued,
                                 $message_template_group
                             ) {
-                                $data[$message_template_group->ID()][$registration->ID()][] = $registration;
-                                $registrations_queued[$registration->ID()][] = $registration->ID();
+                                $data[$message_template_group->ID()][$registration->ID()] = $registration;
+                                $registrations_queued[$registration->ID()] = $registration->ID();
                             }
                         );
                     }
@@ -96,6 +99,10 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
         //excluding registrations that have already been queued up for custom templates.
         if ($this->global_message_template_group) {
             $settings = new SchedulingSettings($this->global_message_template_group);
+            //fail-safe... don't do anything if this group isn't active.
+            if (! $settings->isActive()) {
+                return $data;
+            }
             $where = array(
                 'Event.status' => 'publish',
                 'Event.Datetime.DTT_EVT_start' => array(
@@ -107,13 +114,19 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
                 ),
                 'STS_ID' => EEM_Registration::status_id_approved,
                 'REG_deleted' => 0,
+                'OR' => array(
+                    'Extra_Meta.EXM_key' => array('IS NULL'),
+                    'Extra_Meta.EXM_key*exclude_tracker' => array('!=', self::REGISTRATION_TRACKER_PREFIX . 'EVT')
+                )
             );
             if ($registrations_queued) {
                 $where['REG_ID'] = array('NOT IN', $registrations_queued);
             }
             $registrations = EEM_Registration::instance()->get_all(array($where));
             if ($registrations) {
-                $data[$this->global_message_template_group->ID()] = array($registrations);
+                foreach ($registrations as $registration) {
+                    $data[$this->global_message_template_group->ID()][$registration->ID()] = $registration;
+                }
             }
         }
         return $data;

@@ -3,6 +3,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\core\tasks;
 
 use EE_Message_Template_Group;
 use EE_Registration;
+use EED_Automated_Upcoming_Event_Notifications;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -71,7 +72,8 @@ abstract class TriggerNotifications
         //if there was a global template group, extract from the main array and set the global to its designated
         //property.
         if (! empty($contains_global)) {
-            $key_for_global = reset(array_flip($contains_global));
+            $keys_on_global = array_flip(array_keys($contains_global));
+            $key_for_global = reset($keys_on_global);
             //unset from original array
             unset($only_message_template_groups[$key_for_global]);
             //assign to property
@@ -128,6 +130,30 @@ abstract class TriggerNotifications
     {
         //okay we've got something, so let's get the data, and then process.
         $this->process($this->getData());
+    }
+
+
+    /**
+     * This takes care of triggering the actual messages
+     * @param $data
+     * @param $message_type
+     */
+    protected function triggerMessages($data, $message_type)
+    {
+        /**
+         * This filter allows client code to handle the actual sending of messages differently if desired
+         */
+        if (apply_filters(
+            'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_TriggerNotifications__triggerMessages__do_default_trigger',
+            true,
+            $data,
+            $message_type
+        )) {
+            EED_Automated_Upcoming_Event_Notifications::prep_and_queue_messages(
+                $message_type,
+                $data
+            );
+        }
     }
 
 
