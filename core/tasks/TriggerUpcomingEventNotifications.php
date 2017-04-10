@@ -5,7 +5,6 @@ use EE_Message_Template_Group;
 use EEM_Registration;
 use EE_Registration;
 use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
-use EED_Automated_Upcoming_Event_Notifications;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -25,6 +24,7 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
      * This should handle the processing of provided data and the actual triggering of the messages.
      *
      * @param array $data
+     * @throws \EE_Error
      */
     protected function process($data)
     {
@@ -40,12 +40,15 @@ class TriggerUpcomingEventNotifications extends TriggerNotifications
         }
     }
 
+
+
     /**
      * This should handle setting up the data that would be sent into the process method.
      * The expectation is that all registrations in an event that belong to the trigger threshold for ANY datetime in
      * the event are returned.
      *
      * @return array
+     * @throws \EE_Error
      */
     protected function getData()
     {
