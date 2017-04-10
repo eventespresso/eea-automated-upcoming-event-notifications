@@ -102,7 +102,8 @@ class Controller
                     function ($context) use ($shortcode_library_to_remove, &$valid_shortcodes) {
                         $key_to_remove = array_search(
                             $shortcode_library_to_remove,
-                            $valid_shortcodes[$context]
+                            $valid_shortcodes[$context],
+                            true
                         );
                         if ($key_to_remove !== false) {
                             unset($valid_shortcodes[$context][$key_to_remove]);
