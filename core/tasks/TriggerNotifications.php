@@ -1,6 +1,7 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\tasks;
 
+use EE_Error;
 use EE_Message_Template_Group;
 use EE_Registration;
 use EED_Automated_Upcoming_Event_Notifications;
@@ -83,11 +84,14 @@ abstract class TriggerNotifications
     }
 
 
+
     /**
      * Use to save the flag indicating the registration has received a notification from being triggered.
-     * @param \EE_Registration $registration
-     * @param string           $id_ref
+     *
+     * @param EE_Registration $registration
+     * @param string          $id_ref
      * @return int|bool        @see EE_Base_Class::add_extra_meta
+     * @throws EE_Error
      */
     protected function setRegistrationProcessed(EE_Registration $registration, $id_ref)
     {
@@ -98,6 +102,7 @@ abstract class TriggerNotifications
     }
 
 
+
     /**
      * Receives an array of registrations and calls `setRegistrationReceivedNotification` for each registration.
      * If you need the response from the setting of this value (success/fail) then its suggested you call
@@ -105,6 +110,7 @@ abstract class TriggerNotifications
      *
      * @param EE_Registration[] $registrations
      * @param string            $id_ref
+     * @throws EE_Error
      */
     protected function setRegistrationsProcessed(array $registrations, $id_ref)
     {
