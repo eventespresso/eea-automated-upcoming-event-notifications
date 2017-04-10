@@ -1,8 +1,12 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin;
 
+use DomainException;
+use EE_Error;
 use EE_Form_Section_Proper;
 use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidFormSubmissionException;
 use EventEspresso\core\libraries\form_sections\form_handlers\FormHandler;
 use EE_Message_Template_Group;
 use EE_Registry;
@@ -11,8 +15,9 @@ use EventEspresso\core\libraries\form_sections\strategies\filter\VsprintfFilter;
 use EE_Text_Input;
 use EE_Int_Validation_Strategy;
 use EE_Int_Normalization;
-use EE_Form_Section_HTML;
 use EE_Select_Input;
+use InvalidArgumentException;
+use LogicException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -39,11 +44,15 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected $scheduling_settings;
 
 
+
     /**
      * SchedulingMetaboxFormHandler constructor.
      *
-     * @param \EE_Message_Template_Group $message_template_group
-     * @param \EE_Registry               $registry
+     * @param EE_Message_Template_Group $message_template_group
+     * @param EE_Registry               $registry
+     * @throws DomainException
+     * @throws InvalidDataTypeException
+     * @throws InvalidArgumentException
      */
     public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry)
     {
@@ -60,20 +69,29 @@ class SchedulingMetaboxFormHandler extends FormHandler
         );
     }
 
+
+
     /**
      * creates and returns the actual form
      *
      * @return EE_Form_Section_Proper
+     * @throws LogicException
+     * @throws EE_Error
      */
     public function generate()
     {
         $this->setForm($this->getSchedulingForm());
+        return $this->form();
     }
+
 
 
     /**
      * @param array $form_data
      * @return bool
+     * @throws EE_Error
+     * @throws InvalidFormSubmissionException
+     * @throws LogicException
      */
     public function process($form_data = array())
     {
@@ -88,9 +106,12 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
+
     /**
      * Get the form for the metabox content
-     * @return \EE_Form_Section_Proper
+     *
+     * @return EE_Form_Section_Proper
+     * @throws EE_Error
      */
     protected function getSchedulingForm()
     {
@@ -129,9 +150,12 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
+
     /**
      * Return the correct content string for the metabox content based on what message type is for this view.
+     *
      * @return string
+     * @throws EE_Error
      */
     protected function getContentString()
     {
