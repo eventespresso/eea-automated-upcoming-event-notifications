@@ -1,6 +1,7 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\tasks;
 
+use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
 use EE_Message_Template_Group;
 use EEM_Datetime;
@@ -25,6 +26,7 @@ class TriggerUpcomingDatetimeNotifications extends TriggerNotifications
      * This should handle the processing of provided data and the actual triggering of the messages.
      *
      * @param array $data
+     * @throws EE_Error
      */
     protected function process($data)
     {
@@ -49,10 +51,13 @@ class TriggerUpcomingDatetimeNotifications extends TriggerNotifications
         }
     }
 
+
+
     /**
      * This should handle setting up the data that would be sent into the process method.
      *
      * @return mixed
+     * @throws EE_Error
      */
     protected function getData()
     {
@@ -65,7 +70,7 @@ class TriggerUpcomingDatetimeNotifications extends TriggerNotifications
                 $this->message_template_groups,
                 function (EE_Message_Template_Group $message_template_group) use (&$data, &$custom_datetime_ids) {
                     $settings = new SchedulingSettings($message_template_group);
-                    //do a failsafe on whether this message template group is active first.
+                    //do a fail-safe on whether this message template group is active first.
                     if (! $settings->isActive()) {
                         return;
                     }
