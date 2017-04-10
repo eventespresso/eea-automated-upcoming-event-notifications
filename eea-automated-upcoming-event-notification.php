@@ -94,8 +94,7 @@ add_action('init', 'espresso_automated_upcoming_event_notification_activation_ch
  */
 function espresso_automated_upcoming_event_notification_activation_error()
 {
-    unset($_GET['activate']);
-    unset($_REQUEST['activate']);
+    unset($_GET['activate'], $_REQUEST['activate']);
     if (! function_exists('deactivate_plugins')) {
         require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
