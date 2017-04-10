@@ -76,8 +76,11 @@ class EE_Automate_Upcoming_Event_message_type extends EE_Registration_Base_messa
     }
 
 
+
     /**
-     * This message type's datahandler is registrations and it expects an array of registrations.
+     * This message type's data handler is registrations and it expects an array of registrations.
+     *
+     * @param string           $context
      * @param \EE_Registration $registration
      * @param int              $id
      * @return EE_Registration[]
