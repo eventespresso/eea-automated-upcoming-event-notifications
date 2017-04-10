@@ -1,6 +1,7 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\tasks;
 
+use EE_Error;
 use EEH_DTT_Helper;
 use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
@@ -59,10 +60,13 @@ class Scheduler
     }
 
 
+
     /**
      * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check
      * schedule and queries the database for any upcoming Datetimes that meet the criteria for any message
      * template groups that are active for automation.
+     *
+     * @throws EE_Error
      */
     public function checkForUpcomingDatetimeNotificationsToSchedule()
     {
@@ -80,10 +84,13 @@ class Scheduler
     }
 
 
+
     /**
      * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check
      * schedule and queries the database for any upcoming Events that meet the criteria for any message
      * template groups that are active for automation.
+     *
+     * @throws EE_Error
      */
     public function checkForUpcomingEventNotificationsToSchedule()
     {
@@ -100,11 +107,12 @@ class Scheduler
 
 
 
-
     /**
      * Used to retrieve all active message template groups for the given message type.
+     *
      * @param $message_type
      * @return EE_Message_Template_Group[]
+     * @throws EE_Error
      */
     protected function getActiveMessageTemplateGroupsForAutomation($message_type)
     {
