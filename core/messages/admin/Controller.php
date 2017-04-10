@@ -1,8 +1,12 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin;
 
+use DomainException;
 use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use InvalidArgumentException;
+use LogicException;
 use WP_Screen;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
@@ -104,6 +108,8 @@ class Controller
             return false;
         }
         return true;
+
+
     }
 
 
@@ -118,10 +124,17 @@ class Controller
     }
 
 
+
     /**
      * Callback for the `add_meta_box` function.
      * This provides the content for the scheduling metabox on the Automated Upcoming Datetime and Automated Upcoming Event
      * message type template editor.
+     *
+     * @throws EE_Error
+     * @throws LogicException
+     * @throws DomainException
+     * @throws InvalidDataTypeException
+     * @throws InvalidArgumentException
      */
     public function schedulingMetabox()
     {
@@ -136,11 +149,15 @@ class Controller
     }
 
 
+
     /**
      * Retrieve an instance of the Scheduling Form Handler
      *
      * @param EE_Message_Template_Group $message_template_group
      * @return SchedulingMetaboxFormHandler|null
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws DomainException
      */
     protected function schedulingForm($message_template_group)
     {
