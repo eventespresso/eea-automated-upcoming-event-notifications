@@ -30,7 +30,7 @@ class EE_Messages_Email_Automate_Upcoming_Event_Validator extends EE_Messages_Va
         );
         $this->_messenger->set_validator_config($new_config);
 
-        if ($this->_context != 'admin') {
+        if ($this->_context !== 'admin') {
             $this->_valid_shortcodes_modifier[$this->_context]['event_list'] = array(
                 'event',
                 'attendee_list',
