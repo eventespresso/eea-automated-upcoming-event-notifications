@@ -1,10 +1,12 @@
 <?php
+use EventEspresso\core\exceptions\EntityNotFoundException;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
 
 
 /**
  * This prepares data for message types that send messages for multiple registrations that have access to a specific
- * datetime.  This datahandler is required usage for the specific_datetimes messages shortcode library.
+ * datetime.  This data handler is required usage for the specific_datetimes messages shortcode library.
  *
  * @package    EE Automated Upcoming Event Notifications
  * @subpackage messages
@@ -32,12 +34,14 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     }
 
 
+
     /**
      * Returns database safe representation of the data for storage in the db.
      *
-     * @param array  $datetime_and_registrations An array where the first element is a datetime object and the second is
+     * @param array $datetime_and_registrations  An array where the first element is a datetime object and the second is
      *                                           an array of registration objects (or single registration object).
      * @return array
+     * @throws EE_Error
      * @throws InvalidArgumentException
      */
     public static function convert_data_for_persistent_storage($datetime_and_registrations)
@@ -113,6 +117,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      *
      * @param array $data
      * @return array
+     * @throws EE_Error
      */
     public static function convert_data_from_persistent_storage($data)
     {
@@ -126,9 +131,13 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     }
 
 
+
     /**
      * Setup the data
      * Sets up the expected data object for the messages prep using incoming datetime and registration objects.
+     *
+     * @throws EE_Error
+     * @throws EntityNotFoundException
      */
     protected function _setup_data()
     {
@@ -161,12 +170,15 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     }
 
 
+
     /**
      * If the incoming registrations all share the same transaction then this will return the transaction object shared
      * among the registrations. Otherwise the transaction object is set to null because its intended to only represent
      * one transaction.
      *
      * @return EE_Transaction|null
+     * @throws EE_Error
+     * @throws EntityNotFoundException
      */
     protected function _maybe_get_transaction()
     {
