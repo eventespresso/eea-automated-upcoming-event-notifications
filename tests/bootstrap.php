@@ -10,7 +10,7 @@ require $core_tests_dir . 'includes/CoreLoader.php';
 require $core_tests_dir . 'includes/AddonLoader.php';
 
 define('EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR', dirname(dirname(__FILE__)) . '/');
-define('EE_AUTOMATED_UPCOMING_EVENT_TESTS_DIR', EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR . 'tests');
+define('EE_AUTOMATED_UPCOMING_EVENT_TESTS_DIR', EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR . 'tests/');
 
 
 $addon_loader = new AddonLoader(
