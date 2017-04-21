@@ -11,7 +11,5 @@
 		"src/info.json",
 		"src/circle.yml"
 	],
-	"github" : true,
-	"awsbucket" : "",
-	"awsregion" : ""
+	"github" : true
 }
