@@ -62,18 +62,19 @@ class EeSpecificDatetimeShortcodesTest extends EE_UnitTestCase
         $data_for_testing = $this->getDataForTests();
         //required for php 5.3 compatibility
         $shortcode_library = $this->shortcode_library_mock;
-        array_walk($data_for_testing, function ($test_data) use ($shortcode_library) {
+        $test_case = $this;
+        array_walk($data_for_testing, function ($test_data) use ($shortcode_library, $test_case) {
             list($data_to_test_with, $shortcode_tested, $expected) = $test_data;
             $fail_message = sprintf('For the shortcode: %s', $shortcode_tested);
             //first test expected empty string
-            $this->assertEquals(
+            $test_case->assertEquals(
                 '',
                 $shortcode_library->parserMockWithoutData($shortcode_tested),
                 $fail_message
             );
 
             //Now test with our data
-            $this->assertEquals(
+            $test_case->assertEquals(
                 $expected,
                 $shortcode_library->parserMockWithData($shortcode_tested, $data_to_test_with),
                 $fail_message
