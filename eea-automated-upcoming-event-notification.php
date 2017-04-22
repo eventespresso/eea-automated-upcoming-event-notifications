@@ -4,7 +4,7 @@
   Plugin URI: http://www.eventespresso.com
   Description: Adds new message types to the EE messages system to help with automating messages to attendees of upcoming
 Events and Datetimes.
-  Version: 1.0.0.rc.006
+  Version: 1.0.0.rc.007
   Author: Event Espresso
   Author URI: http://www.eventespresso.com
   Copyright 2014 Event Espresso (email : support@eventespresso.com)
@@ -39,7 +39,7 @@ Events and Datetimes.
  */
 // define versions and this file
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_CORE_VERSION_REQUIRED', '4.9.37.p');
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.006');
+define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.007');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE', __FILE__);
 
 
