@@ -38,7 +38,7 @@ Events and Datetimes.
  * ------------------------------------------------------------------------
  */
 // define versions and this file
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_CORE_VERSION_REQUIRED', '4.9.0.rc.000');
+define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_CORE_VERSION_REQUIRED', '4.9.37.p');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.003');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE', __FILE__);
 
