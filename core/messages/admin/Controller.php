@@ -134,10 +134,12 @@ class Controller
     {
         $scheduling_form = $this->schedulingForm($this->messageTemplateGroup());
         if (! $scheduling_form instanceof SchedulingMetaboxFormHandler) {
-            echo esc_html__(
-                'There was a problem with generating the content for this metabox, please refresh your page.',
-                'event_espresso'
-            );
+            echo '<p class="ee-important">'
+                 . esc_html__(
+                     'There was a problem with generating the content for this metabox, please refresh your page.',
+                     'event_espresso'
+                 )
+                 . '</p>';
         }
         echo $scheduling_form->display();
     }
