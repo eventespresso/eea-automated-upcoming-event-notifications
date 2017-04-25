@@ -189,15 +189,16 @@ class Controller
      */
     public function updateScheduling(EEM_Base $model, $fields_n_values, $query_params)
     {
+        if (! $model instanceof EEM_Message_Template_Group) {
+            return;
+        }
         $where_params = is_array($query_params) && isset($query_params[0]) && is_array($query_params[0])
             ? $query_params[0]
             : array();
         $GRP_ID = isset($where_params['GRP_ID'])
             ? $where_params['GRP_ID']
             : 0;
-        if (! $model instanceof EEM_Message_Template_Group
-            || ! $GRP_ID
-        ) {
+        if (! $GRP_ID) {
             return;
         }
         //can we get the object for this?
