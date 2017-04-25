@@ -176,7 +176,7 @@ class Controller
             ? $id
             : $this->request->get('id');
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return EEM_Message_Template_Group::instance()->get_one_by_ID($id);
+        return EEM_Message_Template_Group::instance()->get_one_by_ID(absint($id));
     }
 
 
