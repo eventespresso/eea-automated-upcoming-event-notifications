@@ -25,6 +25,9 @@ class Scheduler
 
     /**
      * Scheduler constructor.
+     * Things are registered in the constructor on the assumption this class only gets instantiated once in a request.
+     * It is recommended to use the EventEspresso\core\services\loaders\Loader for instantiating/retrieving a shared
+     * instance of this class which should ensure its only loaded once.
      */
     public function __construct()
     {

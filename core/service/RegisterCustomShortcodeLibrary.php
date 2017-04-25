@@ -1,86 +1,79 @@
 <?php
-
 namespace EventEspresso\AutomatedUpcomingEventNotifications\core\service;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\core\factory\Registry;
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
 use EE_messenger;
 use EE_message_type;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
+defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
-
-
-class Controller
+/**
+ * RegisterCustomShortcodes
+ * Takes care of registering the custom shortcode library.
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @subpackage \core\service
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
+class RegisterCustomShortcodeLibrary
 {
 
     /**
-     * @var Registry
+     * RegisterCustomShortcodes constructor.
+     * Hooks are set in construct because it is _expected_ this class only gets instantiated once.
+     * It is recommended to use the EventEspresso\core\services\loaders\Loader for instantiating/retrieving a shared
+     * instance of this class which should ensure its only loaded once.
      */
-    private $registry;
-
-
-
-    /**
-     * Controller constructor.
-     * Sets up all the initial logic required for hooking this add-on in to various parts of EE.
-     * This should only ever be called once.
-     * Client code can get the controller instance (for unsetting actions/filters etc) via
-     * EE_Automated_Upcoming_Event_Notification::controller()
-     *
-     * @param Registry $registry
-     */
-    public function __construct(Registry $registry)
+    public function __construct()
     {
-        $this->registry = $registry;
-        $this->registerCustomShortcodeLibrary();
+        add_action(
+            'EE_Brewing_Regular___messages_caf',
+            array($this, 'registration')
+        );
+        add_action(
+            'AHEE__EE_Register_Addon__deregister__after',
+            array($this, 'deRegistration')
+        );
         add_action(
             'FHEE__EE_Messages_Base__get_valid_shortcodes',
             array($this, 'modifyValidShortcodes'),
             10,
             2
         );
-        $this->setAdminHooks();
-        //startCronScheduler
-        $this->registry->call('\EventEspresso\AutomatedUpcomingEventNotifications\core\tasks\Scheduler');
     }
 
 
+    /**
+     * Callback on `EE_Brewing_Regular___messages_caf` for registering the custom library.
+     * @throws \EE_Error
+     */
+    public function registration()
+    {
+        EE_Register_Messages_Shortcode_Library::register(
+            'specific_datetime_shortcode_library',
+            array(
+                'name'                    => 'specific_datetime',
+                'autoloadpaths'           => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
+                                             . 'core/messages/shortcodes/',
+                'msgr_validator_callback' => array($this, 'messengerValidatorCallback'),
+            )
+        );
+    }
+
 
     /**
-     * Takes care of registering the custom shortcode library for this add-on
+     * Callback for `AHEE__EE_Register_Addon__deregister__after` that ensures the custom shortcode library is
+     * deregistered when the add-on is deregistered.
+     * @param $addon_name
      */
-    protected function registerCustomShortcodeLibrary()
+    public function deRegistration($addon_name)
     {
-        //ya intentionally using closures here.  If client code want's this library to not be registered there's facility
-        //for deregistering via the provided api.  This forces client code to use that api.
-        add_action(
-            'EE_Brewing_Regular___messages_caf',
-            function () {
-                //Register custom shortcode library used by this add-on
-                EE_Register_Messages_Shortcode_Library::register(
-                    'specific_datetime_shortcode_library',
-                    array(
-                        'name'                    => 'specific_datetime',
-                        'autoloadpaths'           => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
-                                                     . 'core/messages/shortcodes/',
-                        'msgr_validator_callback' => array($this, 'messengerValidatorCallback'),
-                    )
-                );
-            },
-            20
-        );
-        // make sure the shortcode library is deregistered if this add-on is deregistered.
-        add_action(
-            'AHEE__EE_Register_Addon__deregister__after',
-            function ($addon_name) {
-                if ($addon_name === 'Automated_Upcoming_Event_Notification') {
-                    EE_Register_Messages_Shortcode_Library::deregister('specific_datetime_shortcode_library');
-                }
-            }
-        );
+        if ($addon_name === 'Automated_Upcoming_Event_Notification') {
+            EE_Register_Messages_Shortcode_Library::deregister('specific_datetime_shortcode_library');
+        }
     }
 
 
@@ -130,6 +123,7 @@ class Controller
 
 
 
+
     /**
      * Callback set (on registering a shortcode library) that handles the validation of this new library.
      *
@@ -144,28 +138,5 @@ class Controller
         }
         $validator_config['content']['shortcodes'][] = 'specific_datetime';
         return $validator_config;
-    }
-
-
-
-    /**
-     * Takes care of setting any admin hooks that run early.
-     */
-    protected function setAdminHooks()
-    {
-        add_action(
-            'AHEE__EE_Admin__loaded',
-            array($this, 'loadAdminController')
-        );
-    }
-
-
-
-    /**
-     * Callback for `AHEE__EE_Admin__loaded`
-     */
-    public function loadAdminController()
-    {
-        $this->registry->call('\EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin\Controller');
     }
 }

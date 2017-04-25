@@ -11,7 +11,7 @@ use WP_Screen;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 use EEM_Base;
-use EE_Request_Handler;
+use EE_Request;
 use Exception;
 use EE_Error;
 
@@ -37,14 +37,14 @@ class Controller
 
 
     /**
-     * @var  EE_Request_Handler
+     * @var  EE_Request
      */
     protected $request;
 
 
-    public function __construct()
+    public function __construct(EE_Request $request)
     {
-        $this->request = EE_Registry::instance()->load_core('Request_Handler');
+        $this->request = $request;
 
         if (!$this->canLoad()) {
             return;
