@@ -108,8 +108,9 @@ class Controller
 
 
     /**
-     * Checks the request for the `noheader` parameter and if present then this is not for display so no need to register
-     * things that only are used for display.
+     * Checks the request for the `noheader` parameter and if present then this is not for display so no need to
+     * register things that only are used for display.
+     *
      * @return bool
      */
     protected function isDisplay()
@@ -121,8 +122,8 @@ class Controller
 
     /**
      * Callback for the `add_meta_box` function.
-     * This provides the content for the scheduling metabox on the Automated Upcoming Datetime and Automated Upcoming Event
-     * message type template editor.
+     * This provides the content for the scheduling metabox on the Automated Upcoming Datetime and Automated Upcoming
+     * Event message type template editor.
      *
      * @throws EE_Error
      * @throws LogicException
@@ -132,7 +133,9 @@ class Controller
      */
     public function schedulingMetabox()
     {
-        $scheduling_form = $this->schedulingForm($this->messageTemplateGroup());
+        $scheduling_form = $this->messageTemplateGroup() instanceof EE_Message_Template_Group
+            ? $this->schedulingForm($this->messageTemplateGroup())
+            : null;
         if (! $scheduling_form instanceof SchedulingMetaboxFormHandler) {
             echo '<p class="ee-important">'
                  . esc_html__(
@@ -155,12 +158,9 @@ class Controller
      * @throws InvalidDataTypeException
      * @throws DomainException
      */
-    protected function schedulingForm($message_template_group)
+    protected function schedulingForm(EE_Message_Template_Group $message_template_group)
     {
-        if ($message_template_group instanceof EE_Message_Template_Group) {
-            return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance());
-        }
-        return null;
+        return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance());
     }
 
 
@@ -175,7 +175,7 @@ class Controller
         $id = $id
             ? $id
             : $this->request->get('id');
-        /** @var EE_Message_Template_Group $message_template_group */
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return EEM_Message_Template_Group::instance()->get_one_by_ID($id);
     }
 
@@ -222,8 +222,12 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        SchedulingSettings::DAYS_BEFORE_THRESHOLD => $this->request->get(SchedulingSettings::DAYS_BEFORE_THRESHOLD),
-                        SchedulingSettings::AUTOMATION_ACTIVE => $this->request->get(SchedulingSettings::AUTOMATION_ACTIVE)
+                        SchedulingSettings::DAYS_BEFORE_THRESHOLD => $this->request->get(
+                            SchedulingSettings::DAYS_BEFORE_THRESHOLD
+                        ),
+                        SchedulingSettings::AUTOMATION_ACTIVE => $this->request->get(
+                            SchedulingSettings::AUTOMATION_ACTIVE
+                        )
                     )
                 );
             }
