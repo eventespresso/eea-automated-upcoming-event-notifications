@@ -1,5 +1,5 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\core\service;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Messages\Services;
 
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
@@ -14,7 +14,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * Takes care of registering the custom shortcode library.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage \core\service
+ * @subpackage \Domain\Messages\Services
  * @author  Darren Ethier
  * @since   1.0.0
  */

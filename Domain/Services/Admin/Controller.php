@@ -1,9 +1,9 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Admin;
 
 use DomainException;
 use EE_Registry;
-use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\Domain\Entities\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use InvalidArgumentException;
 use LogicException;

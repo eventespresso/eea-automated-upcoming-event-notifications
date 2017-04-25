@@ -55,9 +55,9 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                 ),
                 'module_paths' => array(
                     EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
-                        . 'core/modules/EED_Automated_Upcoming_Event_Notifications.module.php',
+                        . 'Domain/Services/Modules/EED_Automated_Upcoming_Event_Notifications.module.php',
                     EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
-                        . 'core/modules/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
+                        . 'Domain/Services/Modules/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
                 ),
                 'namespace' => array(
                     'FQNS' => 'EventEspresso\AutomatedUpcomingEventNotifications',
@@ -83,7 +83,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             )
         );
         EE_Dependency_Map::register_dependencies(
-            'EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin\Controller',
+            'EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Admin\Controller',
             array(
                 'EE_Request' => EE_Dependency_Map::load_from_cache
             )
@@ -95,10 +95,10 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             'AHEE__EE_System__load_espresso_addons__complete',
             function () {
                 EE_Automated_Upcoming_Event_Notification::loader()->load(
-                    '\EventEspresso\AutomatedUpcomingEventNotifications\core\tasks\Scheduler'
+                    '\EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Tasks\Scheduler'
                 );
                 EE_Automated_Upcoming_Event_Notification::loader()->load(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\core\service\RegisterCustomShortcodeLibrary'
+                    'EventEspresso\AutomatedUpcomingEventNotifications\Domain\Messages\Services\RegisterCustomShortcodeLibrary'
                 );
             },
             15
@@ -134,15 +134,15 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         return array(
             'mtfilename' => $mtfilename,
             'autoloadpaths' => array(
-                EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/'
+                EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Domain/Messages/'
             ),
             'messengers_to_activate_with' => array('email'),
             'messengers_to_validate_with' => array('email'),
             'force_activation' => true,
             'messengers_supporting_default_template_pack_with' => array('email'),
-            'base_path_for_default_templates' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/templates/',
-            'base_path_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/variations/',
-            'base_url_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'core/messages/variations/'
+            'base_path_for_default_templates' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/templates/',
+            'base_path_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/variations/',
+            'base_url_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/variations/'
         );
     }
 
