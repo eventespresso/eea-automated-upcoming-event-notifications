@@ -18,6 +18,7 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function set_hooks()
     {
+        //noop
     }
 
 
@@ -26,13 +27,15 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function set_hooks_admin()
     {
+        //noop
     }
 
 
     /**
      * Preps and queues messages for the given message type name and data for sending.
-     * @param string    $message_type_name
-     * @param array     $data
+     *
+     * @param string $message_type_name
+     * @param array  $data
      */
     public static function prep_and_queue_messages($message_type_name, array $data)
     {
@@ -57,6 +60,7 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
 
     /**
      * Returns an array of allowed message type names (slugs) for this module.
+     *
      * @return array
      */
     protected static function allowed_message_types()
