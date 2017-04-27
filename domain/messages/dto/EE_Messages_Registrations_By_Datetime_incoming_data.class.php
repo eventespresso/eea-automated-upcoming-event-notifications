@@ -34,7 +34,6 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     }
 
 
-
     /**
      * Returns database safe representation of the data for storage in the db.
      *
@@ -51,7 +50,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         $datetime_and_registrations[1] = is_array($datetime_and_registrations[1])
             ? $datetime_and_registrations[1]
             : array($datetime_and_registrations);
-        $registration_ids = array_filter(
+        $registration_ids              = array_filter(
             array_map(
                 function ($registration) {
                     if ($registration instanceof EE_Registration) {
@@ -68,6 +67,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
 
     /**
      * Validate incoming data to make sure its the expected format.
+     *
      * @param $datetime_and_registrations
      * @throws InvalidArgumentException
      */
@@ -92,7 +92,10 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         /**
          * is there a registration
          */
-        if ((is_array($datetime_and_registrations[1]) && ! reset($datetime_and_registrations[1]) instanceof EE_Registration)
+        if ((
+                is_array($datetime_and_registrations[1])
+                && ! reset($datetime_and_registrations[1]) instanceof EE_Registration
+            )
             && ! $datetime_and_registrations[1] instanceof EE_Registration
         ) {
             throw new InvalidArgumentException(
@@ -110,7 +113,6 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     }
 
 
-
     /**
      * Receives an array that was prepared by convert_data_for_persistent_storage for the data and converts it back to
      * the formats expected when instantiating this class.
@@ -121,7 +123,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      */
     public static function convert_data_from_persistent_storage($data)
     {
-        $registrations = is_array($data) && isset($data[1])
+        $registrations     = is_array($data) && isset($data[1])
             ? EEM_Registration::instance()->get_all(array(array('REG_ID' => array('IN', $data[1]))))
             : array();
         $specific_datetime = is_array($data) && isset($data[0])
@@ -129,7 +131,6 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
             : null;
         return array($specific_datetime, $registrations);
     }
-
 
 
     /**
@@ -141,7 +142,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      */
     protected function _setup_data()
     {
-        $data = $this->data();
+        $data                    = $this->data();
         $this->specific_datetime = $data[0];
 
         //assign registrations
@@ -150,13 +151,13 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         //if the incoming registration value is not in an array format then set that as the reg_obj.  Then we get the
         //matching registrations linked to the same datetime as this registration and assign that to the reg_objs property.
         if (empty($this->reg_objs)) {
-            $this->reg_obj = $data[1];
+            $this->reg_obj  = $data[1];
             $this->reg_objs = EEM_Registration::instance()->get_all(
                 array(
                     array(
-                        'Ticket.Datetime.DTT_ID' => $this->specific_datetime->ID()
+                        'Ticket.Datetime.DTT_ID' => $this->specific_datetime->ID(),
                     ),
-                    'default_where_conditions' => EEM_Base::default_where_conditions_this_only
+                    'default_where_conditions' => EEM_Base::default_where_conditions_this_only,
                 )
             );
         }
@@ -168,7 +169,6 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
 
         $this->_assemble_data();
     }
-
 
 
     /**
