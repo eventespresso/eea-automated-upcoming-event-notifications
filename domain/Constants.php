@@ -20,6 +20,12 @@ class Constants
 
 
     /**
+     * String used as the prefix for the registration tracker meta key for the RegistrationsNotifiedCommand
+     */
+    const REGISTRATION_TRACKER_PREFIX = 'ee_auen_processed_';
+
+
+    /**
      * Equivalent to `__FILE__` for main plugin.
      * @var string
      */
