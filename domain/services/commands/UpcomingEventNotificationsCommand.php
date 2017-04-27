@@ -15,6 +15,10 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  */
 class UpcomingEventNotificationsCommand extends UpcomingNotificationsCommand
 {
+
+    /**
+     * @return string
+     */
     protected function getMessageTypeNotificationIsFor()
     {
         return 'automate_upcoming_event';
