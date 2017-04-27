@@ -16,10 +16,10 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingEventNotificationsCommandHandler
  * CommandHandler for UpcomingEventNotificationsCommand
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\commands
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author     Darren Ethier
+ * @since      1.0.0
  */
 class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsCommandHandler
 {
@@ -66,8 +66,8 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     /**
      * This retrieves the data containing registrations for the global message template group (if present).
      *
-     * @param EE_Message_Template_Group $message_template_groups
-     * @param array $data
+     * @param EE_Message_Template_Group[] $message_template_groups
+     * @param array                           $data
      * @return array
      * @throws EE_Error
      */
@@ -83,7 +83,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         foreach ($data as $message_template_group_registrations) {
             $registration_ids = array_merge(array_keys($message_template_group_registrations), $registration_ids);
         }
-        $registration_ids = array_unique($registration_ids);
+        $registration_ids            = array_unique($registration_ids);
         $additional_where_parameters = array();
         if ($registration_ids) {
             $additional_where_parameters['REG_ID'] = array('NOT IN', $registration_ids);
@@ -117,21 +117,21 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             return array();
         }
         $where = array(
-            'Event.status' => 'publish',
+            'Event.status'                        => 'publish',
             'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
-            'Event.Datetime.DTT_EVT_start' => array(
+            'Event.Datetime.DTT_EVT_start'        => array(
                 'BETWEEN',
                 array(
                     time(),
-                    time() + (DAY_IN_SECONDS * $settings->currentThreshold())
-                )
+                    time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
+                ),
             ),
-            'STS_ID' => EEM_Registration::status_id_approved,
-            'REG_deleted' => 0,
-            'OR' => array(
-                'Extra_Meta.EXM_key' => array('IS NULL'),
-                'Extra_Meta.EXM_key*exclude_tracker' => array('!=', Constants::REGISTRATION_TRACKER_PREFIX . 'EVT')
-            )
+            'STS_ID'                              => EEM_Registration::status_id_approved,
+            'REG_deleted'                         => 0,
+            'OR'                                  => array(
+                'Extra_Meta.EXM_key'                 => array('IS NULL'),
+                'Extra_Meta.EXM_key*exclude_tracker' => array('!=', Constants::REGISTRATION_TRACKER_PREFIX . 'EVT'),
+            ),
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
