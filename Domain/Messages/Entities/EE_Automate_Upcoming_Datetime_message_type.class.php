@@ -2,11 +2,16 @@
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
 /**
+ * EE_Automate_Upcoming_Datetime_message_type
  * Message type for automated upcoming event notifications.
  * On a daily cron schedule, this message type will grab all the events where the earliest datetime is within the
  * threshold set by the user (i.e. within x days), then send a notification based on the template generated for this
  * message type.  No matter how many datetimes are present on the event, the notification for this message type is only
  * sent ONCE.
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @author  Darren Ethier
+ * @since   1.0.0
  */
 class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_message_type
 {
@@ -15,11 +20,7 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
     {
         $this->name              = 'automate_upcoming_datetime';
         $this->description       = esc_html__(
-            'This message type automates sending messages to registrations for an upcoming datetime.'
-            . 'Messages are sent at the threshold you define (eg 3 days before) prior to a datetime'
-            . ' on an event. Messages for this message type are sent to approved registrations and are'
-            . ' only triggered for datetimes on upcoming and/or sold out, and published upcoming events.'
-            . ' Note that this will send a the message for each datetime on the event.',
+            'This message type automates sending messages to registrations for an upcoming datetime. Messages are sent at the threshold you define (eg 3 days before) prior to a datetime on an event. Messages for this message type are sent to approved registrations and are only triggered for datetimes on upcoming and/or sold out, and published upcoming events. Note that this will send a the message for each datetime on the event.',
             'event_espresso'
         );
         $this->label             = array(
@@ -35,9 +36,6 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
 
     /**
      * This sets up the contexts associated with the message_type
-     *
-     * @access  protected
-     * @return  void
      */
     protected function _set_contexts()
     {
@@ -45,16 +43,17 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
             'label'       => esc_html__('recipient', 'event_espresso'),
             'plural'      => esc_html__('recipients', 'event_espresso'),
             'description' => esc_html__(
-                'Recipient\'s are who will receive the message. There is only one message sent per attendee, no'
-                . ' no matter how many registrations are attached to that attendee.',
+                'Recipient\'s are who will receive the message. There is only one message sent per attendee, no matter how many registrations are attached to that attendee.',
                 'event_espresso'
             ),
         );
         $this->_contexts      = array(
             'admin'    => array(
                 'label'       => esc_html__('Event Admin', 'event_espresso'),
-                'description' => esc_html__('This template is what event administrators will receive with an approved registration',
-                    'event_espresso'),
+                'description' => esc_html__(
+                    'This template is what event administrators will receive with an approved registration',
+                    'event_espresso'
+                ),
             ),
             'attendee' => array(
                 'label'       => esc_html__('Registrant', 'event_espresso'),
@@ -110,6 +109,9 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
      * @param string           $context
      * @param \EE_Registration $registration
      * @param int              $id In this message type, the ID corresponds to a Datetime.
+     * @return array
+     * @throws EE_Error
+     * @throws InvalidArgumentException
      */
     public function _get_data_for_context($context, EE_Registration $registration, $id)
     {
