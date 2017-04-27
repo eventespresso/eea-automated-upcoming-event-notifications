@@ -76,7 +76,14 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         /**
          * is there a datetime
          */
-        if (! is_array($datetime_and_registrations) || ! reset($datetime_and_registrations) instanceof EE_Datetime) {
+        if (! (
+                $datetime_and_registrations[1] instanceof EE_Registration
+                || (
+                    is_array($datetime_and_registrations[1])
+                    && reset($datetime_and_registrations[1]) instanceof EE_Registration
+                )
+            )
+        ) {
             throw new InvalidArgumentException(
                 sprintf(
                     esc_html__(
