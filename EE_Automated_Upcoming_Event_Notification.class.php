@@ -33,7 +33,6 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Automated_Upcoming_Event_Notification::$loader = $loader instanceof LoaderInterface
             ? $loader
             : new Loader;
-        self::register_dependencies();
         parent::__construct();
     }
 
@@ -86,6 +85,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
+        self::register_dependencies();
         //these have to happen earlier than module loading but after add-ons are loaded because
         //the modules `set_hooks` methods run at `init 9`.
         add_action(
