@@ -189,15 +189,21 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      */
     protected function _maybe_get_transaction()
     {
-        $transactions = array();
+        $first_transaction = null;
         foreach ($this->reg_objs as $registration) {
-            if ($registration instanceof EE_Registration) {
-                $transaction = $registration->transaction();
-                if ($transaction instanceof EE_Transaction) {
-                    $transactions[$transaction->ID()] = $transaction;
+            $transaction = $registration->transaction();
+            if ($transaction instanceof EE_Transaction) {
+                //do they match
+                if ($first_transaction !== $transaction) {
+                    //has $first_transaction been set yet?
+                    if ($first_transaction === null) {
+                        $first_transaction = $transaction;
+                        continue;
+                    }
+                    return null;
                 }
             }
         }
-        return count($transactions) === 1 ? reset($transactions) : null;
+        return $first_transaction;
     }
 }
