@@ -1,6 +1,7 @@
 <?php
 
 use EventEspresso\core\services\loaders\Loader;
+use EventEspresso\core\services\loaders\LoaderInterface;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
@@ -14,6 +15,27 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
  */
 class EE_Automated_Upcoming_Event_Notification extends EE_Addon
 {
+
+    /**
+     * @var LoaderInterface $loader;
+     */
+    private static $loader;
+
+
+
+    /**
+     * EE_Automated_Upcoming_Event_Notification constructor.
+     *
+     * @param LoaderInterface $loader
+     */
+    public function __construct(LoaderInterface $loader = null)
+    {
+        EE_Automated_Upcoming_Event_Notification::$loader = $loader instanceof LoaderInterface
+            ? $loader
+            : new Loader;
+        self::register_dependencies();
+        parent::__construct();
+    }
 
     /**
      * Register the add-on
@@ -64,21 +86,6 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function after_registration()
     {
-        //load loader
-        add_action(
-            'AHEE__EE_System__load_espresso_addons__complete',
-            array(
-                __CLASS__,
-                'loader'
-            )
-        );
-        EE_Dependency_Map::register_dependencies(
-            'EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Admin\Controller',
-            array(
-                'EE_Request' => EE_Dependency_Map::load_from_cache
-            )
-        );
-
         //these have to happen earlier than module loading but after add-ons are loaded because
         //the modules `set_hooks` methods run at `init 9`.
         add_action(
@@ -96,22 +103,16 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     }
 
 
+
     /**
      * Callback for `AHEE__EE_System__load_espresso_addons__complete
      * This is also a method third party devs can use to grab the instance of this class for unsetting any hooks/actions
      * using this instance.
-     * @param bool $reset  Used to force a reset of the $loader
-     * @return Loader
+     * @return LoaderInterface
      */
-    public static function loader($reset = false)
+    public static function loader()
     {
-        static $loader;
-        if (! $loader instanceof Loader
-            || $reset
-        ) {
-            $loader = new Loader();
-        }
-        return $loader;
+        return EE_Automated_Upcoming_Event_Notification::$loader;
     }
 
     /**
