@@ -14,6 +14,14 @@ use EE_Registry;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
+/**
+ * UpcomingNotificationsCommandHandler
+ * Abstract class for all notifications command handlers.
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandler
 {
 
@@ -29,11 +37,16 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     protected $registry;
 
 
-
+    /**
+     * UpcomingNotificationsCommandHandler constructor.
+     *
+     * @param EEM_Registration $registration_model
+     * @param EE_Registry      $registry
+     */
     public function __construct(EEM_Registration $registration_model, EE_Registry $registry)
     {
         $this->registration_model = $registration_model;
-        $this->registry = $registry;
+        $this->registry           = $registry;
     }
 
 
@@ -46,7 +59,6 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $data = $this->getData($command->getMessageTemplateGroups());
         $this->process($data);
     }
-
 
 
     /**
@@ -74,10 +86,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * This takes care of triggering the actual messages
-     * @param $data
-     * @param $message_type
+     *
+     * @param array  $data
+     * @param string $message_type
      */
-    protected function triggerMessages($data, $message_type)
+    protected function triggerMessages(array $data, $message_type)
     {
         /**
          * This filter allows client code to handle the actual sending of messages differently if desired
@@ -120,6 +133,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * Extracts the global group from an array of message template groups if the array has a global group.
+     *
      * @param array $message_template_groups
      * @return EE_Message_Template_Group
      */
@@ -146,12 +160,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     abstract protected function getDataForCustomMessageTemplateGroups(array $message_template_groups);
 
 
-
     /**
      * This retrieves the data for the global message template group (if present).
      *
      * @param EE_Message_Template_Group[] $message_template_groups
-     * @param array $data
+     * @param array                       $data
      * @return array
      * @throws EE_Error
      */
@@ -160,6 +173,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * This should handle the processing of provided data and the actual triggering of the messages.
+     *
      * @param array $data
      */
     abstract protected function process(array $data);
