@@ -1,4 +1,5 @@
 <?php
+
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin;
 
 use DomainException;
@@ -45,7 +46,6 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected $scheduling_settings;
 
 
-
     /**
      * SchedulingMetaboxFormHandler constructor.
      *
@@ -58,8 +58,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
     public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry)
     {
         $this->message_template_group = $message_template_group;
-        $this->scheduling_settings = new SchedulingSettings($message_template_group);
-        $label = esc_html__('Scheduling_Settings');
+        $this->scheduling_settings    = new SchedulingSettings($message_template_group);
+        $label                        = esc_html__('Scheduling_Settings');
         parent::__construct(
             $label,
             $label,
@@ -69,7 +69,6 @@ class SchedulingMetaboxFormHandler extends FormHandler
             $registry
         );
     }
-
 
 
     /**
@@ -86,7 +85,6 @@ class SchedulingMetaboxFormHandler extends FormHandler
     }
 
 
-
     /**
      * @param array $form_data
      * @return bool
@@ -96,7 +94,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
      */
     public function process($form_data = array())
     {
-        $valid_data = (array) parent::process($form_data);
+        $valid_data = (array)parent::process($form_data);
         if (empty($valid_data)) {
             return false;
         }
@@ -105,7 +103,6 @@ class SchedulingMetaboxFormHandler extends FormHandler
         $this->scheduling_settings->setIsActive($valid_data[Constants::AUTOMATION_ACTIVE_IDENTIFIER]);
         return true;
     }
-
 
 
     /**
@@ -118,38 +115,37 @@ class SchedulingMetaboxFormHandler extends FormHandler
     {
         return new EE_Form_Section_Proper(
             array(
-                'name' => 'messages_scheduling_settings',
-                'html_id' => 'messages-scheduling-settings',
-                'html_class' => 'form-table',
-                'layout_strategy' => new EE_No_Layout(array('use_break_tags' => false)),
+                'name'             => 'messages_scheduling_settings',
+                'html_id'          => 'messages-scheduling-settings',
+                'html_class'       => 'form-table',
+                'layout_strategy'  => new EE_No_Layout(array('use_break_tags' => false)),
                 'form_html_filter' => new VsprintfFilter(
                     $this->getContentString(),
                     array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
-                'subsections' => array(
+                'subsections'      => array(
                     Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER => new EE_Text_Input(array(
-                        'validation_strategies' => new EE_Int_Validation_Strategy(),
+                        'validation_strategies'  => new EE_Int_Validation_Strategy(),
                         'normalization_strategy' => new EE_Int_Normalization(),
-                        'html_name' => Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
-                        'html_label_text' => '',
-                        'default' => $this->scheduling_settings->currentThreshold()
+                        'html_name'              => Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+                        'html_label_text'        => '',
+                        'default'                => $this->scheduling_settings->currentThreshold(),
                     )),
-                    Constants::AUTOMATION_ACTIVE_IDENTIFIER => new EE_Select_Input(
+                    Constants::AUTOMATION_ACTIVE_IDENTIFIER     => new EE_Select_Input(
                         array(
-                            true => esc_html__('On', 'event_espresso'),
-                            false => esc_html__('Off', 'event_espresso')
+                            true  => esc_html__('On', 'event_espresso'),
+                            false => esc_html__('Off', 'event_espresso'),
                         ),
                         array(
-                            'html_name' => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
+                            'html_name'       => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
                             'html_label_text' => esc_html__('Scheduling for this template is:', 'event_espresso'),
-                            'default' => $this->scheduling_settings->isActive()
+                            'default'         => $this->scheduling_settings->isActive(),
                         )
-                    )
-                )
+                    ),
+                ),
             )
         );
     }
-
 
 
     /**
@@ -167,8 +163,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
         )
         ) {
             return esc_html__(
-                'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime '
-                . 'message type templates',
+                'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime message type templates',
                 'event_espresso'
             );
         }
