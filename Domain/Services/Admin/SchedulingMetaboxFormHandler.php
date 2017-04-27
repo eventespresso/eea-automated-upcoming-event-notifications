@@ -18,6 +18,7 @@ use EE_Int_Normalization;
 use EE_Select_Input;
 use InvalidArgumentException;
 use LogicException;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -100,8 +101,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
             return false;
         }
 
-        $this->scheduling_settings->setCurrentThreshold($valid_data[SchedulingSettings::DAYS_BEFORE_THRESHOLD]);
-        $this->scheduling_settings->setIsActive($valid_data[SchedulingSettings::AUTOMATION_ACTIVE]);
+        $this->scheduling_settings->setCurrentThreshold($valid_data[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER]);
+        $this->scheduling_settings->setIsActive($valid_data[Constants::AUTOMATION_ACTIVE_IDENTIFIER]);
         return true;
     }
 
@@ -126,20 +127,20 @@ class SchedulingMetaboxFormHandler extends FormHandler
                     array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
                 'subsections' => array(
-                    SchedulingSettings::DAYS_BEFORE_THRESHOLD => new EE_Text_Input(array(
+                    Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER => new EE_Text_Input(array(
                         'validation_strategies' => new EE_Int_Validation_Strategy(),
                         'normalization_strategy' => new EE_Int_Normalization(),
-                        'html_name' => SchedulingSettings::DAYS_BEFORE_THRESHOLD,
+                        'html_name' => Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
                         'html_label_text' => '',
                         'default' => $this->scheduling_settings->currentThreshold()
                     )),
-                    SchedulingSettings::AUTOMATION_ACTIVE => new EE_Select_Input(
+                    Constants::AUTOMATION_ACTIVE_IDENTIFIER => new EE_Select_Input(
                         array(
                             true => esc_html__('On', 'event_espresso'),
                             false => esc_html__('Off', 'event_espresso')
                         ),
                         array(
-                            'html_name' => SchedulingSettings::AUTOMATION_ACTIVE,
+                            'html_name' => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
                             'html_label_text' => esc_html__('Scheduling for this template is:', 'event_espresso'),
                             'default' => $this->scheduling_settings->isActive()
                         )

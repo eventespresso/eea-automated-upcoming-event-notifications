@@ -24,6 +24,20 @@ class Constants
      */
     const REGISTRATION_TRACKER_PREFIX = 'ee_auen_processed_';
 
+    /**
+     * Represents the string used to reference the extra meta for holding the days before threshold.
+     *
+     * @var string
+     */
+    const DAYS_BEFORE_THRESHOLD_IDENTIFIER = 'automation_days_before';
+
+
+    /**
+     * Represents the string used to reference the extra meta for holding whether the automation is active or not.
+     */
+    const AUTOMATION_ACTIVE_IDENTIFIER = 'automation_active';
+
+
 
     /**
      * Equivalent to `__FILE__` for main plugin.

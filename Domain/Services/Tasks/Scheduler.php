@@ -122,7 +122,7 @@ class Scheduler
         $where = array(
             'MTP_message_type' => $message_type,
             'MTP_deleted' => 0,
-            'Extra_Meta.EXM_key' => SchedulingSettings::AUTOMATION_ACTIVE,
+            'Extra_Meta.EXM_key' => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
             'Extra_Meta.EXM_value' => 1
         );
         /** @noinspection PhpIncompatibleReturnTypeInspection */

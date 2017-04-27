@@ -4,9 +4,9 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities;
 
 use EE_Error;
 use EE_Message_Template_Group;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-
 
 
 /**
@@ -19,21 +19,6 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
  */
 class SchedulingSettings
 {
-
-    /**
-     * Represents the string used to reference the extra meta for holding the days before threshold.
-     *
-     * @var string
-     */
-    const DAYS_BEFORE_THRESHOLD = 'automation_days_before';
-
-
-    /**
-     * Represents the string used to reference the extra meta for holding whether the automation is active or not.
-     */
-    const AUTOMATION_ACTIVE = 'automation_active';
-
-
     /**
      * Internal cache for the settings.
      *
@@ -42,12 +27,10 @@ class SchedulingSettings
     private $cache = array();
 
 
-
     /**
      * @var  EE_Message_Template_Group
      */
     private $message_template_group;
-
 
 
     /**
@@ -61,7 +44,6 @@ class SchedulingSettings
     }
 
 
-
     /**
      * Returns whatever is set for the days before threshold for this schedule.
      *
@@ -70,16 +52,15 @@ class SchedulingSettings
      */
     public function currentThreshold()
     {
-        if (! isset($this->cache[SchedulingSettings::DAYS_BEFORE_THRESHOLD])) {
-            $this->cache[SchedulingSettings::DAYS_BEFORE_THRESHOLD] = (int)$this->message_template_group->get_extra_meta(
-                SchedulingSettings::DAYS_BEFORE_THRESHOLD,
+        if (! isset($this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER])) {
+            $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
+                Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
                 true,
                 5
             );
         }
-        return $this->cache[SchedulingSettings::DAYS_BEFORE_THRESHOLD];
+        return $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER];
     }
-
 
 
     /**
@@ -92,15 +73,14 @@ class SchedulingSettings
     public function setCurrentThreshold($new_threshold)
     {
         $saved = $this->message_template_group->update_extra_meta(
-            SchedulingSettings::DAYS_BEFORE_THRESHOLD,
+            Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
             (int)$new_threshold
         );
         if ($saved) {
-            $this->cache[SchedulingSettings::DAYS_BEFORE_THRESHOLD] = (int)$new_threshold;
+            $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$new_threshold;
         }
         return $saved;
     }
-
 
 
     /**
@@ -111,16 +91,15 @@ class SchedulingSettings
      */
     public function isActive()
     {
-        if (! isset($this->cache[SchedulingSettings::AUTOMATION_ACTIVE])) {
-            $this->cache[SchedulingSettings::AUTOMATION_ACTIVE] = (bool)$this->message_template_group->get_extra_meta(
-                SchedulingSettings::AUTOMATION_ACTIVE,
+        if (! isset($this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER])) {
+            $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER] = (bool)$this->message_template_group->get_extra_meta(
+                Constants::AUTOMATION_ACTIVE_IDENTIFIER,
                 true,
                 false
             );
         }
-        return $this->cache[SchedulingSettings::AUTOMATION_ACTIVE];
+        return $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER];
     }
-
 
 
     /**
@@ -133,12 +112,12 @@ class SchedulingSettings
     public function setIsActive($is_active)
     {
         $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN);
-        $saved = $this->message_template_group->update_extra_meta(
-            SchedulingSettings::AUTOMATION_ACTIVE,
+        $saved     = $this->message_template_group->update_extra_meta(
+            Constants::AUTOMATION_ACTIVE_IDENTIFIER,
             $is_active
         );
         if ($saved) {
-            $this->cache[SchedulingSettings::AUTOMATION_ACTIVE] = $is_active;
+            $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER] = $is_active;
         }
         return $saved;
     }

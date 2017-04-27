@@ -14,6 +14,7 @@ use EEM_Base;
 use EE_Request;
 use Exception;
 use EE_Error;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -213,7 +214,7 @@ class Controller
                 && $message_template_group->message_type() !== 'automate_upcoming_event'
             )
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(SchedulingSettings::DAYS_BEFORE_THRESHOLD, false)
+            || ! $this->request->get(Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
         ) {
             return;
         }
@@ -223,11 +224,11 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        SchedulingSettings::DAYS_BEFORE_THRESHOLD => $this->request->get(
-                            SchedulingSettings::DAYS_BEFORE_THRESHOLD
+                        Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
+                            Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER
                         ),
-                        SchedulingSettings::AUTOMATION_ACTIVE => $this->request->get(
-                            SchedulingSettings::AUTOMATION_ACTIVE
+                        Constants::AUTOMATION_ACTIVE_IDENTIFIER => $this->request->get(
+                            Constants::AUTOMATION_ACTIVE_IDENTIFIER
                         )
                     )
                 );
