@@ -1,9 +1,9 @@
 <?php
+
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin;
 
 use DomainException;
 use EE_Registry;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use InvalidArgumentException;
 use LogicException;
@@ -21,7 +21,6 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
  * This is the controller for things hooking into the EE admin for the addon.
- *
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\admin
@@ -47,7 +46,7 @@ class Controller
     {
         $this->request = $request;
 
-        if (!$this->canLoad()) {
+        if (! $this->canLoad()) {
             return;
         }
         if ($this->isDisplay()) {
@@ -101,9 +100,9 @@ class Controller
         //types
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
-            && (
-                $message_template_group->message_type() === 'automate_upcoming_event'
-                || $message_template_group->message_type() === 'automate_upcoming_datetime'
+               && (
+                   $message_template_group->message_type() === 'automate_upcoming_event'
+                   || $message_template_group->message_type() === 'automate_upcoming_datetime'
                );
     }
 
@@ -118,7 +117,6 @@ class Controller
     {
         return ! $this->request->get('noheader', false);
     }
-
 
 
     /**
@@ -149,7 +147,6 @@ class Controller
     }
 
 
-
     /**
      * Retrieve an instance of the Scheduling Form Handler
      *
@@ -167,6 +164,7 @@ class Controller
 
     /**
      * Provides the message template group from either the given id or an id in the request.
+     *
      * @param int $id
      * @return EE_Message_Template_Group
      */
@@ -184,9 +182,10 @@ class Controller
     /**
      * Callback on the `AHEE__EEM_Base__update__begin` hook used to save any updates to the extra settings for the
      * message types (as controlled by the template editor).
-     * @param EEM_Base  $model
-     * @param array $fields_n_values
-     * @param array $query_params
+     *
+     * @param EEM_Base $model
+     * @param array    $fields_n_values
+     * @param array    $query_params
      */
     public function updateScheduling(EEM_Base $model, $fields_n_values, $query_params)
     {
@@ -196,7 +195,7 @@ class Controller
         $where_params = is_array($query_params) && isset($query_params[0]) && is_array($query_params[0])
             ? $query_params[0]
             : array();
-        $GRP_ID = isset($where_params['GRP_ID'])
+        $GRP_ID       = isset($where_params['GRP_ID'])
             ? $where_params['GRP_ID']
             : 0;
         if (! $GRP_ID) {
@@ -227,9 +226,9 @@ class Controller
                         Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
                             Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER
                         ),
-                        Constants::AUTOMATION_ACTIVE_IDENTIFIER => $this->request->get(
+                        Constants::AUTOMATION_ACTIVE_IDENTIFIER     => $this->request->get(
                             Constants::AUTOMATION_ACTIVE_IDENTIFIER
-                        )
+                        ),
                     )
                 );
             }
