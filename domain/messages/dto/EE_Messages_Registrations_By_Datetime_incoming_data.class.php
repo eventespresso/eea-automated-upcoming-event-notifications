@@ -49,7 +49,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         //make sure $registrations are an array.
         $datetime_and_registrations[1] = is_array($datetime_and_registrations[1])
             ? $datetime_and_registrations[1]
-            : array($datetime_and_registrations);
+            : array($datetime_and_registrations[1]);
         $registration_ids              = array_filter(
             array_map(
                 function ($registration) {
