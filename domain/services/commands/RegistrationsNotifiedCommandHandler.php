@@ -10,11 +10,19 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
+/**
+ * RegistrationsNotifiedCommandHandler
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class RegistrationsNotifiedCommandHandler extends CommandHandler
 {
     /**
-     * @param RegistrationsNotifiedCommand $command
+     * @param RegistrationsNotifiedCommand|CommandInterface $command
      * @return mixed
+     * @throws EE_Error
      */
     public function handle(CommandInterface $command)
     {
@@ -62,5 +70,4 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
             true
         );
     }
-
 }
