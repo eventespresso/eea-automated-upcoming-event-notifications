@@ -1,12 +1,15 @@
 <?php
+
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks;
 
 use EE_Error;
 use EEH_DTT_Helper;
 use EE_Registry;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
+use EventEspresso\core\services\commands\CommandBusInterface;
+use EventEspresso\core\services\loaders\Loader;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -24,13 +27,36 @@ class Scheduler
 {
 
     /**
-     * Scheduler constructor.
-     * Things are registered in the constructor on the assumption this class only gets instantiated once in a request.
-     * It is recommended to use the EventEspresso\core\services\loaders\Loader for instantiating/retrieving a shared
-     * instance of this class which should ensure its only loaded once.
+     * @var CommandBusInterface
      */
-    public function __construct()
-    {
+    private $command_bus;
+
+
+    /**
+     * @var EEM_Message_Template_Group
+     */
+    private $message_template_group_model;
+
+
+    /**
+     * @var Loader
+     */
+    private $loader;
+
+    /**
+     * Scheduler constructor.
+     *
+     * @param CommandBusInterface        $command_bus
+     * @param EEM_Message_Template_Group $message_template_group_model
+     * @param Loader                     $loader
+     */
+    public function __construct(
+        CommandBusInterface $command_bus,
+        EEM_Message_Template_Group $message_template_group_model,
+        Loader $loader
+    ) {
+        $this->command_bus = $command_bus;
+        $this->loader      = $loader;
         //register tasks (this is on the hook that will fire on EEH_Activation)
         add_action('FHEE__EEH_Activation__get_cron_tasks', array($this, 'registerScheduledTasks'));
 
@@ -48,7 +74,8 @@ class Scheduler
 
     /**
      * Callback for `FHEE__EEH_Activation__get_cron_tasks` that is used to register the schedule for this wp-cron.
-     * @param  array $tasks  Already registered tasks.
+     *
+     * @param  array $tasks Already registered tasks.
      * @return array
      */
     public function registerScheduledTasks($tasks)
@@ -57,11 +84,10 @@ class Scheduler
         //this will set the schedule to the nearest upcoming midnight as a recurring daily schedule.
         $tasks['AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check'] = array(
             EEH_DTT_Helper::tomorrow(),
-            'daily'
+            'daily',
         );
         return $tasks;
     }
-
 
 
     /**
@@ -82,10 +108,15 @@ class Scheduler
             return;
         }
 
-        $trigger = new TriggerUpcomingDatetimeNotifications($message_template_groups);
-        $trigger->run();
+        //execute command
+        $this->command_bus->execute(
+            $this->loader->load(
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingDatetimeNotificationsCommand',
+                array($message_template_groups),
+                false
+            )
+        );
     }
-
 
 
     /**
@@ -104,10 +135,14 @@ class Scheduler
         if (empty($message_template_groups)) {
             return;
         }
-        $trigger = new TriggerUpcomingEventNotifications($message_template_groups);
-        $trigger->run();
+        $this->command_bus->execute(
+            $this->loader->load(
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingEventNotificationsCommand',
+                array($message_template_groups),
+                false
+            )
+        );
     }
-
 
 
     /**
@@ -120,12 +155,12 @@ class Scheduler
     protected function getActiveMessageTemplateGroupsForAutomation($message_type)
     {
         $where = array(
-            'MTP_message_type' => $message_type,
-            'MTP_deleted' => 0,
-            'Extra_Meta.EXM_key' => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
-            'Extra_Meta.EXM_value' => 1
+            'MTP_message_type'     => $message_type,
+            'MTP_deleted'          => 0,
+            'Extra_Meta.EXM_key'   => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
+            'Extra_Meta.EXM_value' => 1,
         );
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return EEM_Message_Template_Group::instance()->get_all(array($where));
+        return $this->message_template_group_model->get_all(array($where));
     }
 }
