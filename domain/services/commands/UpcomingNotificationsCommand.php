@@ -24,7 +24,6 @@ abstract class UpcomingNotificationsCommand extends Command
     private $message_template_groups;
 
 
-
     /**
      * UpcomingNotificationsCommand constructor.
      *
@@ -34,7 +33,6 @@ abstract class UpcomingNotificationsCommand extends Command
     {
         $this->message_template_groups = $this->validateGroups($message_template_groups);
     }
-
 
 
     /**
@@ -52,7 +50,7 @@ abstract class UpcomingNotificationsCommand extends Command
             $message_template_groups,
             function ($message_template_group) {
                 return $message_template_group instanceof EE_Message_Template_Group
-                    && $message_template_group->message_type() === $this->getMessageTypeNotificationIsFor();
+                       && $message_template_group->message_type() === $this->getMessageTypeNotificationIsFor();
             }
         );
     }
@@ -60,6 +58,7 @@ abstract class UpcomingNotificationsCommand extends Command
 
     /**
      * Returns the message type slug this notification command is for.
+     *
      * @return string
      */
     abstract protected function getMessageTypeNotificationIsFor();
