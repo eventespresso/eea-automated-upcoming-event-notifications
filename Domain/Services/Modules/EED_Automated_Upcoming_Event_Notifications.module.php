@@ -1,6 +1,14 @@
 <?php
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
+/**
+ * EED_Automated_Upcoming_Event_Notifications
+ * Main module for add-on.
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class EED_Automated_Upcoming_Event_Notifications extends EED_Module
 {
 
@@ -22,5 +30,6 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Module
      */
     public function run($WP)
     {
+        //noop
     }
 }
