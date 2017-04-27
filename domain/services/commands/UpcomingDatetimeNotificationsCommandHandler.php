@@ -8,6 +8,7 @@ use EEM_Datetime;
 use EE_Error;
 use EE_Message_Template_Group;
 use EE_Datetime;
+use EE_Registration;
 use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
@@ -17,10 +18,10 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingDatetimeNotificationsCommandHandler
  * CommandHandler for UpcomingDatetimeNotificationsCommand
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\commands
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author     Darren Ethier
+ * @since      1.0.0
  */
 class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsCommandHandler
 {
@@ -31,6 +32,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected $datetime_model;
 
 
+    /**
+     * UpcomingDatetimeNotificationsCommandHandler constructor.
+     *
+     * @param EEM_Registration $registration_model
+     * @param EEM_Datetime     $datetime_model
+     * @param EE_Registry      $registry
+     */
     public function __construct(
         EEM_Registration $registration_model,
         EEM_Datetime $datetime_model,
@@ -74,7 +82,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * This retrieves the data containing registrations for all the custom message template groups.
      *
      * @param EE_Message_Template_Group[] $message_template_groups
-     * return array An array of data for processing.
+     * @return array An array of data for processing.
      * @throws EE_Error
      */
     protected function getDataForCustomMessageTemplateGroups(array $message_template_groups)
@@ -87,12 +95,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
-
     /**
      * This retrieves the data containing registrations for the global message template group (if present).
      *
-     * @param EE_Message_Template_Group $message_template_groups
-     * @param array $data
+     * @param EE_Message_Template_Group[] $message_template_groups
+     * @param array                     $data
      * @return array
      * @throws EE_Error
      */
@@ -105,7 +112,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
         //extract the ids of the datetimes already in the data so we exclude them from the global message template group
         //based query.
-        $datetime_ids = $this->getDateTimeIdsFromData($data);
+        $datetime_ids                         = $this->getDateTimeIdsFromData($data);
         $additional_datetime_where_conditions = array();
         if ($datetime_ids) {
             $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
@@ -118,8 +125,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
-
-    protected function getDateTimeIdsFromData($data)
+    /**
+     * Get ids of datetimes from passed in array.
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function getDateTimeIdsFromData(array $data)
     {
         $datetime_ids = array();
         foreach ($data as $group_id => $datetime_records) {
@@ -129,6 +141,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
+    /**
+     * Build a query to get datetimes and registrations for the given message template group.
+     *
+     * @param EE_Message_Template_Group $message_template_group
+     * @param array                     $datetime_additional_where_conditions
+     * @param array                     $data
+     * @return array
+     * @throws EE_Error
+     */
     protected function getRegistrationsForDatetimeAndMessageTemplateGroup(
         EE_Message_Template_Group $message_template_group,
         array $datetime_additional_where_conditions = array(),
@@ -166,50 +187,78 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
+    /**
+     * Get Datetimes from the given message template group
+     *
+     * @param SchedulingSettings        $settings
+     * @param EE_Message_Template_Group $message_template_group
+     * @param array                     $additional_where_parameters
+     * @return \EE_Base_Class|EE_Datetime[]
+     * @throws EE_Error
+     */
     protected function getDatetimesForMessageTemplateGroup(
         SchedulingSettings $settings,
         EE_Message_Template_Group $message_template_group,
         $additional_where_parameters = array()
     ) {
         $where = array(
-            'DTT_EVT_start' => array(
+            'DTT_EVT_start'                       => array(
                 'BETWEEN',
                 array(
                     time(),
-                    time() + (DAY_IN_SECONDS * $settings->currentThreshold())
-                )
+                    time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
+                ),
             ),
-            'Event.status' => 'publish',
-            'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID()
+            'Event.status'                        => 'publish',
+            'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->datetime_model->get_all(array($where));
     }
 
 
-
+    /**
+     * Get registrations for given message template group and Datetime.
+     *
+     * @param EE_Message_Template_Group $message_template_group
+     * @param EE_Datetime               $datetime
+     * @return \EE_Base_Class[]|EE_Registration[]
+     * @throws EE_Error
+     */
     protected function getRegistrationsForDatetime(
         EE_Message_Template_Group $message_template_group,
         EE_Datetime $datetime
     ) {
         //get registration ids for each datetime and include with the array.
         $where = array(
-            'STS_ID' => EEM_Registration::status_id_approved,
+            'STS_ID'                 => EEM_Registration::status_id_approved,
             'Ticket.Datetime.DTT_ID' => $datetime->ID(),
-            'REG_deleted' => 0,
-            'OR' => array(
-                'Extra_Meta.EXM_key' => array('IS NULL'),
-                'Extra_Meta.EXM_key*exclude_tracker' => array('!=', Constants::REGISTRATION_TRACKER_PREFIX . 'DTT_' . $datetime->ID())
-            )
+            'REG_deleted'            => 0,
+            'OR'                     => array(
+                'Extra_Meta.EXM_key'                 => array('IS NULL'),
+                'Extra_Meta.EXM_key*exclude_tracker' => array(
+                    '!=',
+                    Constants::REGISTRATION_TRACKER_PREFIX . 'DTT_' . $datetime->ID(),
+                ),
+            ),
         );
         return $this->registration_model->get_all(array($where));
     }
 
 
-
-
+    /**
+     * Appends given information to the given data array.
+     *
+     * @param EE_Message_Template_Group $message_template_group
+     * @param EE_Datetime               $datetime
+     * @param EE_Registration[]         $registrations
+     * @param array                     $data
+     * @return array
+     * @throws EE_Error
+     */
     protected function addToDataByGroupDatetimeAndRegistrations(
         EE_Message_Template_Group $message_template_group,
         EE_Datetime $datetime,
@@ -218,11 +267,8 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     ) {
         $data[$message_template_group->ID()][$datetime->ID()] = array(
             $datetime,
-            $registrations
+            $registrations,
         );
         return $data;
     }
-
-
-
 }
