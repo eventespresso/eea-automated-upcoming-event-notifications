@@ -7,6 +7,7 @@ use EventEspresso\core\services\commands\CommandInterface;
 use EE_Registration;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 class RegistrationsNotifiedCommandHandler extends CommandHandler
