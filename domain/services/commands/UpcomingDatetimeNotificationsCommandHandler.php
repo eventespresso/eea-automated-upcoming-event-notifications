@@ -5,8 +5,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EEM_Registration;
 use EEM_Datetime;
-use EE_Registration;
-use EE_Base_Class;
 use EE_Error;
 use EE_Message_Template_Group;
 use EE_Datetime;
@@ -35,8 +33,8 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
     public function __construct(
         EEM_Registration $registration_model,
-        EE_Registry $registry,
-        EEM_Datetime $datetime_model
+        EEM_Datetime $datetime_model,
+        EE_Registry $registry
     ) {
         parent::__construct($registration_model, $registry);
         $this->datetime_model = $datetime_model;
