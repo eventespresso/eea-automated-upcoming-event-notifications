@@ -87,14 +87,14 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
         }
 
         if (strpos($shortcode, '[IF_DATETIME_*' !== false)) {
-            $attrs = $this->_get_shortcode_attrs($shortcode);
+            $attributes = $this->_get_shortcode_attrs($shortcode);
             //note for previews we allow the use of a 'preview_show', and 'preview_hide' as the value. So users
             //can see what it will look like.
-            $show = isset($attrs['DTT_ID'])
-                    && $attrs['DTT_ID'] !== 'preview_hide'
+            $show = isset($attributes['DTT_ID'])
+                    && $attributes['DTT_ID'] !== 'preview_hide'
                     && (
-                        $specific_datetime->ID() === (int)$attrs['DTT_ID']
-                        || $attrs['DTT_ID'] === 'preview_show'
+                        $specific_datetime->ID() === (int)$attributes['DTT_ID']
+                        || $attributes['DTT_ID'] === 'preview_show'
                     );
             $this->_mutate_conditional_block_in_template($shortcode, $show);
         }
