@@ -1,8 +1,23 @@
 <?php
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
+/**
+ * EE_Messages_Email_Automate_Upcoming_Event_Validator
+ * Validator for email messenger and automate_upcoming_event message type.
+ *
+ * @package EventEspresso\AutomatedUpcomingEventNotifications
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class EE_Messages_Email_Automate_Upcoming_Event_Validator extends EE_Messages_Validator
 {
+    /**
+     * EE_Messages_Email_Automate_Upcoming_Event_Validator constructor.
+     *
+     * @param array  $fields
+     * @param string $context
+     * @throws EE_Error
+     */
     public function __construct($fields, $context)
     {
         $this->_m_name  = 'email';
@@ -11,6 +26,9 @@ class EE_Messages_Email_Automate_Upcoming_Event_Validator extends EE_Messages_Va
     }
 
 
+    /**
+     * For modifying validator configuration.
+     */
     public function _modify_validator()
     {
         $new_config               = $this->_messenger->get_validator_config();
