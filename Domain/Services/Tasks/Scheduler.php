@@ -1,10 +1,10 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Tasks;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks;
 
 use EE_Error;
 use EEH_DTT_Helper;
 use EE_Registry;
-use EventEspresso\AutomatedUpcomingEventNotifications\Domain\Entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 

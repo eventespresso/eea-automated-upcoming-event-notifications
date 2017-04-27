@@ -1,10 +1,10 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Admin;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin;
 
 use DomainException;
 use EE_Error;
 use EE_Form_Section_Proper;
-use EventEspresso\AutomatedUpcomingEventNotifications\Domain\Entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidFormSubmissionException;
 use EventEspresso\core\libraries\form_sections\form_handlers\FormHandler;
@@ -26,7 +26,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
  * Form (and handler) for the scheduling metabox content.
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage core\messages\admin
+ * @subpackage domain\services\admin
  * @author     Darren Ethier
  * @since      1.0.0
  */

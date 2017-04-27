@@ -38,9 +38,9 @@ Events and Datetimes.
  * ------------------------------------------------------------------------
  */
 // define versions and this file
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_CORE_VERSION_REQUIRED', '4.9.37.p');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.008');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE', __FILE__);
+
 
 
 /**
@@ -64,9 +64,14 @@ add_action('activated_plugin', 'espresso_automated_upcoming_event_notification_p
  */
 function load_espresso_automated_upcoming_event_notification()
 {
+    require plugin_dir_path(__FILE__) . '/domain/Constants.php';
+    \EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants\Constants::init(
+        EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
+        EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION
+    );
     if (class_exists('EE_Addon')) {
         // automated_upcoming_event_notification version
-        require_once plugin_dir_path(__FILE__) . 'EE_Automated_Upcoming_Event_Notification.class.php';
+        require_once EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants::pluginPath . 'EE_Automated_Upcoming_Event_Notification.class.php';
         EE_Automated_Upcoming_Event_Notification::register_addon();
     } else {
         add_action('admin_notices', 'espresso_automated_upcoming_event_notification_activation_error');

@@ -1,19 +1,9 @@
 <?php
 
 use EventEspresso\core\services\loaders\Loader;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-// define the plugin directory path and URL
-define(
-    'EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_BASENAME',
-    plugin_basename(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE)
-);
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH', plugin_dir_path(__FILE__));
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_URL', plugin_dir_url(__FILE__));
-define(
-    'EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_ADMIN',
-    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'admin' . DS . 'automated_upcoming_event_notification' . DS
-);
 
 /**
  * Class  EE_Automated_Upcoming_Event_Notification
@@ -35,13 +25,13 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Register_Addon::register(
             'Automated_Upcoming_Event_Notification',
             array(
-                'version'               => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION,
+                'version'               => Constants::version(),
                 'plugin_slug'           => 'eea_automated_upcoming_event_notifications',
-                'min_core_version'      => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_CORE_VERSION_REQUIRED,
-                'main_file_path'        => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
+                'min_core_version'      => Constants::CORE_VERSION_REQUIRED,
+                'main_file_path'        => Constants::pluginFile(),
                 'pue_options'           => array(
                     'pue_plugin_slug' => 'eea-automated-upcoming-event-notifications',
-                    'plugin_basename' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_BASENAME,
+                    'plugin_basename' => Constants::pluginBasename(),
                     'checkPeriod'     => '24',
                     'use_wp_update'   => false,
                 ),
@@ -54,10 +44,10 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                    )
                 ),
                 'module_paths' => array(
-                    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
-                        . 'Domain/Services/Modules/EED_Automated_Upcoming_Event_Notifications.module.php',
-                    EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
-                        . 'Domain/Services/Modules/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
+                    Constants::pluginPath()
+                        . 'domain/services/modules/EED_Automated_Upcoming_Event_Notifications.module.php',
+                    Constants::pluginPath()
+                        . 'domain/services/modules/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
                 ),
                 'namespace' => array(
                     'FQNS' => 'EventEspresso\AutomatedUpcomingEventNotifications',
@@ -95,10 +85,10 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             'AHEE__EE_System__load_espresso_addons__complete',
             function () {
                 EE_Automated_Upcoming_Event_Notification::loader()->load(
-                    '\EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Tasks\Scheduler'
+                    '\EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
                 );
                 EE_Automated_Upcoming_Event_Notification::loader()->load(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\Domain\Messages\Services\RegisterCustomShortcodeLibrary'
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\messages\services\RegisterCustomShortcodeLibrary'
                 );
             },
             15
@@ -134,21 +124,30 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         return array(
             'mtfilename' => $mtfilename,
             'autoloadpaths' => array(
-                EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Domain/Messages/'
+                Constants::pluginPath() . 'domain/messages'
             ),
             'messengers_to_activate_with' => array('email'),
             'messengers_to_validate_with' => array('email'),
             'force_activation' => true,
             'messengers_supporting_default_template_pack_with' => array('email'),
-            'base_path_for_default_templates' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/templates/',
-            'base_path_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/variations/',
-            'base_url_for_default_variation' => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH . 'Views/Messages/variations/'
+            'base_path_for_default_templates' => Constants::pluginPath() . 'views/messages/templates/',
+            'base_path_for_default_variation' => Constants::pluginPath() . 'views/messages/variations/',
+            'base_url_for_default_variation' => Constants::pluginPath() . 'views/messages/variations/'
         );
     }
 
 
-
+    /**
+     * Take care of registering any dependencies needed by this add-on
+     */
+    protected static function register_dependencies()
+    {
+        EE_Dependency_Map::register_dependencies(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller',
+            array(
+                'EE_Request' => EE_Dependency_Map::load_from_cache
+            )
+        );
+    }
 
 }
-// End of file EE_Automated_Upcoming_Event_Notification.class.php
-// Location: wp-content/plugins/eea-automated-upcoming-event-notification/EE_Automated_Upcoming_Event_Notification.class.php

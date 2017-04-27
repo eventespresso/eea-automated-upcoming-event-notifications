@@ -1,11 +1,12 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Messages\Services;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\messages\services;
 
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
 use EE_messenger;
 use EE_message_type;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -14,7 +15,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * Takes care of registering the custom shortcode library.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage \Domain\Messages\Services
+ * @subpackage \domain\messages\services
  * @author  Darren Ethier
  * @since   1.0.0
  */
@@ -56,7 +57,7 @@ class RegisterCustomShortcodeLibrary
             'specific_datetime_shortcode_library',
             array(
                 'name'                    => 'specific_datetime',
-                'autoloadpaths'           => EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PATH
+                'autoloadpaths'           => Constants::pluginPath()
                                              . 'core/messages/shortcodes/',
                 'msgr_validator_callback' => array($this, 'messengerValidatorCallback'),
             )

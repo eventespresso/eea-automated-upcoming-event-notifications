@@ -1,9 +1,9 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Services\Admin;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin;
 
 use DomainException;
 use EE_Registry;
-use EventEspresso\AutomatedUpcomingEventNotifications\Domain\Entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use InvalidArgumentException;
 use LogicException;
@@ -23,7 +23,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  *
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage \core\messages\admin
+ * @subpackage \domain\services\admin
  * @author     Darren Ethier
  * @since      1.0.0
  */

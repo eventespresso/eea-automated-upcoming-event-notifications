@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\Domain\Entities;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities;
 
 use EE_Error;
 use EE_Message_Template_Group;
