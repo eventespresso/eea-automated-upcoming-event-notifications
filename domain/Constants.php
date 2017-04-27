@@ -38,9 +38,9 @@ class Constants
     const AUTOMATION_ACTIVE_IDENTIFIER = 'automation_active';
 
 
-
     /**
      * Equivalent to `__FILE__` for main plugin.
+     *
      * @var string
      */
     private static $plugin_file = '';
@@ -48,6 +48,7 @@ class Constants
 
     /**
      * Version for Add-on.
+     *
      * @var string
      */
     private static $version = '1.0.0';
@@ -55,6 +56,7 @@ class Constants
 
     /**
      * Initializes internal static properties.
+     *
      * @param $plugin_file
      * @param $version
      */
