@@ -80,7 +80,6 @@ class Scheduler
      */
     public function registerScheduledTasks($tasks)
     {
-        EE_Registry::instance()->load_helper('DTT_Helper');
         //this will set the schedule to the nearest upcoming midnight as a recurring daily schedule.
         $tasks['AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check'] = array(
             EEH_DTT_Helper::tomorrow(),
