@@ -2,6 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain;
 
+use EventEspresso\core\domain\ConstantsAbstract;
+
 /**
  * Constants
  * A container for all constants used in this domain.
@@ -11,7 +13,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain;
  * @author  Darren Ethier
  * @since   1.0.0
  */
-class Constants
+class Constants extends ConstantsAbstract
 {
     /**
      * EE Core Version Required for Add-on
@@ -36,76 +38,4 @@ class Constants
      * Represents the string used to reference the extra meta for holding whether the automation is active or not.
      */
     const AUTOMATION_ACTIVE_IDENTIFIER = 'automation_active';
-
-
-    /**
-     * Equivalent to `__FILE__` for main plugin.
-     *
-     * @var string
-     */
-    private static $plugin_file = '';
-
-
-    /**
-     * Version for Add-on.
-     *
-     * @var string
-     */
-    private static $version = '1.0.0';
-
-
-    /**
-     * Initializes internal static properties.
-     *
-     * @param $plugin_file
-     * @param $version
-     */
-    public static function init($plugin_file, $version)
-    {
-        self::$plugin_file = $plugin_file;
-        self::$version     = $version;
-    }
-
-
-    /**
-     * @return string
-     */
-    public static function pluginFile()
-    {
-        return self::$plugin_file;
-    }
-
-    /**
-     * @return string
-     */
-    public static function pluginBasename()
-    {
-        return plugin_basename(self::$plugin_file);
-    }
-
-    /**
-     * @return string
-     */
-    public static function pluginPath()
-    {
-        return plugin_dir_path(self::$plugin_file);
-    }
-
-
-    /**
-     * @return string
-     */
-    public static function pluginUrl()
-    {
-        return plugin_dir_url(self::$plugin_file);
-    }
-
-
-    /**
-     * @return string
-     */
-    public static function version()
-    {
-        return self::$version;
-    }
 }
