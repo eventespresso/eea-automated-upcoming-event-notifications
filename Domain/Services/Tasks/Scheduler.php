@@ -58,7 +58,7 @@ class Scheduler
         $this->command_bus = $command_bus;
         $this->loader      = $loader;
         //register tasks (this is on the hook that will fire on EEH_Activation)
-        add_action('FHEE__EEH_Activation__get_cron_tasks', array($this, 'registerScheduledTasks'));
+        add_filter('FHEE__EEH_Activation__get_cron_tasks', array($this, 'registerScheduledTasks'));
 
         //register callbacks for scheduled events.
         add_action(
