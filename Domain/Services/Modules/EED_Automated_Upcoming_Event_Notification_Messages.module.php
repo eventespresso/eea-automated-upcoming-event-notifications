@@ -39,7 +39,6 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function prep_and_queue_messages($message_type_name, array $data)
     {
-        EE_Registry::instance()->load_helper('MSG_Template');
         //only continue if the message type is one of the allowed message types
         //to be processed by this handler or is active
         if (
