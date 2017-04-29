@@ -2,9 +2,8 @@
 
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin\Controller;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller;
 use EE_Request;
-use EE_Request_Handler;
 
 class AdminControllerMock extends Controller
 {
@@ -17,7 +16,8 @@ class AdminControllerMock extends Controller
     public function __construct($call_parent = true)
     {
         if ($call_parent === true) {
-            parent::__construct();
+            $this->maybeSetRequest();
+            parent::__construct($this->request);
         }
     }
 
@@ -72,8 +72,8 @@ class AdminControllerMock extends Controller
      */
     private function maybeSetRequest()
     {
-        $this->request = $this->request instanceof EE_Request_Handler
+        $this->request = $this->request instanceof EE_Request
             ? $this->request
-            : new EE_Request_Handler(new EE_Request($_GET, $_POST, $_COOKIE));
+            : new EE_Request($_GET, $_POST, $_COOKIE);
     }
 }

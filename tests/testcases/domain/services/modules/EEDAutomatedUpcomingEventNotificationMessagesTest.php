@@ -1,7 +1,7 @@
 <?php
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed.');
 
-use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EEDAutomatedUpcomingEventNotificationsMock;
+use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EEDAutomatedUpcomingEventNotificationMessagesMock;
 
 /**
  * EEDAutomatedUpcomingEventNotificationsTest
@@ -14,12 +14,12 @@ use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EEDAutomatedUpco
  * @group      messages
  * @group      modules
  */
-class EEDAutomatedUpcomingEventNotificationsTest extends EE_UnitTestCase
+class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
 {
     public function tearDown()
     {
         parent::tearDown();
-        EEDAutomatedUpcomingEventNotificationsMock::reset();
+        EEDAutomatedUpcomingEventNotificationMessagesMock::reset();
     }
 
 
@@ -55,9 +55,9 @@ class EEDAutomatedUpcomingEventNotificationsTest extends EE_UnitTestCase
     public function testTriggerMessagesInvalidMessageType()
     {
         //shouldn't allow because its the wrong message type
-        EEDAutomatedUpcomingEventNotificationsMock::prep_and_queue_messages('registration', array());
+        EEDAutomatedUpcomingEventNotificationMessagesMock::prep_and_queue_messages('registration', array());
         //processor should not be set.
-        $this->assertNull(EEDAutomatedUpcomingEventNotificationsMock::getProcessor());
+        $this->assertNull(EEDAutomatedUpcomingEventNotificationMessagesMock::getProcessor());
     }
 
 
@@ -236,11 +236,11 @@ class EEDAutomatedUpcomingEventNotificationsTest extends EE_UnitTestCase
     private function initializeTestForUpcomingMessagesTest($message_type)
     {
         $data_for_testing = $this->getRegistrationsAndDatetimeForTest($message_type);
-        EEDAutomatedUpcomingEventNotificationsMock::prep_and_queue_messages(
+        EEDAutomatedUpcomingEventNotificationMessagesMock::prep_and_queue_messages(
             $message_type,
             $data_for_testing
         );
-        $messages_processor = EEDAutomatedUpcomingEventNotificationsMock::getProcessor();
+        $messages_processor = EEDAutomatedUpcomingEventNotificationMessagesMock::getProcessor();
         $this->assertInstanceOf('EE_Messages_Processor', $messages_processor);
         //trigger generation
         $queue = $messages_processor->batch_generate_from_queue();

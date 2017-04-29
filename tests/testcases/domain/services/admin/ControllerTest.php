@@ -12,7 +12,7 @@ use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\AdminControllerM
  * @since   1.0.0
  * @group admin_controller
  */
-class AdminControllerTest extends EE_UnitTestCase
+class ControllerTest extends EE_UnitTestCase
 {
 
     /**

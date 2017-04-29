@@ -1,7 +1,7 @@
 <?php
 
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\SchedulerMock;
-use EventEspresso\AutomatedUpcomingEventNotifications\core\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
