@@ -89,7 +89,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     {
         $data = array();
         foreach ($message_template_groups as $message_template_group) {
-            $data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup($message_template_group);
+            $date_data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup($message_template_group);
+            if ($date_data) {
+                $data[$message_template_group->ID()] = $date_data;
+            }
         }
         return $data;
     }
@@ -117,11 +120,14 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         if ($datetime_ids) {
             $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
         }
-        return $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
+        $date_data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
             $global_message_template_group,
-            $additional_datetime_where_conditions,
-            $data
+            $additional_datetime_where_conditions
         );
+        if ($date_data) {
+            $data[$global_message_template_group->ID()] = $date_data;
+        }
+        return $data;
     }
 
 
@@ -146,19 +152,18 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *
      * @param EE_Message_Template_Group $message_template_group
      * @param array                     $datetime_additional_where_conditions
-     * @param array                     $data
      * @return array
      * @throws EE_Error
      */
     protected function getRegistrationsForDatetimeAndMessageTemplateGroup(
         EE_Message_Template_Group $message_template_group,
-        array $datetime_additional_where_conditions = array(),
-        array $data = array()
+        array $datetime_additional_where_conditions = array()
     ) {
+        $data = array();
         $settings = new SchedulingSettings($message_template_group);
         //do a fail-safe on whether this message template group is active first.
         if (! $settings->isActive()) {
-            return array();
+            return $data;
         }
         $datetimes = $this->getDatetimesForMessageTemplateGroup(
             $settings,
@@ -166,22 +171,16 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             $datetime_additional_where_conditions
         );
         if (! $datetimes) {
-            return array();
+            return $data;
         }
         foreach ($datetimes as $datetime) {
-            $registrations = $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
-                $message_template_group,
+            $registrations = $this->getRegistrationsForDatetime(
                 $datetime
             );
             if (! $registrations) {
                 continue;
             }
-            $data = $this->addToDataByGroupDatetimeAndRegistrations(
-                $message_template_group,
-                $datetime,
-                $registrations,
-                $data
-            );
+            $data[$datetime->ID()] = array($datetime, $registrations);
         }
         return $data;
     }
@@ -210,8 +209,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                 ),
             ),
             'Event.status'                        => 'publish',
-            'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
         );
+        if ($message_template_group->is_global()) {
+            $where['OR'] = array(
+                'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
+                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL')
+            );
+        } else {
+            $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
+        }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
@@ -222,14 +228,12 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
     /**
      * Get registrations for given message template group and Datetime.
-     *
-     * @param EE_Message_Template_Group $message_template_group
+
      * @param EE_Datetime               $datetime
      * @return \EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
      */
     protected function getRegistrationsForDatetime(
-        EE_Message_Template_Group $message_template_group,
         EE_Datetime $datetime
     ) {
         //get registration ids for each datetime and include with the array.
@@ -246,29 +250,5 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             ),
         );
         return $this->registration_model->get_all(array($where));
-    }
-
-
-    /**
-     * Appends given information to the given data array.
-     *
-     * @param EE_Message_Template_Group $message_template_group
-     * @param EE_Datetime               $datetime
-     * @param EE_Registration[]         $registrations
-     * @param array                     $data
-     * @return array
-     * @throws EE_Error
-     */
-    protected function addToDataByGroupDatetimeAndRegistrations(
-        EE_Message_Template_Group $message_template_group,
-        EE_Datetime $datetime,
-        array $registrations,
-        array $data
-    ) {
-        $data[$message_template_group->ID()][$datetime->ID()] = array(
-            $datetime,
-            $registrations,
-        );
-        return $data;
     }
 }

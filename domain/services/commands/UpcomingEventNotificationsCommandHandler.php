@@ -60,6 +60,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                 $data = $this->addToDataByGroupAndRegistrations($message_template_group, $registrations, $data);
             }
         }
+        return $data;
     }
 
 
@@ -113,12 +114,11 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     ) {
         $settings = new SchedulingSettings($message_template_group);
         //fail-safe ... dont' do anything if this group isn't active for automation or if its a global group.
-        if (! $settings->isActive() || $message_template_group->is_global()) {
+        if (! $settings->isActive()) {
             return array();
         }
         $where = array(
             'Event.status'                        => 'publish',
-            'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
             'Event.Datetime.DTT_EVT_start'        => array(
                 'BETWEEN',
                 array(
@@ -133,6 +133,14 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                 'Extra_Meta.EXM_key*exclude_tracker' => array('!=', Constants::REGISTRATION_TRACKER_PREFIX . 'EVT'),
             ),
         );
+        if ($message_template_group->is_global()) {
+            $where['OR'] = array(
+                'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
+                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL')
+            );
+        } else {
+            $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
+        }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }

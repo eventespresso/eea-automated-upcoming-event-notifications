@@ -123,7 +123,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         if ($registrations) {
             $this->commandBus()->execute(
                 $this->registry->create(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\services\commands\RegistrationsNotifiedCommand',
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\RegistrationsNotifiedCommand',
                     array($registrations, $identifier)
                 )
             );

@@ -90,11 +90,11 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         add_action(
             'AHEE__EE_System__load_espresso_addons__complete',
             function () {
-                EE_Automated_Upcoming_Event_Notification::loader()->load(
+                EE_Automated_Upcoming_Event_Notification::loader()->getShared(
                     'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
                 );
-                EE_Automated_Upcoming_Event_Notification::loader()->load(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\messages\services\RegisterCustomShortcodeLibrary'
+                EE_Automated_Upcoming_Event_Notification::loader()->getShared(
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\RegisterCustomShortcodeLibrary'
                 );
             },
             15
@@ -155,7 +155,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Dependency_Map::register_dependencies(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler',
             array(
-                'EventEspresso\core\services\commands\CommandBus' => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Message_Template_Group' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\loaders\Loader' => EE_Dependency_Map::load_from_cache
             )

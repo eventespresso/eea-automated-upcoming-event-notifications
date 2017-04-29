@@ -4,7 +4,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\task
 
 use EE_Error;
 use EEH_DTT_Helper;
-use EE_Registry;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\CommandBusInterface;
@@ -29,19 +28,19 @@ class Scheduler
     /**
      * @var CommandBusInterface
      */
-    private $command_bus;
+    protected $command_bus;
 
 
     /**
      * @var EEM_Message_Template_Group
      */
-    private $message_template_group_model;
+    protected $message_template_group_model;
 
 
     /**
      * @var Loader
      */
-    private $loader;
+    protected $loader;
 
     /**
      * Scheduler constructor.
@@ -57,6 +56,7 @@ class Scheduler
     ) {
         $this->command_bus = $command_bus;
         $this->loader      = $loader;
+        $this->message_template_group_model = $message_template_group_model;
         //register tasks (this is on the hook that will fire on EEH_Activation)
         add_filter('FHEE__EEH_Activation__get_cron_tasks', array($this, 'registerScheduledTasks'));
 
