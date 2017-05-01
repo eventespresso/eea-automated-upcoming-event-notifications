@@ -44,11 +44,13 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         }
     }
 
+
+
     /**
      * This retrieves the data containing registrations for all the custom message template groups.
      *
      * @param EE_Message_Template_Group[] $message_template_groups
-     * return array An array of data for processing.
+     * @return array An array of data for processing.
      * @throws EE_Error
      */
     protected function getDataForCustomMessageTemplateGroups(array $message_template_groups)
