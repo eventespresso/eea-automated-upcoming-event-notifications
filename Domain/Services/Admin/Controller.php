@@ -42,6 +42,12 @@ class Controller
     protected $request;
 
 
+
+    /**
+     * Controller constructor.
+     *
+     * @param EE_Request $request
+     */
     public function __construct(EE_Request $request)
     {
         $this->request = $request;
@@ -61,6 +67,10 @@ class Controller
     }
 
 
+
+    /**
+     * @return void
+     */
     protected function registerMetaBox()
     {
         add_action('FHEE__EE_Admin_Page___load_page_dependencies__after_load', function () {
@@ -208,12 +218,12 @@ class Controller
         //the model object)  In our scenario this is okay because user's will only ever see an already
         //created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
+            //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
+            || ! $this->request->get(Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
             || (
                 $message_template_group->message_type() !== 'automate_upcoming_datetime'
                 && $message_template_group->message_type() !== 'automate_upcoming_event'
             )
-            //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
         ) {
             return;
         }
