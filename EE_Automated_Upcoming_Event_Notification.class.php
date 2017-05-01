@@ -1,5 +1,6 @@
 <?php
-
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\loaders\Loader;
 use EventEspresso\core\services\loaders\LoaderInterface;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
@@ -29,9 +30,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
      */
     public function __construct(LoaderInterface $loader = null)
     {
-        EE_Automated_Upcoming_Event_Notification::$loader = $loader instanceof LoaderInterface
-            ? $loader
-            : new Loader;
+        EE_Automated_Upcoming_Event_Notification::$loader = $loader;
         parent::__construct();
     }
 
@@ -81,6 +80,10 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
 
     /**
      * Register things that have to happen early in loading.
+     *
+     * @throws InvalidArgumentException
+     * @throws InvalidInterfaceException
+     * @throws InvalidDataTypeException
      */
     public function after_registration()
     {
@@ -102,15 +105,22 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     }
 
 
+
     /**
      * Callback for `AHEE__EE_System__load_espresso_addons__complete
      * This is also a method third party devs can use to grab the instance of this class for unsetting any hooks/actions
      * using this instance.
      *
      * @return LoaderInterface
+     * @throws InvalidArgumentException
+     * @throws InvalidInterfaceException
+     * @throws InvalidDataTypeException
      */
     public static function loader()
     {
+        if (! EE_Automated_Upcoming_Event_Notification::$loader instanceof LoaderInterface) {
+            EE_Automated_Upcoming_Event_Notification::$loader = new Loader;
+        }
         return EE_Automated_Upcoming_Event_Notification::$loader;
     }
 
