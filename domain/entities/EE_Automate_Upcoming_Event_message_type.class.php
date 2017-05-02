@@ -42,8 +42,7 @@ class EE_Automate_Upcoming_Event_message_type extends EE_Registration_Base_messa
             'label'       => esc_html__('recipient', 'event_espresso'),
             'plural'      => esc_html__('recipients', 'event_espresso'),
             'description' => esc_html__(
-                'Recipient\'s are who will receive the message. There is only one message sent per attendee,'
-                . ' no matter how many registrations are attached to that attendee.',
+                'Recipient\'s are who will receive the message. There is only one message sent per attendee, no matter how many registrations are attached to that attendee.',
                 'event_espresso'
             ),
         );
