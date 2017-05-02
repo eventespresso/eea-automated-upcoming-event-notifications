@@ -11,6 +11,7 @@ use EEM_Message_Template_Group;
 use EE_Error;
 use EventEspresso\core\services\commands\CompositeCommandHandler;
 use EE_Registry;
+use Psr\Log\InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -52,12 +53,28 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * @param UpcomingNotificationsCommand|CommandInterface $command
+     * @return bool
      * @throws EE_Error
+     * @throws InvalidArgumentException
      */
     public function handle(CommandInterface $command)
     {
+        if (! $command instanceof UpcomingNotificationsCommand) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    esc_html__(
+                        'The %1$s is expected to receive an instance of %2$s, however an instance of %3$s received instead.',
+                        'event_espresso'
+                    ),
+                    'UpcomingNotificationsCommandHandler',
+                    'UpcomingNotificationsCommand',
+                    get_class($command)
+                )
+            );
+        }
         $data = $this->getData($command->getMessageTemplateGroups());
         $this->process($data);
+        return true;
     }
 
 
