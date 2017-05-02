@@ -21,12 +21,12 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
 {
     /**
      * @param RegistrationsNotifiedCommand|CommandInterface $command
-     * @return mixed
+     * @return int  count of registrations processed.
      * @throws EE_Error
      */
     public function handle(CommandInterface $command)
     {
-        $this->setRegistrationsProcessed($command->getRegistrations(), $command->getIdentifier());
+        return $this->setRegistrationsProcessed($command->getRegistrations(), $command->getIdentifier());
     }
 
 
@@ -37,21 +37,26 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
      *
      * @param EE_Registration[] $registrations
      * @param string            $id_ref
+     * @return int  count of registrations successfully processed.
      * @throws EE_Error
      */
     protected function setRegistrationsProcessed(array $registrations, $id_ref)
     {
+        $count = 0;
         if ($registrations) {
             array_walk(
                 $registrations,
-                function ($registration) use ($id_ref) {
+                function ($registration) use ($id_ref, &$count) {
                     if (! $registration instanceof EE_Registration) {
                         return;
                     }
-                    $this->setRegistrationProcessed($registration, $id_ref);
+                    if ($this->setRegistrationProcessed($registration, $id_ref)) {
+                        $count++;
+                    }
                 }
             );
         }
+        return $count;
     }
 
 
