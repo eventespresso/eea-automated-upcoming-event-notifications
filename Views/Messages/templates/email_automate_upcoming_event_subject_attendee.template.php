@@ -1,1 +1,1 @@
-<?php _e('Upcoming Event Reminder', 'event_espresso');
+<?php esc_html_e('Upcoming Event Reminder', 'event_espresso');
