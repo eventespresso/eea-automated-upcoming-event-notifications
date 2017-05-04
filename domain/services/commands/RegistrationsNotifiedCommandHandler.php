@@ -44,13 +44,14 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
     {
         $count = 0;
         if ($registrations) {
+            $command_handler = $this;
             array_walk(
                 $registrations,
-                function ($registration) use ($id_ref, &$count) {
+                function ($registration) use ($id_ref, $command_handler, &$count) {
                     if (! $registration instanceof EE_Registration) {
                         return;
                     }
-                    if ($this->setRegistrationProcessed($registration, $id_ref)) {
+                    if ($command_handler->setRegistrationProcessed($registration, $id_ref)) {
                         $count++;
                     }
                 }
