@@ -68,7 +68,6 @@ add_action('activated_plugin', 'espresso_automated_upcoming_event_notification_p
  */
 function load_espresso_automated_upcoming_event_notification()
 {
-    $path_to_constants = plugin_dir_path(__FILE__) . 'domain/Constants.php';
     if (class_exists('EE_Addon')
         && class_exists('EventEspresso\core\domain\ConstantsAbstract')
     ) {
