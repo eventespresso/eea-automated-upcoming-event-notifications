@@ -2,6 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
+use EventEspresso\core\services\commands\CommandBusInterface;
+use EventEspresso\core\services\commands\CommandFactoryInterface;
 use EventEspresso\core\services\commands\CommandInterface;
 use EEM_Registration;
 use EED_Automated_Upcoming_Event_Notification_Messages;
@@ -10,7 +12,6 @@ use EE_Message_Template_Group;
 use EEM_Message_Template_Group;
 use EE_Error;
 use EventEspresso\core\services\commands\CompositeCommandHandler;
-use EE_Registry;
 use Psr\Log\InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
@@ -33,21 +34,19 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * @var EE_Registry
-     */
-    protected $registry;
-
-
-    /**
      * UpcomingNotificationsCommandHandler constructor.
      *
-     * @param EEM_Registration $registration_model
-     * @param EE_Registry      $registry
+     * @param CommandBusInterface     $command_bus
+     * @param CommandFactoryInterface $command_factory
+     * @param EEM_Registration        $registration_model
      */
-    public function __construct(EEM_Registration $registration_model, EE_Registry $registry)
-    {
+    public function __construct(
+        CommandBusInterface $command_bus,
+        CommandFactoryInterface $command_factory,
+        EEM_Registration $registration_model
+    ) {
         $this->registration_model = $registration_model;
-        $this->registry           = $registry;
+        parent::__construct($command_bus, $command_factory);
     }
 
 
@@ -139,7 +138,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     {
         if ($registrations) {
             $this->commandBus()->execute(
-                $this->registry->create(
+                $this->commandFactory()->getNew(
                     'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\RegistrationsNotifiedCommand',
                     array($registrations, $identifier)
                 )
