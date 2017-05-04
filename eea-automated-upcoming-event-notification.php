@@ -68,15 +68,23 @@ add_action('activated_plugin', 'espresso_automated_upcoming_event_notification_p
  */
 function load_espresso_automated_upcoming_event_notification()
 {
-    require plugin_dir_path(__FILE__) . '/domain/Constants.php';
-    \EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::init(
-        EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
-        EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION
-    );
-    if (class_exists('EE_Addon')) {
-        // automated_upcoming_event_notification version
-        require_once EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants::pluginPath()
-                     . 'EE_Automated_Upcoming_Event_Notification.class.php';
+    $path_to_constants = plugin_dir_path(__FILE__) . 'domain/Constants.php';
+    if (class_exists('EE_Addon')
+        && is_readable($path_to_constants)
+    ) {
+        espresso_load_required(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants',
+            $path_to_constants
+        );
+        EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::init(
+            EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
+            EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION
+        );
+        espresso_load_required(
+            'EE_Automated_Upcoming_Event_Notification',
+            EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants::pluginPath()
+            . 'EE_Automated_Upcoming_Event_Notification.class.php'
+        );
         EE_Automated_Upcoming_Event_Notification::register_addon();
     } else {
         add_action('admin_notices', 'espresso_automated_upcoming_event_notification_activation_error');
@@ -102,7 +110,7 @@ function espresso_automated_upcoming_event_notification_activation_error()
                     'Event Espresso Automated Upcoming Event Notifications add-on could not be activated. Please ensure that Event Espresso version %1$s or higher is running',
                     'event_espresso'
                 ),
-                \EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::CORE_VERSION_REQUIRED
+                '4.9.39.rc.006'
             ); ?>
         </p>
     </div>
