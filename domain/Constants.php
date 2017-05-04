@@ -18,7 +18,7 @@ class Constants extends ConstantsAbstract
     /**
      * EE Core Version Required for Add-on
      */
-    const CORE_VERSION_REQUIRED = '4.9.37.p';
+    const CORE_VERSION_REQUIRED = '4.9.39.rc.006';
 
 
     /**
