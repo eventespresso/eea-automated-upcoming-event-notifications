@@ -11,11 +11,15 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
     public function __construct()
     {
         parent::__construct(
+            EE_Registry::instance()->create(
+                'EventEspresso\core\services\commands\CommandBus'
+            ),
+            EE_Registry::instance()->create(
+                'EventEspresso\core\services\commands\CommandFactory'
+            ),
             EEM_Registration::instance(),
-            EEM_Datetime::instance(),
-            EE_Registry::instance()
+            EEM_Datetime::instance()
         );
-        $this->setCommandBus(EE_Registry::instance()->create('EventEspresso\core\services\commands\CommandBus'));
     }
 
     public function process(array $data)

@@ -18,10 +18,14 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
     public function __construct()
     {
         parent::__construct(
-            EEM_Registration::instance(),
-            EE_Registry::instance()
+            EE_Registry::instance()->create(
+                'EventEspresso\core\services\commands\CommandBus'
+            ),
+            EE_Registry::instance()->create(
+                'EventEspresso\core\services\commands\CommandFactory'
+            ),
+            EEM_Registration::instance()
         );
-        $this->setCommandBus(EE_Registry::instance()->create('EventEspresso\core\services\commands\CommandBus'));
     }
 
     public function process(array $data)
