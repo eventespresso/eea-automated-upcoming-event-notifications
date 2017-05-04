@@ -11,6 +11,8 @@ use EE_Datetime;
 use EE_Registration;
 use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\core\services\commands\CommandBusInterface;
+use EventEspresso\core\services\commands\CommandFactoryInterface;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -35,16 +37,18 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     /**
      * UpcomingDatetimeNotificationsCommandHandler constructor.
      *
-     * @param EEM_Registration $registration_model
-     * @param EEM_Datetime     $datetime_model
-     * @param EE_Registry      $registry
+     * @param CommandBusInterface     $command_bus
+     * @param CommandFactoryInterface $command_factory
+     * @param EEM_Registration        $registration_model
+     * @param EEM_Datetime            $datetime_model
      */
     public function __construct(
+        CommandBusInterface $command_bus,
+        CommandFactoryInterface $command_factory,
         EEM_Registration $registration_model,
-        EEM_Datetime $datetime_model,
-        EE_Registry $registry
+        EEM_Datetime $datetime_model
     ) {
-        parent::__construct($registration_model, $registry);
+        parent::__construct($command_bus, $command_factory, $registration_model);
         $this->datetime_model = $datetime_model;
     }
 
