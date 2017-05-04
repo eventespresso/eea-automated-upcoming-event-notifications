@@ -174,16 +174,18 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Dependency_Map::register_dependencies(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingDatetimeNotificationsCommandHandler',
             array(
+                'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Registration' => EE_Dependency_Map::load_from_cache,
                 'EEM_Datetime'     => EE_Dependency_Map::load_from_cache,
-                'EE_Registry'      => EE_Dependency_Map::load_from_cache,
             )
         );
         EE_Dependency_Map::register_dependencies(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingNotificationsCommandHandler',
             array(
+                'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Registration' => EE_Dependency_Map::load_from_cache,
-                'EE_Registry'      => EE_Dependency_Map::load_from_cache,
             )
         );
     }
