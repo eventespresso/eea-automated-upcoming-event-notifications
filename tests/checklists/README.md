@@ -1,5 +1,5 @@
 # Table of Contents
 
-| Checklists                                         |
-| ---------------------------------------------------|
-| [critical functionality][critical-functionality-md]|
+| Checklists                                         | Has Acceptance Test|
+| ---------------------------------------------------|-------------------|
+| [critical functionality](critical-functionality-md)|                   |
