@@ -109,7 +109,7 @@ function espresso_automated_upcoming_event_notification_activation_error()
                     'Event Espresso Automated Upcoming Event Notifications add-on could not be activated. Please ensure that Event Espresso version %1$s or higher is running',
                     'event_espresso'
                 ),
-                '4.9.39.rc.006'
+                '4.9.39.p'
             ); ?>
         </p>
     </div>
