@@ -18,7 +18,7 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Module
     public static function set_hooks_admin()
     {
         EE_Automated_Upcoming_Event_Notification::loader()->load(
-            'EventEspresso\AutomatedUpcomingEventNotifications\core\messages\admin\Controller'
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller'
         );
     }
 
