@@ -2,7 +2,7 @@
 /**
  * This test run covers the `Add-on activation` section for the critical-functionality.md checklist.
  */
-$I = new EventEspressoAddonAcceptanceTester($scenario);
+$I = new EventEspressoAddonAcceptanceTester($scenario, 'eea-automated-upcoming-event-notifications');
 //check that default templates are available in the Global Message Template list table.
 $I->amOnDefaultMessageTemplateListTablePage();
 $I->see('Automated Upcoming Event Notification');
