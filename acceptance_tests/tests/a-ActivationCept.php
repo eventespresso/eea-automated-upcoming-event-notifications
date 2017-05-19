@@ -28,7 +28,7 @@ $I->seeElement(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR);
 $I->seeElement(AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR);
 //make sure automation is turned off
 $I->seeOptionIsSelected(
-    AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR,
+    AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR,
     'Off'
 );
 $I->moveBack();

@@ -45,7 +45,7 @@ trait AuenGeneral
         $this->actor()->see(
             '00:00:00',
             array(
-                'xpath' => "//tr[starts-with(@id,'" . AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK . "')]/td[4]"
+                'xpath' => "//tr[starts-with(@id,'cron-" . AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK . "')]/td[4]"
             )
         );
     }
