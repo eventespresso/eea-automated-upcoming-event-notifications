@@ -136,7 +136,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             ),
         );
         if ($message_template_group->is_global()) {
-            $where['OR'] = array(
+            $where['OR*Group_Conditions'] = array(
                 'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
                 'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL')
             );
