@@ -52,7 +52,7 @@ $I->fillOutFirstNameFieldForAttendee('Tester');
 $I->fillOutLastNameFieldForAttendee('Guy');
 $I->fillOutEmailFieldForAttendee('dude@example.org');
 $I->goToNextRegistrationStep();
-$I->waitForText('Congratulations', 15);
+$I->waitForText('Congratulations');
 
 
 $I->loginAsAdmin();
@@ -127,7 +127,7 @@ $I->fillOutFirstNameFieldForAttendee('Tester B');
 $I->fillOutLastNameFieldForAttendee('Guy');
 $I->fillOutEmailFieldForAttendee('dudeb@example.org');
 $I->goToNextRegistrationStep();
-$I->waitForText('Congratulations', 15);
+$I->waitForText('Congratulations');
 
 $I->loginAsAdmin();
 
