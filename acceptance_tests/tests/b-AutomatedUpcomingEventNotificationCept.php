@@ -6,7 +6,6 @@ use Page\AuenMessageTemplate;
 use Page\MessagesAdmin;
 use Page\EventsAdmin;
 use Page\TicketSelector;
-use Page\Checkout;
 
 //setup date for our test so the start date is within one day
 $date = new DateTime('now + 1 day', new DateTimeZone('UTC'));
