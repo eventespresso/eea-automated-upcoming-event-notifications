@@ -4,7 +4,6 @@ use Page\AuenGeneral;
 use Page\AuenMessageTemplate;
 use Page\MessagesAdmin;
 use Page\EventsAdmin;
-use Page\TicketSelector;
 
 //in this test we're going to use what was already setup as a part of `b-AutomatedUpcomingEventNotificationCept` test
 //so the same event, registrations etc as what was done there will be used.
@@ -24,8 +23,8 @@ $I->loginAsAdmin();
 $I->amOnDefaultEventsListTablePage();
 $I->fillField(EventsAdmin::EVENT_LIST_TABLE_SEARCH_INPUT_SELECTOR, 'Event Test');
 $I->click(CoreAdmin::LIST_TABLE_SEARCH_SUBMIT_SELECTOR);
-$event_id = $I->observeValueFromTextAt(EventsAdmin::eventListTableEventIdSelectorForTitle('Event Test'));
-$I->amOnEventPageAfterClickingViewLinkInListTableForEvent($event_title);
+$event_id = $I->observeValueFromInputAt(EventsAdmin::eventListTableEventIdSelectorForTitle('Event Test'));
+$I->amOnEventPageAfterClickingViewLinkInListTableForEvent('Event Test');
 
 //Our previous test will already have 4 registrations setup (that should only trigger 2 notifications for the registrants
 //and 2 notifications for the event admin in this test).  This means that after we turn on datetime notifications
@@ -36,7 +35,7 @@ $I->amOnEventPageAfterClickingViewLinkInListTableForEvent($event_title);
 // - 1 notification for the above user to the Automated Upcoming Datetime message type.
 // - 2 notifications to the Event Admin for EACH of the message types.
 
-$I->amOnDefaultEventsListTablePage();
+$I->amOnDefaultMessageTemplateListTablePage();
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
     AuenMessageTemplate::UPCOMING_DATETIME_MESSAGE_TYPE_SLUG,
@@ -48,7 +47,9 @@ $I->click('Save');
 
 $I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
 
-$I-amOnMessagesActivityListTablePage();
+$I->amOnMessagesActivityListTablePage();
+//set per page to a higher value
+$I->setPerPageOptionForScreen(20);
 $I->see(
     'dude@example.org',
     MessagesAdmin::messagesActivityListTableCellSelectorFor(

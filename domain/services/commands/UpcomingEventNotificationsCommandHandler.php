@@ -45,19 +45,27 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     }
 
 
-
     /**
      * This retrieves the data containing registrations for all the custom message template groups.
      *
      * @param EE_Message_Template_Group[] $message_template_groups
+     * @param array                       $registration_ids_to_exclude
      * @return array An array of data for processing.
      * @throws EE_Error
      */
-    protected function getDataForCustomMessageTemplateGroups(array $message_template_groups)
-    {
+    protected function getDataForCustomMessageTemplateGroups(
+        array $message_template_groups,
+        array $registration_ids_to_exclude
+    ) {
         $data = array();
+        $additional_query_parameters = $registration_ids_to_exclude
+            ? array('REG_ID' => array('NOT IN', $registration_ids_to_exclude))
+            : array();
         foreach ($message_template_groups as $message_template_group) {
-            $registrations = $this->getRegistrationsForMessageTemplateGroup($message_template_group);
+            $registrations = $this->getRegistrationsForMessageTemplateGroup(
+                $message_template_group,
+                $additional_query_parameters
+            );
             if ($registrations) {
                 $data = $this->addToDataByGroupAndRegistrations($message_template_group, $registrations, $data);
             }
@@ -70,12 +78,16 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * This retrieves the data containing registrations for the global message template group (if present).
      *
      * @param EE_Message_Template_Group[] $message_template_groups
-     * @param array                           $data
+     * @param array                       $data
+     * @param array                       $registration_ids_to_exclude
      * @return array
      * @throws EE_Error
      */
-    protected function getDataForGlobalMessageTemplateGroup(array $message_template_groups, array $data)
-    {
+    protected function getDataForGlobalMessageTemplateGroup(
+        array $message_template_groups,
+        array $data,
+        array $registration_ids_to_exclude
+    ) {
         $global_message_template_group = $this->extractGlobalMessageTemplateGroup($message_template_groups);
         if (! $global_message_template_group instanceof EE_Message_Template_Group) {
             return $data;
@@ -86,7 +98,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         foreach ($data as $message_template_group_registrations) {
             $registration_ids = array_merge(array_keys($message_template_group_registrations), $registration_ids);
         }
-        $registration_ids            = array_unique($registration_ids);
+        $registration_ids            = array_unique(array_merge($registration_ids, $registration_ids_to_exclude));
         $additional_where_parameters = array();
         if ($registration_ids) {
             $additional_where_parameters['REG_ID'] = array('NOT IN', $registration_ids);
@@ -130,11 +142,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             ),
             'STS_ID'                              => EEM_Registration::status_id_approved,
             'REG_deleted'                         => 0,
-            'OR'                                  => array(
-                'Extra_Meta.EXM_key'                 => array('IS NULL'),
-                'Extra_Meta.EXM_key*exclude_tracker' => array('!=', Constants::REGISTRATION_TRACKER_PREFIX . 'EVT'),
-            ),
         );
+        if ($additional_where_parameters) {
+            $where = array_merge($where, $additional_where_parameters);
+        }
         if ($message_template_group->is_global()) {
             $where['OR*Group_Conditions'] = array(
                 'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
@@ -142,9 +153,6 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             );
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
-        }
-        if ($additional_where_parameters) {
-            $where = array_merge($where, $additional_where_parameters);
         }
         return $this->registration_model->get_all(array($where));
     }
@@ -169,5 +177,25 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             $data[$message_template_group->ID()][$registration->ID()] = $registration;
         }
         return $data;
+    }
+
+
+
+    /**
+     * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
+     * HAVE been notified at some point.  These registrations will then be excluded from the query for what
+     * registrations to send notifications for.
+     * @return array  An array of registration ids.
+     */
+    protected function registrationIdsAlreadyNotified()
+    {
+        $where = array(
+            'Event.status' => 'publish',
+            'Event.Datetime.DTT_EVT_start' => array('>', time()),
+            'STS_ID' => EEM_Registration::status_id_approved,
+            'REG_deleted' => 0,
+            'Extra_Meta.EXM_key' => Constants::REGISTRATION_TRACKER_PREFIX . 'EVT'
+        );
+        return $this->registration_model->get_col(array($where));
     }
 }
