@@ -98,8 +98,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         foreach ($message_template_groups as $message_template_group) {
             $date_data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
                 $message_template_group,
-                array(),
-                $registration_ids_to_exclude
+                array()
             );
             if ($date_data) {
                 $data[$message_template_group->ID()] = $date_data;
@@ -137,8 +136,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         }
         $date_data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
             $global_message_template_group,
-            $additional_datetime_where_conditions,
-            $registration_ids_to_exclude
+            $additional_datetime_where_conditions
         );
         if ($date_data) {
             $data[$global_message_template_group->ID()] = $date_data;
@@ -174,10 +172,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      */
     protected function getRegistrationsForDatetimeAndMessageTemplateGroup(
         EE_Message_Template_Group $message_template_group,
-        array $datetime_additional_where_conditions = array(),
-        array $registration_ids_to_exclude = array()
+        array $datetime_additional_where_conditions = array()
     ) {
-        $data = array();
+        $data     = array();
         $settings = new SchedulingSettings($message_template_group);
         //do a fail-safe on whether this message template group is active first.
         if (! $settings->isActive()) {
@@ -224,22 +221,22 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         $additional_where_parameters = array()
     ) {
         $where = array(
-            'DTT_EVT_start'                       => array(
+            'DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
                     time(),
                     time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
                 ),
             ),
-            'Event.status'                        => 'publish',
+            'Event.status'  => 'publish',
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
         if ($message_template_group->is_global()) {
             $where['OR'] = array(
-                'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
-                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL')
+                'Event.Message_Template_Group.GRP_ID'      => $message_template_group->ID(),
+                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
             );
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
@@ -278,6 +275,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
      * HAVE been notified at some point.  These registrations will then be excluded from the query for what
      * registrations to send notifications for.
+     *
      * @return array  An array of registration ids.
      */
     protected function registrationIdsAlreadyNotified()
@@ -290,7 +288,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
     /**
      * Gets the registrations for the given datetimes that have already been notified.
+     *
      * @param EE_Datetime[] $datetimes
+     * @return array
+     * @throws EE_Error
      */
     protected function registrationIdsToExclude(array $datetimes)
     {
@@ -301,9 +302,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         }
         $where = array(
             'Ticket.Datetime.DTT_ID' => array('IN', array_keys($datetimes)),
-            'STS_ID' => EEM_Registration::status_id_approved,
-            'REG_deleted' => 0,
-            'Extra_Meta.EXM_key' => array('IN', $extra_meta_keys)
+            'STS_ID'                 => EEM_Registration::status_id_approved,
+            'REG_deleted'            => 0,
+            'Extra_Meta.EXM_key'     => array('IN', $extra_meta_keys),
         );
         return $this->registration_model->get_col(array($where));
     }
