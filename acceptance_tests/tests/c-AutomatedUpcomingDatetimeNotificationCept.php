@@ -20,12 +20,6 @@ $I->wantTo('This test covers all testing of sending behaviour for the automated 
 //will get removed after its verified the new helpers/page things work.
 $I->loginAsAdmin();
 
-$I->amOnDefaultEventsListTablePage();
-$I->fillField(EventsAdmin::EVENT_LIST_TABLE_SEARCH_INPUT_SELECTOR, 'Event Test');
-$I->click(CoreAdmin::LIST_TABLE_SEARCH_SUBMIT_SELECTOR);
-$event_id = $I->observeValueFromInputAt(EventsAdmin::eventListTableEventIdSelectorForTitle('Event Test'));
-$I->amOnEventPageAfterClickingViewLinkInListTableForEvent('Event Test');
-
 //Our previous test will already have 4 registrations setup (that should only trigger 2 notifications for the registrants
 //and 2 notifications for the event admin in this test).  This means that after we turn on datetime notifications
 //and trigger the cron.  There should be:
@@ -33,7 +27,9 @@ $I->amOnEventPageAfterClickingViewLinkInListTableForEvent('Event Test');
 // - 1 notification for the above user to Automated Upcoming Datetime message type.
 // - 1 notification for dudeb@example.org user to Automated Upcoming Event message type.
 // - 1 notification for the above user to the Automated Upcoming Datetime message type.
-// - 2 notifications to the Event Admin for EACH of the message types.
+// - 2 notifications to the Event Admin for Automated Upcoming Event message type.
+// - 1 notification to the Event Admin for Automated Upcoming Datetime message type (this is because there is only one
+//      triggered per group.
 
 $I->amOnDefaultMessageTemplateListTablePage();
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
@@ -125,7 +121,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    2,
+    1,
     'admin@example.com',
     'to',
     'Automated Upcoming Datetime Notification'
