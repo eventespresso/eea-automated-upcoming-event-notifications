@@ -91,8 +91,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $data = array();
         if (! empty($message_template_groups)) {
             $registration_ids_to_exclude = $this->registrationIdsAlreadyNotified();
-            $data = $this->getDataForCustomMessageTemplateGroups($message_template_groups, $registration_ids_to_exclude);
-            $data = $this->getDataForGlobalMessageTemplateGroup(
+            $data                        = $this->getDataForCustomMessageTemplateGroups($message_template_groups,
+                $registration_ids_to_exclude);
+            $data                        = $this->getDataForGlobalMessageTemplateGroup(
                 $message_template_groups,
                 $data,
                 $registration_ids_to_exclude
@@ -172,6 +173,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
      * HAVE been notified at some point.  These registrations will then be excluded from the query for what
      * registrations to send notifications for.
+     *
      * @return array  An array of registration ids.
      */
     abstract protected function registrationIdsAlreadyNotified();
