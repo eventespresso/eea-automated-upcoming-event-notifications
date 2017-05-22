@@ -2,6 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
 use EventEspresso\core\services\commands\CommandInterface;
@@ -134,8 +136,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * `setRegistrationReceivedNotification`
      *
      * @param EE_Registration[] $registrations
-     * @param string            $identifier
+     * @param string $identifier
      * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
      */
     protected function setRegistrationsProcessed(array $registrations, $identifier)
     {
