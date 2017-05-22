@@ -57,7 +57,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         array $message_template_groups,
         array $registration_ids_to_exclude
     ) {
-        $data = array();
+        $data                        = array();
         $additional_query_parameters = $registration_ids_to_exclude
             ? array('REG_ID' => array('NOT IN', $registration_ids_to_exclude))
             : array();
@@ -132,24 +132,24 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             return array();
         }
         $where = array(
-            'Event.status'                        => 'publish',
-            'Event.Datetime.DTT_EVT_start'        => array(
+            'Event.status'                 => 'publish',
+            'Event.Datetime.DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
                     time(),
                     time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
                 ),
             ),
-            'STS_ID'                              => EEM_Registration::status_id_approved,
-            'REG_deleted'                         => 0,
+            'STS_ID'                       => EEM_Registration::status_id_approved,
+            'REG_deleted'                  => 0,
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
         if ($message_template_group->is_global()) {
             $where['OR*Group_Conditions'] = array(
-                'Event.Message_Template_Group.GRP_ID' => $message_template_group->ID(),
-                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL')
+                'Event.Message_Template_Group.GRP_ID'      => $message_template_group->ID(),
+                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
             );
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
@@ -180,21 +180,22 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     }
 
 
-
     /**
      * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
      * HAVE been notified at some point.  These registrations will then be excluded from the query for what
      * registrations to send notifications for.
-     * @return array  An array of registration ids.
+     *
+     * @return array An array of registration ids.
+     * @throws EE_Error
      */
     protected function registrationIdsAlreadyNotified()
     {
         $where = array(
-            'Event.status' => 'publish',
+            'Event.status'                 => 'publish',
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
-            'STS_ID' => EEM_Registration::status_id_approved,
-            'REG_deleted' => 0,
-            'Extra_Meta.EXM_key' => Constants::REGISTRATION_TRACKER_PREFIX . 'EVT'
+            'STS_ID'                       => EEM_Registration::status_id_approved,
+            'REG_deleted'                  => 0,
+            'Extra_Meta.EXM_key'           => Constants::REGISTRATION_TRACKER_PREFIX . 'EVT',
         );
         return $this->registration_model->get_col(array($where));
     }
