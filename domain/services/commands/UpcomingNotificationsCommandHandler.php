@@ -12,7 +12,7 @@ use EE_Message_Template_Group;
 use EEM_Message_Template_Group;
 use EE_Error;
 use EventEspresso\core\services\commands\CompositeCommandHandler;
-use Psr\Log\InvalidArgumentException;
+use InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
