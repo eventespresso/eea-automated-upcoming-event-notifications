@@ -2,4 +2,4 @@
 
 | Checklists                                         | Has Acceptance Test|
 | ---------------------------------------------------|-------------------|
-| [critical functionality](critical-functionality-md)|                   |
+| [critical functionality](critical-functionality-md)|       ✅            |
