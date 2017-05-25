@@ -46,7 +46,7 @@ $I->see('Event Test');
 $I->see('Ticket A');
 $I->selectOption(TicketSelector::ticketOptionByEventIdSelector($event_id), '2');
 $I->click(TicketSelector::ticketSelectionSubmitSelectorByEventId($event_id));
-$I->waitforText('Personal Information');
+$I->waitForText('Personal Information');
 $I->fillOutFirstNameFieldForAttendee('Tester');
 $I->fillOutLastNameFieldForAttendee('Guy');
 $I->fillOutEmailFieldForAttendee('dude@example.org');
