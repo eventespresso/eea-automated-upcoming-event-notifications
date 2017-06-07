@@ -56,7 +56,7 @@ class SchedulingSettings
             $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
                 Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
                 true,
-                5
+                1
             );
         }
         return $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER];

@@ -45,7 +45,7 @@ class SchedulingSettingsTest extends EE_UnitTestCase
     public function testCurrentThreshold()
     {
         //first assert the default is set
-        $this->assertEquals(5, $this->scheduling_settings->currentThreshold());
+        $this->assertEquals(1, $this->scheduling_settings->currentThreshold());
 
         //set it to something different
         $this->scheduling_settings->setCurrentThreshold(12);
