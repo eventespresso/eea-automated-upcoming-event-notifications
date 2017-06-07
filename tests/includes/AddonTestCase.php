@@ -12,6 +12,7 @@ use EEH_MSG_Template;
 use DateTime;
 use DateTimeZone;
 use EE_Datetime;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
 
 class AddonTestCase extends EE_UnitTestCase
 {
@@ -100,6 +101,7 @@ class AddonTestCase extends EE_UnitTestCase
             'email',
             'automate_upcoming_event'
         );
+
         //there should only be ONE global Message_Template_Group so let's verify that.
         $this->assertCount(1, $groups['datetime']);
         $this->assertCount(1, $groups['event']);
@@ -130,6 +132,15 @@ class AddonTestCase extends EE_UnitTestCase
             }
             $i++;
         }
+
+        //change the threshold on all groups to be for 5 days
+        foreach ($all_groups as $group_type => $groups) {
+            foreach ($groups as $group) {
+                $scheduling_settings = new SchedulingSettings($group);
+                $scheduling_settings->setCurrentThreshold(5);
+            }
+        }
+
         return $all_groups;
     }
 
