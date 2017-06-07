@@ -64,7 +64,7 @@ $I->clickToEditMessageTemplateByMessageType(
     MessagesAdmin::ADMIN_CONTEXT_SLUG
 );
 $I->see('Scheduling Settings');
-$I->seeInField(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR, '5');
+$I->seeInField(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR, '1');
 $I->fillField(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR, '3');
 $I->selectOption(AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR, '1');
 $I->click('Save');
