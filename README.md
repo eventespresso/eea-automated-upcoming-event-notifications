@@ -16,7 +16,7 @@ This add-on introduces two new message types that enable the automated sending o
 | **Some Links**|     |
 |---- | --- |
 **Support License** | Support for this add-on is not provided through this repository.  For support you can purchase a [Premium Support License](https://eventespresso.com/product/eea-automated-upcoming-event-notifications?ee_ver=ee4&utm_source=github&utm_medium=link&utm_campaign=ee_addon_description_readme&utm_content=premium+support+license). 
-**Documentation** | [View Documentation →](https://eventespresso.com/wiki/eea-automated-upcoming-event-notifications?utm_source=github&utm_medium=link&utm_campaign=ee_addon_description_readme&utm_content=view+addon+documentation)
+**Documentation** | [View Documentation →](https://eventespresso.com/wiki/ee4-upcoming-event-reminder-add-on?utm_source=github&utm_medium=link&utm_campaign=ee_addon_description_readme&utm_content=view+addon+documentation)
 **Newsletter** | Be the first to know when we ship new features ... [signup here](https://eventespresso.com/newsletter/).
 **Community Chat** | Join a real-time community chat group for professionals that are leading the way in events from event management, event technology and event marketing to work-life balance. [Join the Discussion →](https://eventsmart.com/contact/community-chat/?utm_source=github&utm_medium=link&utm_campaign=ee_addon_description_read_me&utm_content=community+chat)
 
