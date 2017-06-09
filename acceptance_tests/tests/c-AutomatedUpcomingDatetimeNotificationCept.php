@@ -53,7 +53,9 @@ $I->see(
         'Automated Upcoming Datetime Notification',
         MessagesAdmin::MESSAGE_STATUS_SENT,
         '',
-        'Registrant'
+        'Registrant',
+        '',
+        0
     )
 );
 $I->see(
@@ -63,7 +65,9 @@ $I->see(
         'Automated Upcoming Datetime Notification',
         MessagesAdmin::MESSAGE_STATUS_SENT,
         '',
-        'Registrant'
+        'Registrant',
+        '',
+        0
     )
 );
 $I->see(
@@ -71,7 +75,11 @@ $I->see(
     MessagesAdmin::messagesActivityListTableCellSelectorFor(
         'to',
         'Automated Upcoming Datetime Notification',
-        MessagesAdmin::MESSAGE_STATUS_SENT
+        MessagesAdmin::MESSAGE_STATUS_SENT,
+        '',
+        'Event Admin',
+        '',
+        0
     )
 );
 
