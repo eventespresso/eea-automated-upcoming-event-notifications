@@ -110,7 +110,7 @@ class Scheduler
         //execute command
         $this->command_bus->execute(
             $this->loader->load(
-                'EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\messages\commands\UpcomingDatetimeNotificationsCommand',
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingDatetimeNotificationsCommand',
                 array($message_template_groups),
                 false
             )
@@ -136,7 +136,7 @@ class Scheduler
         }
         $this->command_bus->execute(
             $this->loader->load(
-                'EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\messages\commands\UpcomingEventNotificationsCommand',
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingEventNotificationsCommand',
                 array($message_template_groups),
                 false
             )

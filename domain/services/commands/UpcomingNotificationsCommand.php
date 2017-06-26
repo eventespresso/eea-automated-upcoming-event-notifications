@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\messages\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\Command;

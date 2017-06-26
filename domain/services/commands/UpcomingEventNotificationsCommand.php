@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\messages\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -8,7 +8,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingEventNotificationsCommand
  * Used when the command is for upcoming events.
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\messages\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
  * @subpackage
  * @author  Darren Ethier
  * @since   1.0.0
