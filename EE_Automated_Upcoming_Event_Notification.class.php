@@ -144,9 +144,9 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             'messengers_to_validate_with'                      => array('email'),
             'force_activation'                                 => true,
             'messengers_supporting_default_template_pack_with' => array('email'),
-            'base_path_for_default_templates'                  => Constants::pluginPath() . 'views/messages/templates/',
-            'base_path_for_default_variation'                  => Constants::pluginPath() . 'views/messages/variations/',
-            'base_url_for_default_variation'                   => Constants::pluginPath() . 'views/messages/variations/',
+            'base_path_for_default_templates'                  => Constants::pluginPath() . 'views/message/templates/',
+            'base_path_for_default_variation'                  => Constants::pluginPath() . 'views/message/variations/',
+            'base_url_for_default_variation'                   => Constants::pluginPath() . 'views/message/variations/',
         );
     }
 
