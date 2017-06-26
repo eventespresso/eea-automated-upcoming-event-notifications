@@ -81,7 +81,7 @@ function load_espresso_automated_upcoming_event_notification()
         );
         espresso_load_required(
             'EE_Automated_Upcoming_Event_Notification',
-            EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants::pluginPath()
+            EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::pluginPath()
             . 'EE_Automated_Upcoming_Event_Notification.class.php'
         );
         EE_Automated_Upcoming_Event_Notification::register_addon();
@@ -100,7 +100,7 @@ function espresso_automated_upcoming_event_notification_activation_error()
     if (! function_exists('deactivate_plugins')) {
         require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
-    deactivate_plugins(EventEspresso\AutomatedUpcomingEventNotifications\Domain\Constants::pluginBasename());
+    deactivate_plugins(EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::pluginBasename());
     ?>
     <div class="error">
         <p>
