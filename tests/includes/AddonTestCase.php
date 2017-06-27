@@ -12,7 +12,7 @@ use EEH_MSG_Template;
 use DateTime;
 use DateTimeZone;
 use EE_Datetime;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 
 class AddonTestCase extends EE_UnitTestCase
 {

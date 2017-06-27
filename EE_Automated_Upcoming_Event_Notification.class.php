@@ -136,8 +136,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         return array(
             'mtfilename'                                       => $mtfilename,
             'autoloadpaths'                                    => array(
-                Constants::pluginPath() . 'domain/dto',
-                Constants::pluginPath() . 'domain/entities',
+                Constants::pluginPath() . 'domain/entities/message',
                 Constants::pluginPath() . 'domain/services/messages'
             ),
             'messengers_to_activate_with'                      => array('email'),

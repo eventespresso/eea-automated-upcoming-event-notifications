@@ -2,7 +2,7 @@
 
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingEventNotificationsCommandHandlerMock;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 
 class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 {
