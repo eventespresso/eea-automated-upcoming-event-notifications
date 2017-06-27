@@ -1,11 +1,11 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message;
 
 use DomainException;
 use EE_Error;
 use EE_Form_Section_Proper;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidFormSubmissionException;
 use EventEspresso\core\libraries\form_sections\form_handlers\FormHandler;
