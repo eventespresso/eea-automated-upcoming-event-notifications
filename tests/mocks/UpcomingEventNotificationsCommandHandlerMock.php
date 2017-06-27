@@ -1,7 +1,7 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingEventNotificationsCommandHandler;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommandHandler;
 use EEM_Registration;
 use EE_Registry;
 

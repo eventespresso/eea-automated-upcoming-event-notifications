@@ -1,7 +1,7 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\RegistrationsNotifiedCommandHandler;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommandHandler;
 
 class RegistrationsNotifiedCommandHandlerMock extends RegistrationsNotifiedCommandHandler
 {

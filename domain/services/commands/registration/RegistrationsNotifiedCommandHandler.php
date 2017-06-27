@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration;
 
 use EventEspresso\core\services\commands\CommandHandler;
 use EventEspresso\core\services\commands\CommandInterface;
@@ -13,7 +13,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 /**
  * RegistrationsNotifiedCommandHandler
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration
  * @author  Darren Ethier
  * @since   1.0.0
  */

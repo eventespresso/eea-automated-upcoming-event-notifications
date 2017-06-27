@@ -1,15 +1,14 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
 use EEM_Datetime;
 use EE_Error;
 use EE_Message_Template_Group;
 use EE_Datetime;
 use EE_Registration;
-use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
@@ -21,7 +20,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * CommandHandler for UpcomingDatetimeNotificationsCommand
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage \domain\services\commands
+ * @subpackage \domain\services\commands\message
  * @author     Darren Ethier
  * @since      1.0.0
  */
