@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
@@ -22,7 +22,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingNotificationsCommandHandler
  * Abstract class for all notifications command handlers.
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @author  Darren Ethier
  * @since   1.0.0
  */
@@ -93,8 +93,10 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $data = array();
         if (! empty($message_template_groups)) {
             $registration_ids_to_exclude = $this->registrationIdsAlreadyNotified();
-            $data                        = $this->getDataForCustomMessageTemplateGroups($message_template_groups,
-                $registration_ids_to_exclude);
+            $data                        = $this->getDataForCustomMessageTemplateGroups(
+                $message_template_groups,
+                $registration_ids_to_exclude
+            );
             $data                        = $this->getDataForGlobalMessageTemplateGroup(
                 $message_template_groups,
                 $data,
@@ -147,7 +149,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         if ($registrations) {
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\RegistrationsNotifiedCommand',
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommand',
                     array($registrations, $identifier)
                 )
             );

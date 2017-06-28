@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\Command;
@@ -11,7 +11,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingNotificationsCommand
  * Abstract parent for all upcoming notifications commands.
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
  * @author  Darren Ethier
  * @since   1.0.0

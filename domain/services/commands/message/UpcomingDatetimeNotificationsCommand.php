@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -8,7 +8,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * UpcomingDatetimeNotificationsCommand
  * Used when the command is for upcoming datetimes.
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
  * @author  Darren Ethier
  * @since   1.0.0

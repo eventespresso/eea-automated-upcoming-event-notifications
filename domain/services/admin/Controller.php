@@ -15,6 +15,7 @@ use EE_Request;
 use Exception;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message\SchedulingMetaboxFormHandler;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 

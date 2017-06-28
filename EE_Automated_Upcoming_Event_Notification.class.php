@@ -65,9 +65,9 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                 ),
                 'module_paths'     => array(
                     Constants::pluginPath()
-                    . 'domain/services/modules/EED_Automated_Upcoming_Event_Notifications.module.php',
+                    . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notifications.module.php',
                     Constants::pluginPath()
-                    . 'domain/services/modules/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
+                    . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
                 ),
                 'namespace'        => array(
                     'FQNS' => 'EventEspresso\AutomatedUpcomingEventNotifications',
@@ -136,17 +136,16 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         return array(
             'mtfilename'                                       => $mtfilename,
             'autoloadpaths'                                    => array(
-                Constants::pluginPath() . 'domain/dto',
-                Constants::pluginPath() . 'domain/entities',
+                Constants::pluginPath() . 'domain/entities/message',
                 Constants::pluginPath() . 'domain/services/messages'
             ),
             'messengers_to_activate_with'                      => array('email'),
             'messengers_to_validate_with'                      => array('email'),
             'force_activation'                                 => true,
             'messengers_supporting_default_template_pack_with' => array('email'),
-            'base_path_for_default_templates'                  => Constants::pluginPath() . 'views/messages/templates/',
-            'base_path_for_default_variation'                  => Constants::pluginPath() . 'views/messages/variations/',
-            'base_url_for_default_variation'                   => Constants::pluginPath() . 'views/messages/variations/',
+            'base_path_for_default_templates'                  => Constants::pluginPath() . 'views/message/templates/',
+            'base_path_for_default_variation'                  => Constants::pluginPath() . 'views/message/variations/',
+            'base_url_for_default_variation'                   => Constants::pluginPath() . 'views/message/variations/',
         );
     }
 
@@ -172,7 +171,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
 
         );
         EE_Dependency_Map::register_dependencies(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingDatetimeNotificationsCommandHandler',
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingDatetimeNotificationsCommandHandler',
             array(
                 'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
@@ -181,7 +180,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             )
         );
         EE_Dependency_Map::register_dependencies(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingNotificationsCommandHandler',
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingNotificationsCommandHandler',
             array(
                 'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
@@ -189,7 +188,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
             )
         );
         EE_Dependency_Map::register_dependencies(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\UpcomingEventNotificationsCommandHandler',
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommandHandler',
             array(
                 'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,

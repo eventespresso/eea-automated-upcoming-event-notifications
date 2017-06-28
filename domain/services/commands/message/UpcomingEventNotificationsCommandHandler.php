@@ -1,8 +1,8 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
 use EE_Registration;
 use EE_Base_Class;
@@ -17,7 +17,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * CommandHandler for UpcomingEventNotificationsCommand
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
- * @subpackage \domain\services\commands
+ * @subpackage \domain\services\commands\message
  * @author     Darren Ethier
  * @since      1.0.0
  */
@@ -29,6 +29,9 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *
      * @param array $data
      * @throws EE_Error
+     * @throws \EventEspresso\core\exceptions\InvalidDataTypeException
+     * @throws \EventEspresso\core\exceptions\InvalidInterfaceException
+     * @throws \InvalidArgumentException
      */
     protected function process(array $data)
     {

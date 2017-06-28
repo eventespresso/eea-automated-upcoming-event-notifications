@@ -1,6 +1,6 @@
 <?php
 
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration;
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 use EventEspresso\core\services\commands\Command;
@@ -12,7 +12,7 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  * RegistrationsNotifiedCommand
  * Command for tracking registrations that have been notified.
  *
- * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands
+ * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration
  * @author  Darren Ethier
  * @since   1.0.0
  */
