@@ -2,7 +2,6 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration;
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
 use EventEspresso\core\services\commands\Command;
 use EE_Registration;
 
