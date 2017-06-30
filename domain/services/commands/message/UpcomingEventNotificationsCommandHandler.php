@@ -8,7 +8,7 @@ use EE_Registration;
 use EE_Base_Class;
 use EE_Error;
 use EE_Message_Template_Group;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -198,7 +198,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
             'STS_ID'                       => EEM_Registration::status_id_approved,
             'REG_deleted'                  => 0,
-            'Extra_Meta.EXM_key'           => Constants::REGISTRATION_TRACKER_PREFIX . 'EVT',
+            'Extra_Meta.EXM_key'           => Domain::REGISTRATION_TRACKER_PREFIX . 'EVT',
         );
         return $this->registration_model->get_col(array($where));
     }
