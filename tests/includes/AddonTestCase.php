@@ -3,7 +3,7 @@ namespace EventEspresso\AutomateUpcomingEventNotificationsTests\includes;
 
 use EE_UnitTestCase;
 use EE_Event;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EEM_Registration;
 use EE_Registration;
 use EEM_Message_Template_Group;
@@ -67,7 +67,7 @@ class AddonTestCase extends EE_UnitTestCase
         return EEM_Registration::instance()->get_all(
             array(
                 array(
-                    'Extra_Meta.EXM_key' => Constants::REGISTRATION_TRACKER_PREFIX . $id_ref,
+                    'Extra_Meta.EXM_key' => Domain::REGISTRATION_TRACKER_PREFIX . $id_ref,
                 ),
             )
         );
