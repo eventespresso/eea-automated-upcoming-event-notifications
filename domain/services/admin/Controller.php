@@ -14,7 +14,7 @@ use EEM_Base;
 use EE_Request;
 use Exception;
 use EE_Error;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message\SchedulingMetaboxFormHandler;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
@@ -220,7 +220,7 @@ class Controller
         //created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
+            || ! $this->request->get(Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
             || (
                 $message_template_group->message_type() !== 'automate_upcoming_datetime'
                 && $message_template_group->message_type() !== 'automate_upcoming_event'
@@ -234,11 +234,11 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
-                            Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER
+                        Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
+                            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER
                         ),
-                        Constants::AUTOMATION_ACTIVE_IDENTIFIER     => $this->request->get(
-                            Constants::AUTOMATION_ACTIVE_IDENTIFIER
+                        Domain::AUTOMATION_ACTIVE_IDENTIFIER     => $this->request->get(
+                            Domain::AUTOMATION_ACTIVE_IDENTIFIER
                         ),
                     )
                 );
