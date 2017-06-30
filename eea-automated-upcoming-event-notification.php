@@ -69,19 +69,19 @@ add_action('activated_plugin', 'espresso_automated_upcoming_event_notification_p
 function load_espresso_automated_upcoming_event_notification()
 {
     if (class_exists('EE_Addon')
-        && class_exists('EventEspresso\core\domain\ConstantsAbstract')
+        && class_exists('EventEspresso\core\domain\DomainBase')
     ) {
         espresso_load_required(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants',
-            plugin_dir_path(__FILE__) . 'domain/Constants.php'
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain',
+            plugin_dir_path(__FILE__) . 'domain/Domain.php'
         );
-        EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::init(
+        EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::init(
             EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
             EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION
         );
         espresso_load_required(
             'EE_Automated_Upcoming_Event_Notification',
-            EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::pluginPath()
+            EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::pluginPath()
             . 'EE_Automated_Upcoming_Event_Notification.class.php'
         );
         EE_Automated_Upcoming_Event_Notification::register_addon();
@@ -100,7 +100,7 @@ function espresso_automated_upcoming_event_notification_activation_error()
     if (! function_exists('deactivate_plugins')) {
         require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
-    deactivate_plugins(EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants::pluginBasename());
+    deactivate_plugins(EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::pluginBasename());
     ?>
     <div class="error">
         <p>
