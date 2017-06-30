@@ -4,7 +4,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\mess
 
 use EE_Error;
 use EE_Message_Template_Group;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -52,14 +52,14 @@ class SchedulingSettings
      */
     public function currentThreshold()
     {
-        if (! isset($this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER])) {
-            $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
-                Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+        if (! isset($this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER])) {
+            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
+                Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
                 true,
                 1
             );
         }
-        return $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER];
+        return $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER];
     }
 
 
@@ -73,11 +73,11 @@ class SchedulingSettings
     public function setCurrentThreshold($new_threshold)
     {
         $saved = $this->message_template_group->update_extra_meta(
-            Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
             (int)$new_threshold
         );
         if ($saved) {
-            $this->cache[Constants::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$new_threshold;
+            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$new_threshold;
         }
         return $saved;
     }
@@ -91,14 +91,14 @@ class SchedulingSettings
      */
     public function isActive()
     {
-        if (! isset($this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER])) {
-            $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER] = (bool)$this->message_template_group->get_extra_meta(
-                Constants::AUTOMATION_ACTIVE_IDENTIFIER,
+        if (! isset($this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER])) {
+            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = (bool)$this->message_template_group->get_extra_meta(
+                Domain::AUTOMATION_ACTIVE_IDENTIFIER,
                 true,
                 false
             );
         }
-        return $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER];
+        return $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER];
     }
 
 
@@ -113,11 +113,11 @@ class SchedulingSettings
     {
         $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN);
         $saved     = $this->message_template_group->update_extra_meta(
-            Constants::AUTOMATION_ACTIVE_IDENTIFIER,
+            Domain::AUTOMATION_ACTIVE_IDENTIFIER,
             $is_active
         );
         if ($saved) {
-            $this->cache[Constants::AUTOMATION_ACTIVE_IDENTIFIER] = $is_active;
+            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = $is_active;
         }
         return $saved;
     }
