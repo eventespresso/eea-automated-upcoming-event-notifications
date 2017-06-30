@@ -6,7 +6,7 @@ use EventEspresso\core\services\commands\CommandHandler;
 use EventEspresso\core\services\commands\CommandInterface;
 use EE_Registration;
 use EE_Error;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -68,7 +68,7 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
     protected function setRegistrationProcessed(EE_Registration $registration, $id_ref)
     {
         return $registration->update_extra_meta(
-            Constants::REGISTRATION_TRACKER_PREFIX . $id_ref,
+            Domain::REGISTRATION_TRACKER_PREFIX . $id_ref,
             true
         );
     }
