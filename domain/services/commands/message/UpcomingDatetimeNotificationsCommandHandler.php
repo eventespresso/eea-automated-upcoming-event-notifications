@@ -9,9 +9,12 @@ use EE_Error;
 use EE_Message_Template_Group;
 use EE_Datetime;
 use EE_Registration;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
+use InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -51,11 +54,16 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         $this->datetime_model = $datetime_model;
     }
 
+
+
     /**
      * This should handle the processing of provided data and the actual triggering of the messages.
      *
      * @param array $data
      * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
      */
     protected function process(array $data)
     {
@@ -96,8 +104,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         $data = array();
         foreach ($message_template_groups as $message_template_group) {
             $date_data = $this->getRegistrationsForDatetimeAndMessageTemplateGroup(
-                $message_template_group,
-                array()
+                $message_template_group
             );
             if ($date_data) {
                 $data[$message_template_group->ID()] = $date_data;
@@ -165,7 +172,6 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *
      * @param EE_Message_Template_Group $message_template_group
      * @param array                     $datetime_additional_where_conditions
-     * @param array                     $registration_ids_to_exclude
      * @return array
      * @throws EE_Error
      */
@@ -297,7 +303,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //first prep our keys for the extra_meta
         $extra_meta_keys = array();
         foreach ($datetimes as $datetime) {
-            $extra_meta_keys[] = Constants::REGISTRATION_TRACKER_PREFIX . 'DTT_' . $datetime->ID();
+            $extra_meta_keys[] = Domain::REGISTRATION_TRACKER_PREFIX . 'DTT_' . $datetime->ID();
         }
         $where = array(
             'Ticket.Datetime.DTT_ID' => array('IN', array_keys($datetimes)),
