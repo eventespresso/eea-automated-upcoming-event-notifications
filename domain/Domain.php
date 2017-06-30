@@ -2,10 +2,10 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain;
 
-use EventEspresso\core\domain\ConstantsAbstract;
+use EventEspresso\core\domain\DomainBase;
 
 /**
- * Constants
+ * Domain
  * A container for all constants used in this domain.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain
@@ -13,7 +13,7 @@ use EventEspresso\core\domain\ConstantsAbstract;
  * @author  Darren Ethier
  * @since   1.0.0
  */
-class Constants extends ConstantsAbstract
+class Domain extends DomainBase
 {
     /**
      * EE Core Version Required for Add-on
