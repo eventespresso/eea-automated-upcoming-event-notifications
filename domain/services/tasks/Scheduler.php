@@ -8,7 +8,7 @@ use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\loaders\Loader;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -109,10 +109,9 @@ class Scheduler
 
         //execute command
         $this->command_bus->execute(
-            $this->loader->load(
+            $this->loader->getNew(
                 'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingDatetimeNotificationsCommand',
-                array($message_template_groups),
-                false
+                array($message_template_groups)
             )
         );
     }
@@ -135,10 +134,9 @@ class Scheduler
             return;
         }
         $this->command_bus->execute(
-            $this->loader->load(
+            $this->loader->getNew(
                 'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommand',
-                array($message_template_groups),
-                false
+                array($message_template_groups)
             )
         );
     }
@@ -156,7 +154,7 @@ class Scheduler
         $where = array(
             'MTP_message_type'     => $message_type,
             'MTP_deleted'          => 0,
-            'Extra_Meta.EXM_key'   => Constants::AUTOMATION_ACTIVE_IDENTIFIER,
+            'Extra_Meta.EXM_key'   => Domain::AUTOMATION_ACTIVE_IDENTIFIER,
             'Extra_Meta.EXM_value' => 1,
         );
         /** @noinspection PhpIncompatibleReturnTypeInspection */
