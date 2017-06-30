@@ -1,12 +1,14 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages;
 
+use DomainException;
+use EE_Error;
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
 use EE_messenger;
 use EE_message_type;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -47,9 +49,12 @@ class RegisterCustomShortcodeLibrary
     }
 
 
+
     /**
      * Callback on `EE_Brewing_Regular___messages_caf` for registering the custom library.
-     * @throws \EE_Error
+     *
+     * @throws EE_Error
+     * @throws DomainException
      */
     public function registration()
     {
@@ -57,7 +62,7 @@ class RegisterCustomShortcodeLibrary
             'specific_datetime_shortcode_library',
             array(
                 'name'                    => 'specific_datetime',
-                'autoloadpaths'           => Constants::pluginPath()
+                'autoloadpaths'           => Domain::pluginPath()
                                              . 'core/messages/shortcodes/',
                 'msgr_validator_callback' => array($this, 'messengerValidatorCallback'),
             )
