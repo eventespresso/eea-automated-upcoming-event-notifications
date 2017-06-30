@@ -1,7 +1,7 @@
 <?php
 
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\RegistrationsNotifiedCommandHandlerMock;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 class RegistrationsNotifiedCommandHandlerTest extends EE_UnitTestCase
 {
@@ -36,7 +36,7 @@ class RegistrationsNotifiedCommandHandlerTest extends EE_UnitTestCase
             EEM_Registration::instance()->count(
                 array(
                     array(
-                        'Extra_Meta.EXM_key' => Constants::REGISTRATION_TRACKER_PREFIX . 'testing'
+                        'Extra_Meta.EXM_key' => Domain::REGISTRATION_TRACKER_PREFIX . 'testing'
                     )
                 )
             )
