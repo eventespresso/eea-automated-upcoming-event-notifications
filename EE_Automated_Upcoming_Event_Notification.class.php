@@ -3,7 +3,7 @@ use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\loaders\Loader;
 use EventEspresso\core\services\loaders\LoaderInterface;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Constants;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -34,10 +34,13 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         parent::__construct();
     }
 
+
+
     /**
      * Register the add-on
      *
-     * @throws \EE_Error
+     * @throws EE_Error
+     * @throws DomainException
      */
     public static function register_addon()
     {
@@ -45,13 +48,13 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Register_Addon::register(
             'Automated_Upcoming_Event_Notification',
             array(
-                'version'          => Constants::version(),
+                'version'          => Domain::version(),
                 'plugin_slug'      => 'eea_automated_upcoming_event_notifications',
-                'min_core_version' => Constants::CORE_VERSION_REQUIRED,
-                'main_file_path'   => Constants::pluginFile(),
+                'min_core_version' => Domain::CORE_VERSION_REQUIRED,
+                'main_file_path'   => Domain::pluginFile(),
                 'pue_options'      => array(
                     'pue_plugin_slug' => 'eea-automated-upcoming-event-notifications',
-                    'plugin_basename' => Constants::pluginBasename(),
+                    'plugin_basename' => Domain::pluginBasename(),
                     'checkPeriod'     => '24',
                     'use_wp_update'   => false,
                 ),
@@ -64,9 +67,9 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                     ),
                 ),
                 'module_paths'     => array(
-                    Constants::pluginPath()
+                    Domain::pluginPath()
                     . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notifications.module.php',
-                    Constants::pluginPath()
+                    Domain::pluginPath()
                     . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
                 ),
                 'namespace'        => array(
@@ -125,27 +128,29 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     }
 
 
+
     /**
      * Return the settings array for the message type.
      *
      * @param string $mtfilename The filename for the message type.
      * @return array
+     * @throws DomainException
      */
     protected static function get_message_type_settings($mtfilename)
     {
         return array(
             'mtfilename'                                       => $mtfilename,
             'autoloadpaths'                                    => array(
-                Constants::pluginPath() . 'domain/entities/message',
-                Constants::pluginPath() . 'domain/services/messages'
+                Domain::pluginPath() . 'domain/entities/message',
+                Domain::pluginPath() . 'domain/services/messages'
             ),
             'messengers_to_activate_with'                      => array('email'),
             'messengers_to_validate_with'                      => array('email'),
             'force_activation'                                 => true,
             'messengers_supporting_default_template_pack_with' => array('email'),
-            'base_path_for_default_templates'                  => Constants::pluginPath() . 'views/message/templates/',
-            'base_path_for_default_variation'                  => Constants::pluginPath() . 'views/message/variations/',
-            'base_url_for_default_variation'                   => Constants::pluginPath() . 'views/message/variations/',
+            'base_path_for_default_templates'                  => Domain::pluginPath() . 'views/message/templates/',
+            'base_path_for_default_variation'                  => Domain::pluginPath() . 'views/message/variations/',
+            'base_url_for_default_variation'                   => Domain::pluginPath() . 'views/message/variations/',
         );
     }
 
