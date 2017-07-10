@@ -1,7 +1,7 @@
 <?php
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
-use EventEspresso\core\services\loaders\Loader;
+use EventEspresso\core\services\loaders\LoaderFactory;
 use EventEspresso\core\services\loaders\LoaderInterface;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
@@ -122,7 +122,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     public static function loader()
     {
         if (! EE_Automated_Upcoming_Event_Notification::$loader instanceof LoaderInterface) {
-            EE_Automated_Upcoming_Event_Notification::$loader = new Loader;
+            EE_Automated_Upcoming_Event_Notification::$loader = LoaderFactory::getLoader();
         }
         return EE_Automated_Upcoming_Event_Notification::$loader;
     }
