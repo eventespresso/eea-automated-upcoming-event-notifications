@@ -1,4 +1,7 @@
 <?php
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
@@ -14,10 +17,14 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Module
 
     /**
      * code that runs at 'init' 9 within the admin (includes ajax) context
+     *
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
      */
     public static function set_hooks_admin()
     {
-        EE_Automated_Upcoming_Event_Notification::loader()->load(
+        EE_Automated_Upcoming_Event_Notification::loader()->getShared(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller'
         );
     }
