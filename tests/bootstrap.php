@@ -2,7 +2,7 @@
 /**
  * Bootstrap for eea-automated-upcoming-event tests
  */
-$ee_dir = 'ee4'; // 'ee4' 'event-espresso-core'
+$ee_dir = 'event-espresso-core'; // 'ee4' 'event-espresso-core'
 use EETests\bootstrap\AddonLoader;
 
 $core_tests_dir = dirname(dirname(__DIR__)) . "/{$ee_dir}/tests/";
