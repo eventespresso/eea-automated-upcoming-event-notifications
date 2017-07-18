@@ -1,6 +1,6 @@
 <?php
 /*
-  Plugin Name: Event Espresso - Automated Upcoming Event Notification (EE 4.9.31+)
+  Plugin Name: Event Espresso - Automated Upcoming Event Notification (EE 4.9.44+)
   Plugin URI: http://www.eventespresso.com
   Description: Adds new message types to the EE messages system to help with automating messages to attendees of upcoming
 Events and Datetimes.
@@ -109,7 +109,7 @@ function espresso_automated_upcoming_event_notification_activation_error()
                     'Event Espresso Automated Upcoming Event Notifications add-on could not be activated. Please ensure that Event Espresso version %1$s or higher is running',
                     'event_espresso'
                 ),
-                '4.9.39.p'
+                '4.9.44.p'
             ); ?>
         </p>
     </div>
