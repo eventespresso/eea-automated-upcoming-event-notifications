@@ -49,7 +49,7 @@ define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE', __FILE__);
 function espresso_automated_upcoming_event_notification_plugin_activation_errors()
 {
 
-    if (WP_DEBUG) {
+    if (WP_DEBUG && defined('EVENT_ESPRESSO_UPLOAD_DIR')) {
         $activation_errors = ob_get_contents();
         file_put_contents(
             EVENT_ESPRESSO_UPLOAD_DIR
