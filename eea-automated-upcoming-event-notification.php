@@ -98,9 +98,9 @@ function espresso_automated_upcoming_event_notification_activation_error()
 {
     unset($_GET['activate'], $_REQUEST['activate']);
     if (! function_exists('deactivate_plugins')) {
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
     }
-    deactivate_plugins(EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::pluginBasename());
+    deactivate_plugins(plugin_basename(__FILE__));
     ?>
     <div class="error">
         <p>
