@@ -2,8 +2,7 @@
 /*
   Plugin Name: Event Espresso - Automated Upcoming Event Notification (EE 4.9.44+)
   Plugin URI: http://www.eventespresso.com
-  Description: Adds new message types to the EE messages system to help with automating messages to attendees of upcoming
-Events and Datetimes.
+  Description: Adds new message types to the EE messages system to help with automating messages to attendees of upcoming Events and Datetimes.
   Version: 1.0.0.rc.068
   Author: Event Espresso
   Author URI: http://www.eventespresso.com
