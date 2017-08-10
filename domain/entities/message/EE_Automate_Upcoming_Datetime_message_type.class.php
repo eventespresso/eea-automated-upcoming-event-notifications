@@ -119,7 +119,7 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
         $datetime = EEM_Datetime::instance()->get_one_by_ID($id);
         if (! $datetime instanceof EE_Datetime) {
             throw new InvalidArgumentException(
-                __(
+                esc_html__(
                     'A datetime could not be retrieved for the given id. It is required for this message type.',
                     'event_espresso'
                 )
