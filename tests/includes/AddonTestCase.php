@@ -3,6 +3,7 @@ namespace EventEspresso\AutomateUpcomingEventNotificationsTests\includes;
 
 use EE_UnitTestCase;
 use EE_Event;
+use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EEM_Registration;
 use EE_Registration;
@@ -147,11 +148,16 @@ class AddonTestCase extends EE_UnitTestCase
 
     /**
      * Just sets up some events with datetimes tickets and registrations
+     *
      * @return EE_Event[]
+     * @throws \EE_Error
      */
     protected function getEventsForTestingWith()
     {
         $events = $this->factory->event->create_many(3, array('status' => 'publish'));
+        //set one of the events to sold out to ensure sold out events are included.
+        $sold_out_event = reset($events);
+        $sold_out_event->set_status(EEM_Event::sold_out);
         //for the purpose of this test, we set all DTT_EVT_start to a time in the past to normalize for tests (meaning
         //the threshold should always fall outside expectations.
         $date = new DateTime('now -1 day', new DateTimeZone(get_option('timezone_string')));
