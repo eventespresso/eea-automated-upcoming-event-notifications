@@ -4,6 +4,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
+use EEM_Event;
 use EE_Registration;
 use EE_Base_Class;
 use EE_Error;
@@ -135,7 +136,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             return array();
         }
         $where = array(
-            'Event.status'                 => 'publish',
+            'Event.status'                 => array('IN', array('publish', EEM_Event::sold_out)),
             'Event.Datetime.DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
@@ -194,7 +195,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function registrationIdsAlreadyNotified()
     {
         $where = array(
-            'Event.status'                 => 'publish',
+            'Event.status'                 => array('IN', array('publish', EEM_Event::sold_out)),
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
             'STS_ID'                       => EEM_Registration::status_id_approved,
             'REG_deleted'                  => 0,
