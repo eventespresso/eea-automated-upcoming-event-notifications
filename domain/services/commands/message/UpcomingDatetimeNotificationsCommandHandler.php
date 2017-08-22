@@ -5,7 +5,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
 use EEM_Datetime;
-use EEM_Event;
 use EE_Error;
 use EE_Message_Template_Group;
 use EE_Datetime;
@@ -234,7 +233,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                     time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
                 ),
             ),
-            'Event.status'  => array('IN', array('publish', EEM_Event::sold_out)),
+            'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
