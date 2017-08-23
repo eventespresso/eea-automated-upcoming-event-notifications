@@ -8,6 +8,7 @@ use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
 use EventEspresso\core\services\commands\CommandInterface;
 use EEM_Registration;
+use EEM_Event;
 use EED_Automated_Upcoming_Event_Notification_Messages;
 use EE_Registration;
 use EE_Message_Template_Group;
@@ -173,6 +174,19 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         );
         //there should only be one global group, so we only handle one.
         return $global_groups ? reset($global_groups) : null;
+    }
+
+
+    /**
+     * Returns filtered array of Event Statuses to include in the query arguments for getting registrations to notify.
+     * @return array
+     */
+    protected function eventStatusForRegistrationsQuery()
+    {
+        return (array) apply_filters(
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message__eventStatusForRegistrationsQuery',
+            array('publish', EEM_Event::sold_out)
+        );
     }
 
 

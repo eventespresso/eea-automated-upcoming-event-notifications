@@ -135,7 +135,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             return array();
         }
         $where = array(
-            'Event.status'                 => 'publish',
+            'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
             'Event.Datetime.DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
@@ -194,7 +194,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function registrationIdsAlreadyNotified()
     {
         $where = array(
-            'Event.status'                 => 'publish',
+            'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
             'STS_ID'                       => EEM_Registration::status_id_approved,
             'REG_deleted'                  => 0,

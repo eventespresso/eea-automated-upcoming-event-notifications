@@ -233,7 +233,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                     time() + (DAY_IN_SECONDS * $settings->currentThreshold()),
                 ),
             ),
-            'Event.status'  => 'publish',
+            'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),
         );
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
