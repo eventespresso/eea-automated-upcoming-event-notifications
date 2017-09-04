@@ -93,20 +93,14 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         self::register_dependencies();
         //these have to happen earlier than module loading but after add-ons are loaded because
         //the modules `set_hooks` methods run at `init 9`.
-        add_action(
-            'AHEE__EE_System__load_espresso_addons__complete',
-            function () {
-                EE_Automated_Upcoming_Event_Notification::loader()->getShared(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
-                );
-                EE_Automated_Upcoming_Event_Notification::loader()->getShared(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\RegisterCustomShortcodeLibrary'
-                );
-            },
-            15
+
+        EE_Automated_Upcoming_Event_Notification::loader()->getShared(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
+        );
+        EE_Automated_Upcoming_Event_Notification::loader()->getShared(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\RegisterCustomShortcodeLibrary'
         );
     }
-
 
 
     /**
