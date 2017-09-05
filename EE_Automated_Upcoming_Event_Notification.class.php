@@ -104,10 +104,6 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
 
 
     /**
-     * Callback for `AHEE__EE_System__load_espresso_addons__complete
-     * This is also a method third party devs can use to grab the instance of this class for unsetting any hooks/actions
-     * using this instance.
-     *
      * @return LoaderInterface
      * @throws InvalidArgumentException
      * @throws InvalidInterfaceException
