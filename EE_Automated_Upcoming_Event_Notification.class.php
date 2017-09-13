@@ -59,10 +59,10 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                     'use_wp_update'   => false,
                 ),
                 'message_types'    => array(
-                    'automate_upcoming_event'    => self::get_message_type_settings(
+                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT    => self::get_message_type_settings(
                         'EE_Automate_Upcoming_Event_message_type.class.php'
                     ),
-                    'automate_upcoming_datetime' => self::get_message_type_settings(
+                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME => self::get_message_type_settings(
                         'EE_Automate_Upcoming_Datetime_message_type.class.php'
                     ),
                 ),

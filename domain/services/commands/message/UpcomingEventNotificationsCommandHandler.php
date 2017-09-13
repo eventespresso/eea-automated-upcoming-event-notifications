@@ -42,7 +42,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
 
         //loop through each Message Template Group and it queue up its registrations for generation.
         foreach ($data as $message_template_group_id => $registrations) {
-            $this->triggerMessages($registrations, 'automate_upcoming_event');
+            $this->triggerMessages($registrations, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT);
             $this->setRegistrationsProcessed($registrations, 'EVT');
         }
     }

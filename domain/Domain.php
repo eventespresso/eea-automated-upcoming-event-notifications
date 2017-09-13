@@ -38,4 +38,16 @@ class Domain extends DomainBase
      * Represents the string used to reference the extra meta for holding whether the automation is active or not.
      */
     const META_KEY_AUTOMATION_ACTIVE = 'automation_active';
+
+
+    /**
+     * Slug for the Automate Upcoming Event message type
+     */
+    const MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT = 'automate_upcoming_event';
+
+
+    /**
+     * Slug for the Automate Upcoming Datetime message type
+     */
+    const MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME = 'automate_upcoming_datetime';
 }

@@ -75,7 +75,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //loop through each Message Template Group and it queue up its registrations for generation.
         foreach ($data as $message_template_group_id => $datetimes_and_registrations) {
             foreach ($datetimes_and_registrations as $datetime_and_registrations) {
-                $this->triggerMessages($datetime_and_registrations, 'automate_upcoming_datetime');
+                $this->triggerMessages(
+                    $datetime_and_registrations,
+                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+                );
                 //extract the datetime so we can use for the processed reference.
                 $datetime = isset($datetime_and_registrations[0]) ? $datetime_and_registrations[0] : null;
                 if ($datetime instanceof EE_Datetime) {

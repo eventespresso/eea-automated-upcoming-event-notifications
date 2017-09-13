@@ -2,6 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
@@ -21,6 +23,6 @@ class UpcomingEventNotificationsCommand extends UpcomingNotificationsCommand
      */
     protected function getMessageTypeNotificationIsFor()
     {
-        return 'automate_upcoming_event';
+        return Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT;
     }
 }

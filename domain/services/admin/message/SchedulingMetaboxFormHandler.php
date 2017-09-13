@@ -157,10 +157,9 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected function getContentString()
     {
         $message_type = $this->message_template_group->message_type();
-        if ((
-            $message_type !== 'automate_upcoming_datetime'
-            && $message_type !== 'automate_upcoming_event'
-        )
+        if (
+            $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
         ) {
             return esc_html__(
                 'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime message type templates',
@@ -172,7 +171,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
          * Note because of the way the form is setup, the 3rd argument is the fully rendered html for the form. So we
          * need to make sure to exclude that from our format strings.
          */
-        return $message_type === 'automate_upcoming_datetime'
+        return $message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             ? esc_html(
                 _n(
                     '%1$sSend notifications %4$s day before the datetime.%2$s%1$s%5$s%2$s',

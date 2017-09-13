@@ -1,4 +1,7 @@
 <?php
+
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
@@ -64,6 +67,6 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     protected static function allowed_message_types()
     {
-        return array('automate_upcoming_datetime', 'automate_upcoming_event');
+        return array(Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT);
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
@@ -22,7 +25,7 @@ class EE_Messages_Email_Automate_Upcoming_Datetime_Validator extends EE_Messages
     public function __construct($fields, $context)
     {
         $this->_m_name  = 'email';
-        $this->_mt_name = 'automate_upcoming_datetime';
+        $this->_mt_name = Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME;
         parent::__construct($fields, $context);
     }
 

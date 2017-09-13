@@ -112,8 +112,8 @@ class Controller
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
                && (
-                   $message_template_group->message_type() === 'automate_upcoming_event'
-                   || $message_template_group->message_type() === 'automate_upcoming_datetime'
+                   $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                );
     }
 
@@ -222,8 +222,8 @@ class Controller
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
             || ! $this->request->get(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
-                $message_template_group->message_type() !== 'automate_upcoming_datetime'
-                && $message_template_group->message_type() !== 'automate_upcoming_event'
+                $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
             )
         ) {
             return;
