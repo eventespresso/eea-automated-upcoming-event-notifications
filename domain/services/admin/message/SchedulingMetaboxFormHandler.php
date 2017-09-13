@@ -47,18 +47,27 @@ class SchedulingMetaboxFormHandler extends FormHandler
 
 
     /**
+     * This is whatever message template context the view is for.
+     * @var string
+     */
+    protected $context;
+
+
+    /**
      * SchedulingMetaboxFormHandler constructor.
      *
      * @param EE_Message_Template_Group $message_template_group
      * @param EE_Registry               $registry
+     * @param string                    $context
      * @throws DomainException
-     * @throws InvalidDataTypeException
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
      */
-    public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry)
+    public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry, $context)
     {
         $this->message_template_group = $message_template_group;
         $this->scheduling_settings    = new SchedulingSettings($message_template_group);
+        $this->context = $context;
         $label                        = esc_html__('Scheduling_Settings', 'event_espresso');
         parent::__construct(
             $label,

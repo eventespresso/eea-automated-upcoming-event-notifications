@@ -43,6 +43,13 @@ class Controller
     protected $request;
 
 
+    /**
+     * This contains the message template context for the loaded view.
+     * @var string
+     */
+    protected $context = '';
+
+
 
     /**
      * Controller constructor.
@@ -169,7 +176,7 @@ class Controller
      */
     protected function schedulingForm(EE_Message_Template_Group $message_template_group)
     {
-        return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance());
+        return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance(), $this->getContext());
     }
 
 
@@ -246,5 +253,18 @@ class Controller
         } catch (Exception $e) {
             EE_Error::add_error($e->getMessage(), __FILE__, __FUNCTION__, __LINE__);
         }
+    }
+
+
+    /**
+     * Return the value for context as set in the request.
+     * @return string
+     */
+    protected function getContext()
+    {
+        $this->context = $this->context === ''
+            ? sanitize_text_field($this->request->get('context', 'admin'))
+            : $this->context;
+        return $this->context;
     }
 }
