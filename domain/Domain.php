@@ -24,18 +24,18 @@ class Domain extends DomainBase
     /**
      * String used as the prefix for the registration tracker meta key for the RegistrationsNotifiedCommand
      */
-    const REGISTRATION_TRACKER_PREFIX = 'ee_auen_processed_';
+    const META_KEY_PREFIX_REGISTRATION_TRACKER = 'ee_auen_processed_';
 
     /**
      * Represents the string used to reference the extra meta for holding the days before threshold.
      *
      * @var string
      */
-    const DAYS_BEFORE_THRESHOLD_IDENTIFIER = 'automation_days_before';
+    const META_KEY_DAYS_BEFORE_THRESHOLD = 'automation_days_before';
 
 
     /**
      * Represents the string used to reference the extra meta for holding whether the automation is active or not.
      */
-    const AUTOMATION_ACTIVE_IDENTIFIER = 'automation_active';
+    const META_KEY_AUTOMATION_ACTIVE = 'automation_active';
 }

@@ -52,14 +52,14 @@ class SchedulingSettings
      */
     public function currentThreshold()
     {
-        if (! isset($this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER])) {
-            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
-                Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+        if (! isset($this->cache[Domain::META_KEY_DAYS_BEFORE_THRESHOLD])) {
+            $this->cache[Domain::META_KEY_DAYS_BEFORE_THRESHOLD] = (int)$this->message_template_group->get_extra_meta(
+                Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
                 true,
                 1
             );
         }
-        return $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER];
+        return $this->cache[Domain::META_KEY_DAYS_BEFORE_THRESHOLD];
     }
 
 
@@ -73,11 +73,11 @@ class SchedulingSettings
     public function setCurrentThreshold($new_threshold)
     {
         $saved = $this->message_template_group->update_extra_meta(
-            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+            Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
             (int)$new_threshold
         );
         if ($saved) {
-            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$new_threshold;
+            $this->cache[Domain::META_KEY_DAYS_BEFORE_THRESHOLD] = (int)$new_threshold;
         }
         return $saved;
     }
@@ -91,14 +91,14 @@ class SchedulingSettings
      */
     public function isActive()
     {
-        if (! isset($this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER])) {
-            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = (bool)$this->message_template_group->get_extra_meta(
-                Domain::AUTOMATION_ACTIVE_IDENTIFIER,
+        if (! isset($this->cache[Domain::META_KEY_AUTOMATION_ACTIVE])) {
+            $this->cache[Domain::META_KEY_AUTOMATION_ACTIVE] = (bool)$this->message_template_group->get_extra_meta(
+                Domain::META_KEY_AUTOMATION_ACTIVE,
                 true,
                 false
             );
         }
-        return $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER];
+        return $this->cache[Domain::META_KEY_AUTOMATION_ACTIVE];
     }
 
 
@@ -113,11 +113,11 @@ class SchedulingSettings
     {
         $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN);
         $saved     = $this->message_template_group->update_extra_meta(
-            Domain::AUTOMATION_ACTIVE_IDENTIFIER,
+            Domain::META_KEY_AUTOMATION_ACTIVE,
             $is_active
         );
         if ($saved) {
-            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = $is_active;
+            $this->cache[Domain::META_KEY_AUTOMATION_ACTIVE] = $is_active;
         }
         return $saved;
     }

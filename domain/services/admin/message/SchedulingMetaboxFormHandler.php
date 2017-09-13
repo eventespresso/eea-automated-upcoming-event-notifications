@@ -99,8 +99,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
             return false;
         }
 
-        $this->scheduling_settings->setCurrentThreshold($valid_data[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER]);
-        $this->scheduling_settings->setIsActive($valid_data[Domain::AUTOMATION_ACTIVE_IDENTIFIER]);
+        $this->scheduling_settings->setCurrentThreshold($valid_data[Domain::META_KEY_DAYS_BEFORE_THRESHOLD]);
+        $this->scheduling_settings->setIsActive($valid_data[Domain::META_KEY_AUTOMATION_ACTIVE]);
         return true;
     }
 
@@ -124,20 +124,20 @@ class SchedulingMetaboxFormHandler extends FormHandler
                     array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
                 'subsections'      => array(
-                    Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER => new EE_Text_Input(array(
+                    Domain::META_KEY_DAYS_BEFORE_THRESHOLD => new EE_Text_Input(array(
                         'validation_strategies'  => new EE_Int_Validation_Strategy(),
                         'normalization_strategy' => new EE_Int_Normalization(),
-                        'html_name'              => Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+                        'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
                         'html_label_text'        => '',
                         'default'                => $this->scheduling_settings->currentThreshold(),
                     )),
-                    Domain::AUTOMATION_ACTIVE_IDENTIFIER     => new EE_Select_Input(
+                    Domain::META_KEY_AUTOMATION_ACTIVE     => new EE_Select_Input(
                         array(
                             true  => esc_html__('On', 'event_espresso'),
                             false => esc_html__('Off', 'event_espresso'),
                         ),
                         array(
-                            'html_name'       => Domain::AUTOMATION_ACTIVE_IDENTIFIER,
+                            'html_name'       => Domain::META_KEY_AUTOMATION_ACTIVE,
                             'html_label_text' => esc_html__('Scheduling for this template is:', 'event_espresso'),
                             'default'         => $this->scheduling_settings->isActive(),
                         )

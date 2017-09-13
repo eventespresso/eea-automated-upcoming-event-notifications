@@ -36,7 +36,7 @@ class RegistrationsNotifiedCommandHandlerTest extends EE_UnitTestCase
             EEM_Registration::instance()->count(
                 array(
                     array(
-                        'Extra_Meta.EXM_key' => Domain::REGISTRATION_TRACKER_PREFIX . 'testing'
+                        'Extra_Meta.EXM_key' => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . 'testing'
                     )
                 )
             )

@@ -68,7 +68,7 @@ class AddonTestCase extends EE_UnitTestCase
         return EEM_Registration::instance()->get_all(
             array(
                 array(
-                    'Extra_Meta.EXM_key' => Domain::REGISTRATION_TRACKER_PREFIX . $id_ref,
+                    'Extra_Meta.EXM_key' => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
                 ),
             )
         );

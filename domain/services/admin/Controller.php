@@ -220,7 +220,7 @@ class Controller
         //created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
+            || ! $this->request->get(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
                 $message_template_group->message_type() !== 'automate_upcoming_datetime'
                 && $message_template_group->message_type() !== 'automate_upcoming_event'
@@ -234,11 +234,11 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
-                            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER
+                        Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->get(
+                            Domain::META_KEY_DAYS_BEFORE_THRESHOLD
                         ),
-                        Domain::AUTOMATION_ACTIVE_IDENTIFIER     => $this->request->get(
-                            Domain::AUTOMATION_ACTIVE_IDENTIFIER
+                        Domain::META_KEY_AUTOMATION_ACTIVE     => $this->request->get(
+                            Domain::META_KEY_AUTOMATION_ACTIVE
                         ),
                     )
                 );

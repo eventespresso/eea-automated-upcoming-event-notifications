@@ -198,7 +198,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
             'STS_ID'                       => EEM_Registration::status_id_approved,
             'REG_deleted'                  => 0,
-            'Extra_Meta.EXM_key'           => Domain::REGISTRATION_TRACKER_PREFIX . 'EVT',
+            'Extra_Meta.EXM_key'           => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . 'EVT',
         );
         return $this->registration_model->get_col(array($where));
     }

@@ -303,7 +303,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //first prep our keys for the extra_meta
         $extra_meta_keys = array();
         foreach ($datetimes as $datetime) {
-            $extra_meta_keys[] = Domain::REGISTRATION_TRACKER_PREFIX . 'DTT_' . $datetime->ID();
+            $extra_meta_keys[] = Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . 'DTT_' . $datetime->ID();
         }
         $where = array(
             'Ticket.Datetime.DTT_ID' => array('IN', array_keys($datetimes)),

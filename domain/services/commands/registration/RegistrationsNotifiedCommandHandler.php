@@ -68,7 +68,7 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
     protected function setRegistrationProcessed(EE_Registration $registration, $id_ref)
     {
         return $registration->update_extra_meta(
-            Domain::REGISTRATION_TRACKER_PREFIX . $id_ref,
+            Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
             true
         );
     }
