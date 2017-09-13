@@ -100,6 +100,12 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         EE_Automated_Upcoming_Event_Notification::loader()->getShared(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\RegisterCustomShortcodeLibrary'
         );
+        add_filter(
+            'FHEE__EE_Base_Class__get_extra_meta__default_value',
+            array($this, 'setDefaultActiveStateForMessageTypes'),
+            10,
+            4
+        );
     }
 
 
@@ -192,4 +198,33 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
         );
     }
 
+
+    /**
+     * Callback for FHEE__EE_Base_Class__get_extra_meta__default_value which is being used to ensure the default active
+     * state for our new message types is false.
+     *
+     * @param               $default
+     * @param               $meta_key
+     * @param               $single
+     * @param EE_Base_Class $model
+     * @return bool
+     * @throws EE_Error
+     */
+    public function setDefaultActiveStateForMessageTypes(
+        $default,
+        $meta_key,
+        $single,
+        EE_Base_Class $model
+    ) {
+        //only modify default for the active context meta key
+        if ($model instanceof EE_Message_Template_Group
+            && $meta_key === EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX
+            && ($model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+            )
+        ) {
+            return false;
+        }
+        return $default;
+    }
 }
