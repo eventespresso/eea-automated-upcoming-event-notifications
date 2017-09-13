@@ -5,6 +5,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admi
 use DomainException;
 use EE_Registry;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use InvalidArgumentException;
 use LogicException;
 use WP_Screen;
@@ -101,6 +102,7 @@ class Controller
      * Used to instantiate (only once) and return an instance of the CustomTemplateSettings
      *
      * @return bool
+     * @throws EE_Error
      */
     protected function canLoad()
     {
@@ -147,6 +149,7 @@ class Controller
      * @throws DomainException
      * @throws InvalidDataTypeException
      * @throws InvalidArgumentException
+     * @throws InvalidInterfaceException
      */
     public function schedulingMetabox()
     {
@@ -170,6 +173,7 @@ class Controller
      *
      * @param EE_Message_Template_Group $message_template_group
      * @return SchedulingMetaboxFormHandler|null
+     * @throws InvalidInterfaceException
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws DomainException
@@ -185,6 +189,10 @@ class Controller
      *
      * @param int $id
      * @return EE_Message_Template_Group
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     private function messageTemplateGroup($id = 0)
     {
@@ -204,6 +212,10 @@ class Controller
      * @param EEM_Base $model
      * @param array    $fields_n_values
      * @param array    $query_params
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function updateScheduling(EEM_Base $model, $fields_n_values, $query_params)
     {
