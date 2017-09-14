@@ -1,6 +1,8 @@
 <?php
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -115,6 +117,8 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function _get_data_for_context($context, EE_Registration $registration, $id)
     {
