@@ -87,6 +87,11 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                 continue;
             }
             foreach ($active_contexts as $context) {
+                //if $context is admin, then we clear the additional query params because we don't exclude registrations
+                //already notified for admin notifications.
+                $additional_query_parameters = $context === 'admin'
+                    ? array()
+                    : $additional_query_parameters;
                 $registrations = $this->getRegistrationsForMessageTemplateGroupAndContext(
                     $message_template_group,
                     $settings,

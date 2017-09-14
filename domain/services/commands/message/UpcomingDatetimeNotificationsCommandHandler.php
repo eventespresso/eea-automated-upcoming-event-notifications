@@ -249,8 +249,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             return $data;
         }
 
-        //get registration_ids_to_exclude for the given datetimes
-        $registration_ids_to_exclude = $this->registrationIdsToExclude($datetimes);
+        //get registration_ids_to_exclude for the given  but only if the context is not admin
+        $registration_ids_to_exclude = $context !== 'admin'
+            ? $this->registrationIdsToExclude($datetimes)
+            : array();
 
         foreach ($datetimes as $datetime) {
             $registrations = $this->getRegistrationsForDatetime(
