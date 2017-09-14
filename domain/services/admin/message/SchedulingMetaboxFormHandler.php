@@ -103,13 +103,15 @@ class SchedulingMetaboxFormHandler extends FormHandler
      */
     public function process($form_data = array())
     {
-        $valid_data = (array)parent::process($form_data);
+        $valid_data = (array) parent::process($form_data);
         if (empty($valid_data)) {
             return false;
         }
 
-        $this->scheduling_settings->setCurrentThreshold($valid_data[Domain::META_KEY_DAYS_BEFORE_THRESHOLD]);
-        $this->scheduling_settings->setIsActive($valid_data[Domain::META_KEY_AUTOMATION_ACTIVE]);
+        $this->scheduling_settings->setCurrentThreshold(
+            $valid_data[Domain::META_KEY_DAYS_BEFORE_THRESHOLD],
+            $this->context
+        );
         return true;
     }
 
@@ -138,19 +140,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
                         'normalization_strategy' => new EE_Int_Normalization(),
                         'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
                         'html_label_text'        => '',
-                        'default'                => $this->scheduling_settings->currentThreshold(),
-                    )),
-                    Domain::META_KEY_AUTOMATION_ACTIVE     => new EE_Select_Input(
-                        array(
-                            true  => esc_html__('On', 'event_espresso'),
-                            false => esc_html__('Off', 'event_espresso'),
-                        ),
-                        array(
-                            'html_name'       => Domain::META_KEY_AUTOMATION_ACTIVE,
-                            'html_label_text' => esc_html__('Scheduling for this template is:', 'event_espresso'),
-                            'default'         => $this->scheduling_settings->isActive(),
-                        )
-                    ),
+                        'default'                => $this->scheduling_settings->currentThreshold($this->context),
+                    ))
                 ),
             )
         );
@@ -185,7 +176,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
                 _n(
                     '%1$sSend notifications %4$s day before the datetime.%2$s%1$s%5$s%2$s',
                     '%1$sSend notifications %4$s days before the datetime.%2$s%1$s%5$s%2$s',
-                    $this->scheduling_settings->currentThreshold(),
+                    $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
             )
@@ -193,7 +184,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
                 _n(
                     '%1$sSend notifications %4$s day before the event.%2$s%1$s%5$s%2$s',
                     '%1$sSend notifications %4$s days before the event.%2$s%1$s%5$s%2$s',
-                    $this->scheduling_settings->currentThreshold(),
+                    $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
             );

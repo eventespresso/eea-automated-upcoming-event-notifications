@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration;
 
+use EE_Event;
 use EventEspresso\core\services\commands\CommandHandler;
 use EventEspresso\core\services\commands\CommandInterface;
 use EE_Registration;
@@ -26,7 +27,11 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
      */
     public function handle(CommandInterface $command)
     {
-        return $this->setRegistrationsProcessed($command->getRegistrations(), $command->getIdentifier());
+        return $this->setRegistrationsProcessed(
+            $command->getRegistrations(),
+            $command->getContext(),
+            $command->getIdentifier()
+        );
     }
 
 
@@ -36,17 +41,22 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
      * `setRegistrationReceivedNotification`
      *
      * @param EE_Registration[] $registrations
+     * @param string            $context  Represents the message type context for which these registrations are being
+     *                                    processed for.
      * @param string            $id_ref
-     * @return int  count of registrations successfully processed.
+     * @return int count of registrations successfully processed.
      * @throws EE_Error
      */
-    protected function setRegistrationsProcessed(array $registrations, $id_ref)
+    protected function setRegistrationsProcessed(array $registrations, $context, $id_ref)
     {
         $count = 0;
         if ($registrations) {
             foreach ($registrations as $registration) {
                 if (! $registration instanceof EE_Registration) {
                     continue;
+                }
+                if ($id_ref === 'EVT' && $context === 'admin') {
+                    $this->setAdminProcessed($registration);
                 }
                 if ($this->setRegistrationProcessed($registration, $id_ref)) {
                     $count++;
@@ -71,5 +81,23 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
             Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
             true
         );
+    }
+
+
+    /**
+     * Use to record that the admin has been notified for the event attached to this registration.
+     *
+     * @param EE_Registration $registration
+     * @throws EE_Error
+     */
+    protected function setAdminProcessed(EE_Registration $registration)
+    {
+        $event = $registration->event_obj();
+        if ($event instanceof EE_Event) {
+            $event->update_extra_meta(
+                Domain::META_KEY_PREFIX_ADMIN_TRACKER,
+                true
+            );
+        }
     }
 }

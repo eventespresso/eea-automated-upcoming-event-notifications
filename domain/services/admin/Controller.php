@@ -51,11 +51,11 @@ class Controller
     protected $context = '';
 
 
-
     /**
      * Controller constructor.
      *
      * @param EE_Request $request
+     * @throws EE_Error
      */
     public function __construct(EE_Request $request)
     {
@@ -103,6 +103,9 @@ class Controller
      *
      * @return bool
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     protected function canLoad()
     {
@@ -255,10 +258,7 @@ class Controller
                     array(
                         Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->get(
                             Domain::META_KEY_DAYS_BEFORE_THRESHOLD
-                        ),
-                        Domain::META_KEY_AUTOMATION_ACTIVE     => $this->request->get(
-                            Domain::META_KEY_AUTOMATION_ACTIVE
-                        ),
+                        )
                     )
                 );
             }

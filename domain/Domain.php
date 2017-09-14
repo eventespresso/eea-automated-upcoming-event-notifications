@@ -26,18 +26,18 @@ class Domain extends DomainBase
      */
     const META_KEY_PREFIX_REGISTRATION_TRACKER = 'ee_auen_processed_';
 
+
+    /**
+     * String used as the prefix for the admin tracker meta key for the RegistrationsNotifiedCommand.
+     */
+    const META_KEY_PREFIX_ADMIN_TRACKER = 'ee_auen_processed_for_admin';
+
     /**
      * Represents the string used to reference the extra meta for holding the days before threshold.
      *
      * @var string
      */
     const META_KEY_DAYS_BEFORE_THRESHOLD = 'automation_days_before';
-
-
-    /**
-     * Represents the string used to reference the extra meta for holding whether the automation is active or not.
-     */
-    const META_KEY_AUTOMATION_ACTIVE = 'automation_active';
 
 
     /**

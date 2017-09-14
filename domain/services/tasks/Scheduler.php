@@ -98,7 +98,8 @@ class Scheduler
      */
     public function checkForUpcomingDatetimeNotificationsToSchedule()
     {
-        //first get all message template groups for the EE_Automated_Upcoming_Datetime_message_type that are set to active.
+        //first get all message template groups for the EE_Automated_Upcoming_Datetime_message_type that are set to
+        // active.
         $message_template_groups = apply_filters(
             'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__checkForUpcomingDatetimeNotificationsToSchedule__message_template_groups',
             $this->getActiveMessageTemplateGroupsForAutomation(Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME)
@@ -151,10 +152,14 @@ class Scheduler
      */
     protected function getActiveMessageTemplateGroupsForAutomation($message_type)
     {
+        //we are getting message template groups that have ANY context active.
         $where = array(
             'MTP_message_type'     => $message_type,
             'MTP_deleted'          => 0,
-            'Extra_Meta.EXM_key'   => Domain::META_KEY_AUTOMATION_ACTIVE,
+            'Extra_Meta.EXM_key'   => array(
+                'LIKE',
+                '%' . EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX . '%'
+            ),
             'Extra_Meta.EXM_value' => 1,
         );
         /** @noinspection PhpIncompatibleReturnTypeInspection */

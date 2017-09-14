@@ -113,8 +113,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array  $data
      * @param string $message_type
+     * @param string $context
      */
-    protected function triggerMessages(array $data, $message_type)
+    protected function triggerMessages(array $data, $message_type, $context)
     {
         /**
          * This filter allows client code to handle the actual sending of messages differently if desired
@@ -123,11 +124,13 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             'FHEE__EventEspresso_AutomatedEventNotifications_Domain_Services_Commands_UpcomingNotificationsCommandHandler__triggerMessages__do_default_trigger',
             true,
             $data,
-            $message_type
+            $message_type,
+            $context
         )) {
             EED_Automated_Upcoming_Event_Notification_Messages::prep_and_queue_messages(
                 $message_type,
-                $data
+                $data,
+                $context
             );
         }
     }
@@ -139,19 +142,19 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * `setRegistrationReceivedNotification`
      *
      * @param EE_Registration[] $registrations
-     * @param string $identifier
-     * @throws EE_Error
+     * @param string            $context  The message type context for which these registrations were processed.
+     * @param string            $identifier
+     * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
-     * @throws InvalidArgumentException
      */
-    protected function setRegistrationsProcessed(array $registrations, $identifier)
+    protected function setRegistrationsProcessed(array $registrations, $context, $identifier)
     {
         if ($registrations) {
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
                     'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommand',
-                    array($registrations, $identifier)
+                    array($registrations, $identifier, $context)
                 )
             );
         }
@@ -163,6 +166,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array $message_template_groups
      * @return EE_Message_Template_Group
+     * @throws EE_Error
      */
     protected function extractGlobalMessageTemplateGroup(array $message_template_groups)
     {
