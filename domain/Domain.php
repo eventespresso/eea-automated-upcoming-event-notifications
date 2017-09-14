@@ -18,7 +18,7 @@ class Domain extends DomainBase
     /**
      * EE Core Version Required for Add-on
      */
-    const CORE_VERSION_REQUIRED = '4.9.44.rc.022';
+    const CORE_VERSION_REQUIRED = '4.9.47.rc.005';
 
 
     /**
