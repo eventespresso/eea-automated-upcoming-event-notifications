@@ -5,8 +5,8 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\r
 
 class RegistrationsNotifiedCommandHandlerMock extends RegistrationsNotifiedCommandHandler
 {
-    public function setRegistrationsProcessed(array $registrations, $id_ref)
+    public function setRegistrationsProcessed(array $registrations, $context, $id_ref)
     {
-        return parent::setRegistrationsProcessed($registrations, $id_ref);
+        return parent::setRegistrationsProcessed($registrations, $context, $id_ref);
     }
 }

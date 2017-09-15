@@ -38,10 +38,11 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
      * Override default triggerMessages because we don't need to actually queue up and send these.
      * That's covered by other tests.
      *
-     * @param $data
-     * @param $message_type
+     * @param array  $data
+     * @param string $message_type
+     * @param        $context
      */
-    public function triggerMessages(array $data, $message_type)
+    public function triggerMessages(array $data, $message_type, $context)
     {
         return;
     }

@@ -1,6 +1,7 @@
 <?php
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed.');
 
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EEDAutomatedUpcomingEventNotificationMessagesMock;
 
 /**
@@ -20,6 +21,28 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
     {
         parent::tearDown();
         EEDAutomatedUpcomingEventNotificationMessagesMock::reset();
+    }
+
+
+    public function setUp()
+    {
+        parent::setUp();
+        //we need to make sure our message types are enabled for the tests in here.
+        //we're only doing attendee, so let's enable the attendee context.
+        $message_types = EEM_Message_Template_Group::instance()->get_all(
+            array(
+                array(
+                    'MTP_message_type' => array('IN', array(
+                        Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT,
+                        Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
+                    )),
+                ),
+            )
+        );
+        /** @var EE_Message_Template_Group $message_type */
+        foreach ($message_types as $message_type) {
+            $message_type->activate_context('attendee');
+        }
     }
 
 
@@ -55,7 +78,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
     public function testTriggerMessagesInvalidMessageType()
     {
         //shouldn't allow because its the wrong message type
-        EEDAutomatedUpcomingEventNotificationMessagesMock::prep_and_queue_messages('registration', array());
+        EEDAutomatedUpcomingEventNotificationMessagesMock::prep_and_queue_messages('registration', array(),'admin');
         //processor should not be set.
         $this->assertNull(EEDAutomatedUpcomingEventNotificationMessagesMock::getProcessor());
     }
@@ -74,12 +97,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
 
         //map of actual to expectations for contexts
         $test_map = array(
-            'admin'     => array(
-                'to'      => 'admin@example.org',
-                'from'    => 'admin@example.org',
-                'subject' => 'Upcoming Datetime Reminder',
-            ),
-            'recipient' => array(
+            'attendee' => array(
                 'to'      => $registration->attendee()->email(),
                 'from'    => 'admin@example.org',
                 'subject' => 'Upcoming Datetime Reminder',
@@ -96,21 +114,11 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             }
         }
 
-        //test content outputs for admin and recipient
+        //test content outputs for attendee
         //datetime in content
         $this->assertNotFalse(
             strpos(
-                $messages['admin']->content(),
-                'Here is a list of approved attendee(s) registered for the following event on '
-                . $datetime->get_i18n_datetime('DTT_EVT_start')
-                . ' - '
-                . $datetime->get_i18n_datetime('DTT_EVT_end')
-                . ':'
-            )
-        );
-        $this->assertNotFalse(
-            strpos(
-                $messages['recipient']->content(),
+                $messages['attendee']->content(),
                 'We\'re reaching out to remind you of an upcoming event you registered for on our website. '
                 . 'You have access to this event on '
                 . $datetime->get_i18n_datetime('DTT_EVT_start')
@@ -122,16 +130,9 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
 
         //number of tickets in content
         $this->assertEquals(
-            3,
-            substr_count(
-                $messages['admin']->content(),
-                $registration->ticket()->name()
-            )
-        );
-        $this->assertEquals(
             1,
             substr_count(
-                $messages['recipient']->content(),
+                $messages['attendee']->content(),
                 $registration->ticket()->name()
             )
         );
@@ -143,8 +144,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             $registration_codes_string[] = $reg->reg_code();
         }
         $registration_codes_string = implode(', ', $registration_codes_string);
-        $this->assertFalse(strpos($messages['admin']->content(), $registration_codes_string));
-        $this->assertNotFalse(strpos($messages['recipient']->content(), $registration_codes_string));
+        $this->assertNotFalse(strpos($messages['attendee']->content(), $registration_codes_string));
     }
 
 
@@ -161,12 +161,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
 
         //map of actual to expectations for contexts
         $test_map = array(
-            'admin'     => array(
-                'to'      => 'admin@example.org',
-                'from'    => 'admin@example.org',
-                'subject' => 'Upcoming Event Reminder',
-            ),
-            'recipient' => array(
+            'attendee' => array(
                 'to'      => $registration->attendee()->email(),
                 'from'    => 'admin@example.org',
                 'subject' => 'Upcoming Event Reminder',
@@ -183,17 +178,11 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             }
         }
 
-        //test content outputs for admin and recipient
+        //test content outputs for attendee
         //datetime in content
         $this->assertNotFalse(
             strpos(
-                $messages['admin']->content(),
-                'Here is a list of approved attendee(s) registered for the following event:'
-            )
-        );
-        $this->assertNotFalse(
-            strpos(
-                $messages['recipient']->content(),
+                $messages['attendee']->content(),
                 'We\'re reaching out to remind you of an upcoming event you registered for on our website. '
                 . 'Here\'s a copy of your registration details:'
             )
@@ -201,16 +190,9 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
 
         //number of tickets in content
         $this->assertEquals(
-            3,
-            substr_count(
-                $messages['admin']->content(),
-                $registration->ticket()->name()
-            )
-        );
-        $this->assertEquals(
             1,
             substr_count(
-                $messages['recipient']->content(),
+                $messages['attendee']->content(),
                 $registration->ticket()->name()
             )
         );
@@ -222,8 +204,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             $registration_codes_string[] = $reg->reg_code();
         }
         $registration_codes_string = implode(', ', $registration_codes_string);
-        $this->assertFalse(strpos($messages['admin']->content(), $registration_codes_string));
-        $this->assertNotFalse(strpos($messages['recipient']->content(), $registration_codes_string));
+        $this->assertNotFalse(strpos($messages['attendee']->content(), $registration_codes_string));
     }
 
 
@@ -238,20 +219,21 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
         $data_for_testing = $this->getRegistrationsAndDatetimeForTest($message_type);
         EEDAutomatedUpcomingEventNotificationMessagesMock::prep_and_queue_messages(
             $message_type,
-            $data_for_testing
+            $data_for_testing,
+            'attendee'
         );
         $messages_processor = EEDAutomatedUpcomingEventNotificationMessagesMock::getProcessor();
         $this->assertInstanceOf('EE_Messages_Processor', $messages_processor);
         //trigger generation
         $queue = $messages_processor->batch_generate_from_queue();
         $this->assertInstanceOf('EE_Messages_Queue', $queue);
-        //should only be two messages, one for the attendee because there was only one attendee for all registrations,
-        //and one for the admin.
-        $this->assertEquals(2, $queue->get_message_repository()->count());
+        //should only be one messages, one for the attendee because there was only one attendee for all registrations
+        //we didn't process the admin context so that should not be here.
+        $this->assertEquals(1, $queue->get_message_repository()->count());
 
         //get the message from the queue for verification of message generation.
         $queue->get_message_repository()->rewind();
-        $contexts = array('admin', 'recipient');
+        $contexts = array('attendee');
         $messages = array();
         $i        = 0;
         while ($queue->get_message_repository()->valid()) {

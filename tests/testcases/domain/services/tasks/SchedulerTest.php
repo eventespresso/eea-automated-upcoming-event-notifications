@@ -45,8 +45,8 @@ class SchedulerTest extends EE_UnitTestCase
         );
 
         foreach ($message_types_to_test as $message_type) {
-            //there should already be a message template group for automate_upcoming_datetime and automate_upcoming_event.
-            //let's verify that (we need to for setting up the test anyways).
+            //there should already be a message template group for automate_upcoming_datetime and
+            // automate_upcoming_event. let's verify that (we need to for setting up the test anyways).
             $message_template_group = EEM_Message_Template_Group::instance()->get_all(
                 array(
                     array(
@@ -61,6 +61,7 @@ class SchedulerTest extends EE_UnitTestCase
                 sprintf('Testing %s', $message_type)
             );
             //extract the instance
+            /** @var EE_Message_Template_Group $message_template_group */
             $message_template_group = reset($message_template_group);
 
             //assert that instance
@@ -77,8 +78,7 @@ class SchedulerTest extends EE_UnitTestCase
             );
 
             //now let's turn ON automation for this group.
-            $scheduling_settings = new SchedulingSettings($message_template_group);
-            $scheduling_settings->setIsActive(true);
+            $message_template_group->activate_context('admin');
 
             //now our query should return one result
             $this->assertCount(
