@@ -174,16 +174,16 @@ class SchedulingMetaboxFormHandler extends FormHandler
         return $message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             ? esc_html(
                 _n(
-                    '%1$sSend notifications %4$s day before the datetime.%2$s%1$s%5$s%2$s',
-                    '%1$sSend notifications %4$s days before the datetime.%2$s%1$s%5$s%2$s',
+                    '%1$sSend notifications %4$s day before the datetime.%2$',
+                    '%1$sSend notifications %4$s days before the datetime.%2$',
                     $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
             )
             : esc_html(
                 _n(
-                    '%1$sSend notifications %4$s day before the event.%2$s%1$s%5$s%2$s',
-                    '%1$sSend notifications %4$s days before the event.%2$s%1$s%5$s%2$s',
+                    '%1$sSend notifications %4$s day before the event.%2$s',
+                    '%1$sSend notifications %4$s days before the event.%2$s',
                     $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
