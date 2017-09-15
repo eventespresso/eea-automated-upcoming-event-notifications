@@ -199,7 +199,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
 
         //add exclusion for admin context
         if ($context === 'admin') {
-            $where['Event.Extra_Meta.EXM_key'] = array('NOT IN', Domain::META_KEY_PREFIX_ADMIN_TRACKER);
+            $where['OR'] = array(
+                'Extra_Meta.EXM_key' => array('NOT IN', array(Domain::META_KEY_PREFIX_ADMIN_TRACKER)),
+                'Extra_Meta.EXM_key*null' => array('IS NULL')
+            );
         }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);

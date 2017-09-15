@@ -154,7 +154,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
                     'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommand',
-                    array($registrations, $identifier, $context)
+                    array($registrations, $context, $identifier)
                 )
             );
         }

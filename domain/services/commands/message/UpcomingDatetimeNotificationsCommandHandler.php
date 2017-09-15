@@ -77,29 +77,33 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //loop through each Message Template Group and it queue up its registrations for generation.
         /**
          * @var int $message_template_group_id
-         * @var array $datetimes_and_registrations
+         * @var array $context_datetimes_and_registrations
          */
-        foreach ($data as $message_template_group_id => $datetimes_and_registrations) {
+        foreach ($data as $message_template_group_id => $context_datetimes_and_registrations) {
             /**
              * @var string $context
-             * @var array  $datetime_and_registrations
+             * @var array  $datetimes_and_registrations
              */
-            foreach ($datetimes_and_registrations as $context => $datetime_and_registrations) {
-                $this->triggerMessages(
-                    $datetime_and_registrations,
-                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
-                    $context
-                );
-                //extract the datetime so we can use for the processed reference.
-                $datetime = isset($datetime_and_registrations[0]) ? $datetime_and_registrations[0] : null;
-                if ($datetime instanceof EE_Datetime) {
-                    //extract the registrations and mark them as having been notified.  Even though messages will get
-                    // sent on a separate request, we don't have access to that so we simply mark them as having been
-                    // processed.
-                    $registrations = isset($datetime_and_registrations[1]) ? $datetime_and_registrations[1] : array();
-                    $this->setRegistrationsProcessed($registrations, $context, 'DTT_' . $datetime->ID());
-                    if ($context === 'admin') {
-                        $datetime->update_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true);
+            foreach ($context_datetimes_and_registrations as $context => $datetimes_and_registrations) {
+                foreach ($datetimes_and_registrations as $datetime_and_registrations) {
+                    $this->triggerMessages(
+                        $datetime_and_registrations,
+                        Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
+                        $context
+                    );
+                    //extract the datetime so we can use for the processed reference.
+                    $datetime = isset($datetime_and_registrations[0]) ? $datetime_and_registrations[0] : null;
+                    if ($datetime instanceof EE_Datetime) {
+                        //extract the registrations and mark them as having been notified.  Even though messages will
+                        // get sent on a separate request, we don't have access to that so we simply mark them as
+                        // having been processed.
+                        $registrations = isset($datetime_and_registrations[1])
+                            ? $datetime_and_registrations[1]
+                            : array();
+                        $this->setRegistrationsProcessed($registrations, $context, 'DTT_' . $datetime->ID());
+                        if ($context === 'admin') {
+                            $datetime->update_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true);
+                        }
                     }
                 }
             }
@@ -296,7 +300,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         );
         //if context is admin then let's add query params for excluding  admins that have been notified.
         if ($context === 'admin') {
-            $where['Extra_Meta.EXM_key'] = array('NOT IN', Domain::META_KEY_PREFIX_ADMIN_TRACKER);
+            $where['OR'] = array(
+                'Extra_Meta.EXM_key' => array('NOT IN', array(Domain::META_KEY_PREFIX_ADMIN_TRACKER)),
+                'Extra_Meta.EXM_key*null' => array('IS NULL'),
+            );
         }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);

@@ -218,7 +218,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
     ) {
         //only modify default for the active context meta key
         if ($model instanceof EE_Message_Template_Group
-            && $meta_key === EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX
+            && strpos($meta_key, EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX) !== false
             && ($model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                 || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
             )
