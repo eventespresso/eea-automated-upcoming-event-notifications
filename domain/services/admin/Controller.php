@@ -274,8 +274,13 @@ class Controller
      */
     protected function getContext()
     {
+        /** display requests **/
         $this->context = $this->context === ''
-            ? sanitize_text_field($this->request->get('context', 'admin'))
+            ? sanitize_text_field($this->request->get('context', ''))
+            : $this->context;
+        /** form post requests */
+        $this->context = $this->context === ''
+            ? sanitize_text_field($this->request->get('MTP_context', 'admin'))
             : $this->context;
         return $this->context;
     }
