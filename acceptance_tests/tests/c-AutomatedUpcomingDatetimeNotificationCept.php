@@ -16,20 +16,19 @@ $I = new EventEspressoAddonAcceptanceTester($scenario, AuenGeneral::ADDON_SLUG_F
 $I->wantTo('This test covers all testing of sending behaviour for the automated upcoming datetime notification message type (see critical-functionality.md checklist)');
 
 
-//just testing the ability to browse to the single event page for a given event title from the context of the event list table
-//will get removed after its verified the new helpers/page things work.
+//just testing the ability to browse to the single event page for a given event title from the context of the event
+// list table will get removed after its verified the new helpers/page things work.
 $I->loginAsAdmin();
 
-//Our previous test will already have 4 registrations setup (that should only trigger 2 notifications for the registrants
-//and 2 notifications for the event admin in this test).  This means that after we turn on datetime notifications
-//and trigger the cron.  There should be:
+//Our previous test will already have 4 registrations setup (that should only trigger 2 notifications for the
+// registrants and 2 notifications for the event admin in this test).  This means that after we turn on datetime
+// notifications for both contexts and trigger the cron, there should be:
 // - 1 notifications for Automated Upcoming Event message type to the dude@example.org user
 // - 1 notification for the above user to Automated Upcoming Datetime message type.
 // - 1 notification for dudeb@example.org user to Automated Upcoming Event message type.
 // - 1 notification for the above user to the Automated Upcoming Datetime message type.
-// - 2 notifications to the Event Admin for Automated Upcoming Event message type.
-// - 1 notification to the Event Admin for Automated Upcoming Datetime message type (this is because there is only one
-//      triggered per group.
+// - 1 notifications to the Event Admin for Automated Upcoming Event message type.
+// - 2 notifications to the Event Admin for Automated Upcoming Datetime message type.
 
 $I->amOnDefaultMessageTemplateListTablePage();
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
@@ -38,7 +37,11 @@ $I->clickToEditMessageTemplateByMessageType(
     MessagesAdmin::ADMIN_CONTEXT_SLUG
 );
 $I->see('Scheduling Settings');
-$I->selectOption(AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR, '1');
+$I->toggleContextState('Event Admin Recipient');
+$I->click('Save');
+
+$I->switchContextTo('attendee');
+$I->toggleContextState('Registrant Recipient');
 $I->click('Save');
 
 $I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
@@ -104,7 +107,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    2,
+    1,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'
@@ -129,7 +132,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    1,
+    2,
     'admin@example.com',
     'to',
     'Automated Upcoming Datetime Notification'

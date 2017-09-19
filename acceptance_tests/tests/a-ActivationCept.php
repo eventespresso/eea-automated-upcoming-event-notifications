@@ -17,7 +17,7 @@ $I->amOnDefaultMessageTemplateListTablePage();
 $I->waitForText('Automated Upcoming Event Notification');
 $I->see('Automated Upcoming Datetime Notification');
 
-//make sure these message types have the metabox for scheduling with the two settings.
+//make sure these message types have the metabox for scheduling with the one setting.
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
     AuenMessageTemplate::UPCOMING_DATETIME_MESSAGE_TYPE_SLUG,
@@ -25,31 +25,34 @@ $I->clickToEditMessageTemplateByMessageType(
 );
 $I->see('Scheduling Settings');
 $I->seeElement(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR);
-$I->seeElement(AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR);
-//make sure automation is turned off
-$I->seeOptionIsSelected(
-    AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR,
-    'Off'
-);
-$I->moveBack();
+
+//verify automation is off for both contexts
+$I->see('The template for Event Admin Recipient is currently inactive.');
+$I->switchContextTo('Registrant');
+$I->see('The template for Registrant Recipient is currently inactive.');
+$I->amOnDefaultMessageTemplateListTablePage();
+//make sure these message types have the metabox for scheduling with the one setting.
+$I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
     AuenMessageTemplate::UPCOMING_EVENT_MESSAGE_TYPE_SLUG,
     MessagesAdmin::ADMIN_CONTEXT_SLUG
 );
 $I->see('Scheduling Settings');
 $I->seeElement(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR);
-$I->seeElement(AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR);
+
 //make sure automation is turned off
-$I->seeOptionIsSelected(
-    AuenMessageTemplate::AUTOMATION_ACTIVE_SELECTION_SELECTOR,
-    'Off'
-);
-$I->moveBack();
+//verify automation is off for both contexts
+$I->see('The template for Event Admin Recipient is currently inactive.');
+$I->switchContextTo('Registrant');
+$I->see('The template for Registrant Recipient is currently inactive.');
+$I->amOnDefaultMessageTemplateListTablePage();
+$I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
     MessagesAdmin::PAYMENT_FAILED_MESSAGE_TYPE_SLUG,
     MessagesAdmin::PRIMARY_ATTENDEE_CONTEXT_SLUG
 );
 $I->dontSee('Scheduling Settings');
+$I->see('The template for Primary Registrant Recipient is currently active.');
 
 
 //make sure wp-crontrol is active. The plugin was included in the install via ee-codeception.yml
