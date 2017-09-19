@@ -309,7 +309,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             $where = array_merge($where, $additional_where_parameters);
         }
         if ($message_template_group->is_global()) {
-            $where['OR'] = array(
+            $where['OR*global_conditions'] = array(
                 'Event.Message_Template_Group.GRP_ID'      => $message_template_group->ID(),
                 'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
             );

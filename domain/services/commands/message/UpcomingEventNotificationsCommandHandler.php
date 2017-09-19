@@ -89,14 +89,14 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             foreach ($active_contexts as $context) {
                 //if $context is admin, then we clear the additional query params because we don't exclude registrations
                 //already notified for admin notifications.
-                $additional_query_parameters = $context === 'admin'
+                $extra_query_params = $context === 'admin'
                     ? array()
                     : $additional_query_parameters;
                 $registrations = $this->getRegistrationsForMessageTemplateGroupAndContext(
                     $message_template_group,
                     $settings,
                     $context,
-                    $additional_query_parameters
+                    $extra_query_params
                 );
                 if ($registrations) {
                     $data = $this->addToDataByGroupAndRegistrationsAndContext(
@@ -200,15 +200,15 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         //add exclusion for admin context
         if ($context === 'admin') {
             $where['OR'] = array(
-                'Extra_Meta.EXM_key' => array('NOT IN', array(Domain::META_KEY_PREFIX_ADMIN_TRACKER)),
-                'Extra_Meta.EXM_key*null' => array('IS NULL')
+                'Event.Extra_Meta.EXM_key' => array('NOT IN', array(Domain::META_KEY_PREFIX_ADMIN_TRACKER)),
+                'Event.Extra_Meta.EXM_key*null' => array('IS NULL')
             );
         }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
         if ($message_template_group->is_global()) {
-            $where['OR*Group_Conditions'] = array(
+            $where['OR*global_conditions'] = array(
                 'Event.Message_Template_Group.GRP_ID'      => $message_template_group->ID(),
                 'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
             );
