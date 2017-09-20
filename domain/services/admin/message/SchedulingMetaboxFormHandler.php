@@ -68,7 +68,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
         $this->message_template_group = $message_template_group;
         $this->scheduling_settings    = new SchedulingSettings($message_template_group);
         $this->context = $context;
-        $label                        = esc_html__('Scheduling_Settings', 'event_espresso');
+        $label                        = esc_html__('Scheduling Settings', 'event_espresso');
         parent::__construct(
             $label,
             $label,
