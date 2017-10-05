@@ -292,8 +292,8 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
-                    time(),
-                    time() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
+                    $this->getStartTimeForQuery(),
+                    $this->getStartTimeForQuery() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
                 ),
             ),
             'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),

@@ -7,8 +7,8 @@ use Page\MessagesAdmin;
 use Page\EventsAdmin;
 use Page\TicketSelector;
 
-//setup date for our test so the start date is within one day
-$date = new DateTime('now + 1 day', new DateTimeZone('UTC'));
+//setup date for our test so the start date is at least one full day away from now.
+$date = new DateTime('now + 36 hours', new DateTimeZone('UTC'));
 
 /**
  * This test covers all testing of sending behaviour for the automated upcoming event

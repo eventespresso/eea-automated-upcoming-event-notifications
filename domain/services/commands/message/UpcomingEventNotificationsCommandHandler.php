@@ -189,8 +189,8 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             'Event.Datetime.DTT_EVT_start' => array(
                 'BETWEEN',
                 array(
-                    time(),
-                    time() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
+                    $this->getStartTimeForQuery(),
+                    $this->getStartTimeForQuery() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
                 ),
             ),
             'STS_ID'                       => EEM_Registration::status_id_approved,
