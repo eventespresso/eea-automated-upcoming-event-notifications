@@ -317,7 +317,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
         }
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->datetime_model->get_all(array($where));
+        return $this->datetime_model->get_all(array($where, 'group_by' => 'DTT_ID'));
     }
 
 

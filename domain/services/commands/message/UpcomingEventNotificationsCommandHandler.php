@@ -215,7 +215,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
         }
-        return $this->registration_model->get_all(array($where));
+        return $this->registration_model->get_all(array($where, 'group_by' => 'REG_ID'));
     }
 
 
