@@ -2,6 +2,7 @@
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
+use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\RegistrationsNotifiedCommandHandlerMock;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingEventNotificationsCommandHandlerMock;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 
@@ -14,16 +15,24 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
     private $command_handler_mock;
 
 
+    /**
+     * @var RegistrationsNotifiedCommandHandlerMock
+     */
+    private $registrations_notified_command_handler_mock;
+
+
     public function setUp()
     {
         parent::setUp();
         $this->command_handler_mock = new UpcomingEventNotificationsCommandHandlerMock();
+        $this->registrations_notified_command_handler_mock = new RegistrationsNotifiedCommandHandlerMock();
     }
 
     public function tearDown()
     {
         parent::tearDown();
         $this->command_handler_mock = null;
+        $this->registrations_notified_command_handler_mock = null;
     }
 
 
@@ -45,7 +54,7 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
             $date_three_days_from_now,
             'automate_upcoming_event'
         );
-        //okay so our data should include the expected datetime plus one registration on just the global template
+        //okay so our data should include the expected datetime plus three registrations on just the global template
         // group id
         $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
         $this->assertCount(1, $data);
@@ -100,6 +109,59 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
                 $this->assertInstanceOf('EE_Registration', $registrations);
             }
         }
+    }
+
+
+    /**
+     * This simply makes sure that if an admin is marked as having already received notification for otherwise
+     * conditions that sends notifications, that there will be no registrations returned for the admin to be notified
+     * about.
+     *
+     * This is a more focused test than testGetDataForUpcomingEventMessageType so the number of assertions is lower
+     * here.
+     * @group temptest
+     */
+    public function testGetDataForUpcomingEventMessageTypeForAlreadyNotifiedAdmin()
+    {
+        $global_group = $this->command_handler_mock->extractGlobalMessageTemplateGroup(
+            $this->message_template_groups['event']
+        );
+        //activate just admin context for the test
+        $global_group->activate_context('admin');
+        $date_three_days_from_now = new DateTime('now +3 days', new DateTimeZone(get_option('timezone_string')));
+        $datetime = $this->setOneDateTimeOnEventToGivenDate(
+            $date_three_days_from_now,
+            'automate_upcoming_event'
+        );
+        //let's get the event that is attached to the datetime updated
+        $event = $datetime->event();
+        //okay so our data should include the expected datetime plus one registration on just the global template
+        // group id
+        $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
+
+        //so the count of registrations WITHOUT the admin notification flag set should be three.
+        $this->assertCount(3, $data[$global_group->ID()]['admin']);
+
+        //now let's set the notification flag as notified for these registrations.
+        $this->registrations_notified_command_handler_mock->setRegistrationsProcessed(
+            $data[$global_group->ID()]['admin'],
+            'admin',
+            'EVT'
+        );
+
+        //let's try getting data again
+        $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
+        //this time there should be NO data.
+        $this->assertEmpty($data);
+
+        //now let's simulate the event having additional extra meta (to catch any problems with the type of queries
+        //happening against Extra Meta where there's more meta entries attached to the event other than the
+        //notification tracker.
+        $event->add_extra_meta('some_extra_meta_key', true);
+        //let's try getting data again
+        $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
+        //there STILL should be no data.
+        $this->assertEmpty($data);
     }
 
     
