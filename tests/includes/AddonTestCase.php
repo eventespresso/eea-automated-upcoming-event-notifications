@@ -68,7 +68,7 @@ class AddonTestCase extends EE_UnitTestCase
         return EEM_Registration::instance()->get_all(
             array(
                 array(
-                    'Extra_Meta.EXM_key' => Domain::REGISTRATION_TRACKER_PREFIX . $id_ref,
+                    'Extra_Meta.EXM_key' => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
                 ),
             )
         );
@@ -138,7 +138,8 @@ class AddonTestCase extends EE_UnitTestCase
         foreach ($all_groups as $group_type => $groups) {
             foreach ($groups as $group) {
                 $scheduling_settings = new SchedulingSettings($group);
-                $scheduling_settings->setCurrentThreshold(5);
+                $scheduling_settings->setCurrentThreshold(5, 'admin');
+                $scheduling_settings->setCurrentThreshold(5, 'attendee');
             }
         }
 

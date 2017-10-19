@@ -5,6 +5,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admi
 use DomainException;
 use EE_Registry;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use InvalidArgumentException;
 use LogicException;
 use WP_Screen;
@@ -43,11 +44,18 @@ class Controller
     protected $request;
 
 
+    /**
+     * This contains the message template context for the loaded view.
+     * @var string
+     */
+    protected $context = '';
+
 
     /**
      * Controller constructor.
      *
      * @param EE_Request $request
+     * @throws EE_Error
      */
     public function __construct(EE_Request $request)
     {
@@ -94,6 +102,10 @@ class Controller
      * Used to instantiate (only once) and return an instance of the CustomTemplateSettings
      *
      * @return bool
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     protected function canLoad()
     {
@@ -112,8 +124,8 @@ class Controller
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
                && (
-                   $message_template_group->message_type() === 'automate_upcoming_event'
-                   || $message_template_group->message_type() === 'automate_upcoming_datetime'
+                   $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                );
     }
 
@@ -140,6 +152,7 @@ class Controller
      * @throws DomainException
      * @throws InvalidDataTypeException
      * @throws InvalidArgumentException
+     * @throws InvalidInterfaceException
      */
     public function schedulingMetabox()
     {
@@ -163,13 +176,14 @@ class Controller
      *
      * @param EE_Message_Template_Group $message_template_group
      * @return SchedulingMetaboxFormHandler|null
+     * @throws InvalidInterfaceException
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws DomainException
      */
     protected function schedulingForm(EE_Message_Template_Group $message_template_group)
     {
-        return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance());
+        return new SchedulingMetaboxFormHandler($message_template_group, EE_Registry::instance(), $this->getContext());
     }
 
 
@@ -178,6 +192,10 @@ class Controller
      *
      * @param int $id
      * @return EE_Message_Template_Group
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     private function messageTemplateGroup($id = 0)
     {
@@ -197,6 +215,10 @@ class Controller
      * @param EEM_Base $model
      * @param array    $fields_n_values
      * @param array    $query_params
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function updateScheduling(EEM_Base $model, $fields_n_values, $query_params)
     {
@@ -220,10 +242,10 @@ class Controller
         //created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER, false)
+            || ! $this->request->get(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
-                $message_template_group->message_type() !== 'automate_upcoming_datetime'
-                && $message_template_group->message_type() !== 'automate_upcoming_event'
+                $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
             )
         ) {
             return;
@@ -234,17 +256,32 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER => $this->request->get(
-                            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER
-                        ),
-                        Domain::AUTOMATION_ACTIVE_IDENTIFIER     => $this->request->get(
-                            Domain::AUTOMATION_ACTIVE_IDENTIFIER
-                        ),
+                        Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->get(
+                            Domain::META_KEY_DAYS_BEFORE_THRESHOLD
+                        )
                     )
                 );
             }
         } catch (Exception $e) {
             EE_Error::add_error($e->getMessage(), __FILE__, __FUNCTION__, __LINE__);
         }
+    }
+
+
+    /**
+     * Return the value for context as set in the request.
+     * @return string
+     */
+    protected function getContext()
+    {
+        /** display requests **/
+        $this->context = $this->context === ''
+            ? sanitize_text_field($this->request->get('context', ''))
+            : $this->context;
+        /** form post requests */
+        $this->context = $this->context === ''
+            ? sanitize_text_field($this->request->get('MTP_context', 'admin'))
+            : $this->context;
+        return $this->context;
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
 /**
@@ -18,7 +21,7 @@ class EE_Automate_Upcoming_Event_message_type extends EE_Registration_Base_messa
 
     public function __construct()
     {
-        $this->name              = 'automate_upcoming_event';
+        $this->name              = Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT;
         $this->description       = esc_html__(
             'This message type automates sending messages to registrations for an upcoming event. Messages are sent at the threshold you define (eg 3 days before) prior to the earliest datetime attached to the event.  Other datetimes on the event have no bearing on when this message type is triggered. Messages for this message type are sent to approved registrations and are only triggered for upcoming and/or sold out, and published upcoming events.',
             'event_espresso'

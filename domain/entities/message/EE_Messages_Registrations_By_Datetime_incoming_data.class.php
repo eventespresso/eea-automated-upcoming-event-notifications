@@ -1,5 +1,8 @@
 <?php
+
 use EventEspresso\core\exceptions\EntityNotFoundException;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
 
@@ -47,6 +50,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
     {
         self::validate_incoming_data($datetime_and_registrations);
         //make sure $registrations are an array.
+        /** @noinspection ArrayCastingEquivalentInspection */
         $datetime_and_registrations[1] = is_array($datetime_and_registrations[1])
             ? $datetime_and_registrations[1]
             : array($datetime_and_registrations[1]);
@@ -99,11 +103,11 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         /**
          * is there a registration
          */
-        if ((
+        if (! $datetime_and_registrations[1] instanceof EE_Registration
+            &&(
                 is_array($datetime_and_registrations[1])
                 && ! reset($datetime_and_registrations[1]) instanceof EE_Registration
             )
-            && ! $datetime_and_registrations[1] instanceof EE_Registration
         ) {
             throw new InvalidArgumentException(
                 sprintf(
@@ -127,6 +131,9 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @param array $data
      * @return array
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public static function convert_data_from_persistent_storage($data)
     {
@@ -146,6 +153,9 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      *
      * @throws EE_Error
      * @throws EntityNotFoundException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
      */
     protected function _setup_data()
     {
@@ -156,7 +166,8 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         $this->reg_objs = is_array($data[1]) ? $data[1] : array();
 
         //if the incoming registration value is not in an array format then set that as the reg_obj.  Then we get the
-        //matching registrations linked to the same datetime as this registration and assign that to the reg_objs property.
+        //matching registrations linked to the same datetime as this registration and assign that to the reg_objs
+        // property.
         if (empty($this->reg_objs)) {
             $this->reg_obj  = $data[1];
             $this->reg_objs = EEM_Registration::instance()->get_all(

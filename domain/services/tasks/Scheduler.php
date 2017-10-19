@@ -98,10 +98,11 @@ class Scheduler
      */
     public function checkForUpcomingDatetimeNotificationsToSchedule()
     {
-        //first get all message template groups for the EE_Automated_Upcoming_Datetime_message_type that are set to active.
+        //first get all message template groups for the EE_Automated_Upcoming_Datetime_message_type that are set to
+        // active.
         $message_template_groups = apply_filters(
             'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__checkForUpcomingDatetimeNotificationsToSchedule__message_template_groups',
-            $this->getActiveMessageTemplateGroupsForAutomation('automate_upcoming_datetime')
+            $this->getActiveMessageTemplateGroupsForAutomation(Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME)
         );
         if (empty($message_template_groups)) {
             return;
@@ -128,7 +129,7 @@ class Scheduler
     {
         $message_template_groups = apply_filters(
             'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__checkForUpcomingEventNotificationsToSchedule__message_template_groups',
-            $this->getActiveMessageTemplateGroupsForAutomation('automate_upcoming_event')
+            $this->getActiveMessageTemplateGroupsForAutomation(Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT)
         );
         if (empty($message_template_groups)) {
             return;
@@ -151,10 +152,14 @@ class Scheduler
      */
     protected function getActiveMessageTemplateGroupsForAutomation($message_type)
     {
+        //we are getting message template groups that have ANY context active.
         $where = array(
             'MTP_message_type'     => $message_type,
             'MTP_deleted'          => 0,
-            'Extra_Meta.EXM_key'   => Domain::AUTOMATION_ACTIVE_IDENTIFIER,
+            'Extra_Meta.EXM_key'   => array(
+                'LIKE',
+                '%' . EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX . '%'
+            ),
             'Extra_Meta.EXM_value' => 1,
         );
         /** @noinspection PhpIncompatibleReturnTypeInspection */

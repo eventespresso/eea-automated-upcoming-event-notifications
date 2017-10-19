@@ -1,5 +1,6 @@
 <?php
 
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingDatetimeNotificationsCommandHandlerMock;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
@@ -38,10 +39,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $this->message_template_groups['datetime']
         );
         $this->assertInstanceOf('EE_Message_Template_Group', $global_group);
-        $global_mtg_settings = new SchedulingSettings(
-            $global_group
-        );
-        $global_mtg_settings->setIsActive(true);
+        $global_group->activate_context('admin');
         $date_three_days_from_now = new DateTime('now +3 days', new DateTimeZone(get_option('timezone_string')));
         $expected_datetime = $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
@@ -58,17 +56,20 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $data[$global_group->ID()]
         );
 
-        //if we pop the first array element that should have our expected data.
-        $data = array_pop($data[$global_group->ID()]);
+        //go to the next level.
+        $data = $data[$global_group->ID()];
+        $this->assertEquals('admin', key($data));
+        //pop datetime and registrations off of the context array.
+        $data = array_pop($data['admin']);
         $this->assertInstanceOf('EE_Datetime', $data[0]);
         $this->assertEquals($expected_datetime->ID(), $data[0]->ID());
         $this->assertCount(1, $data[1]);
         $this->assertInstanceOf('EE_Registration', reset($data[1]));
 
-        //k let's set the Global Message Template Group to active and the custom message template groups to active.
+        //k let's set the Global Message Template Group to inactive and the custom message template groups to active.
         //We don't expect any data to get returned in this scenario because the event modified is not attached to any of
         //those groups.
-        $global_mtg_settings->setIsActive(false);
+        $global_group->deactivate_context('admin');
         $custom_mtg_settings = array();
         /** @var EE_Message_Template_Group $message_template_group */
         foreach ($this->message_template_groups['datetime'] as $message_template_group) {
@@ -76,26 +77,26 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
                 continue;
             }
             $custom_mtg_settings[$message_template_group->ID()] = new SchedulingSettings($message_template_group);
-            $custom_mtg_settings[$message_template_group->ID()]->setIsActive(true);
+            $message_template_group->activate_context('admin');
         }
         $this->assertEmpty($this->command_handler_mock->getData($this->message_template_groups['datetime']));
 
-        //okay now let's set all message template groups active, and then add one more datetime ahead but only on a custom
-        //message template group.
+        //okay now let's set all message template groups active, and then add one more datetime ahead but only on a
+        // custom message template group.
         $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
             'automate_upcoming_datetime',
             true
         );
-        $global_mtg_settings->setIsActive(true);
+        $global_group->activate_context('admin');
 
-        //k this time we expect the global template to have one datetime and registration on it and only one custom message
-        //template group with one datetime and registration on it.
+        //k this time we expect the global template to have one datetime and registration on it and only one custom
+        // message template group with one datetime and registration on it.
         $data = $this->command_handler_mock->getData($this->message_template_groups['datetime']);
         $this->assertCount(2, $data);
         foreach ($data as $message_template_group_id => $datetimes_and_registrations) {
-            $this->assertCount(1, $datetimes_and_registrations);
-            $datetimes_and_registrations = array_pop($datetimes_and_registrations);
+            $this->assertEquals('admin', key($datetimes_and_registrations));
+            $datetimes_and_registrations = array_pop($datetimes_and_registrations['admin']);
             $this->assertInstanceOf('EE_Datetime', $datetimes_and_registrations[0]);
             $this->assertCount(1, $datetimes_and_registrations[1]);
             $this->assertInstanceOf('EE_Registration', reset($datetimes_and_registrations[1]));
@@ -109,11 +110,12 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         $this->command_handler_mock->process(
             $this->command_handler_mock->getData($this->message_template_groups['datetime'])
         );
-        //for each of our datetimes there should be no registrations processed.
+        //for each of our datetimes there should be no registrations processed and no admin processed.
         /** @var EE_Event $event */
         foreach ($this->events as $event) {
             foreach ($event->datetimes() as $datetime) {
                 $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
+                $this->assertFalse($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
             }
         }
 
@@ -126,31 +128,31 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         );
         foreach ($datetimes as $datetime) {
             $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
+            $this->assertFalse($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
         }
 
         //now let's set the message template groups to active
         $global_group = $this->command_handler_mock->extractGlobalMessageTemplateGroup(
             $this->message_template_groups['datetime']
         );
-        $global_settings = new SchedulingSettings($global_group);
-        $global_settings->setIsActive(true);
+        $global_group->activate_context('admin');
 
         /** @var EE_Message_Template_Group $message_template_group */
         foreach ($this->message_template_groups['datetime'] as $message_template_group) {
             if ($message_template_group->is_global()) {
                 continue;
             }
-            $settings = new SchedulingSettings($message_template_group);
-            $settings->setIsActive(true);
+            $message_template_group->activate_context('admin');
         }
-        $data = $this->command_handler_mock->getData($this->message_template_groups['datetime']);
         $this->command_handler_mock->process(
             $this->command_handler_mock->getData($this->message_template_groups['datetime'])
         );
 
-        //now process again and there should be one registration marked processed for each datetime
+        //now process again and there should be NO registrations marked processed for each datetime but there SHOULD
+        //be a marker for admin processed.
         foreach ($datetimes as $datetime) {
-            $this->assertCount(1, $this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
+            $this->assertCount(0, $this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
+            $this->assertTrue($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
         }
     }
 }

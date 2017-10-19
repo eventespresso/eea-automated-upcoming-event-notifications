@@ -113,8 +113,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array  $data
      * @param string $message_type
+     * @param string $context
      */
-    protected function triggerMessages(array $data, $message_type)
+    protected function triggerMessages(array $data, $message_type, $context)
     {
         /**
          * This filter allows client code to handle the actual sending of messages differently if desired
@@ -123,11 +124,13 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             'FHEE__EventEspresso_AutomatedEventNotifications_Domain_Services_Commands_UpcomingNotificationsCommandHandler__triggerMessages__do_default_trigger',
             true,
             $data,
-            $message_type
+            $message_type,
+            $context
         )) {
             EED_Automated_Upcoming_Event_Notification_Messages::prep_and_queue_messages(
                 $message_type,
-                $data
+                $data,
+                $context
             );
         }
     }
@@ -139,19 +142,19 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * `setRegistrationReceivedNotification`
      *
      * @param EE_Registration[] $registrations
-     * @param string $identifier
-     * @throws EE_Error
+     * @param string            $context  The message type context for which these registrations were processed.
+     * @param string            $identifier
+     * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
-     * @throws InvalidArgumentException
      */
-    protected function setRegistrationsProcessed(array $registrations, $identifier)
+    protected function setRegistrationsProcessed(array $registrations, $context, $identifier)
     {
         if ($registrations) {
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
                     'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommand',
-                    array($registrations, $identifier)
+                    array($registrations, $context, $identifier)
                 )
             );
         }
@@ -163,6 +166,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array $message_template_groups
      * @return EE_Message_Template_Group
+     * @throws EE_Error
      */
     protected function extractGlobalMessageTemplateGroup(array $message_template_groups)
     {
@@ -187,6 +191,24 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message__eventStatusForRegistrationsQuery',
             array('publish', EEM_Event::sold_out)
         );
+    }
+
+
+    /**
+     * The threshold for upcoming notifications is currently in intervals of days.  This means that the accuracy of the
+     * time will be down to the day (not the hour or the minute).  Since our scheduled cron fires daily at midnight, if
+     * the threshold is set to one day before the day of the event, then anything between 00:00 and 23:59 of the day
+     * the cron fired is NOT one day before the event but UNDER one day.  So for accuracy at this interval, the start
+     * time for the query should be one day from the time the cron job is triggered. This means then that if the
+     * threshold is set to one day, and the time the scheduled cron fires is September 21, 00:00:00, we want to query
+     * for start datetimes between September 22, 00:00:00 and September 22, 23:59:59 (we'll actually do the query for to
+     * include that last minute so `September 23, 00:00:00 for simplicity).
+     *
+     * @return int
+     */
+    protected function getStartTimeForQuery()
+    {
+        return time() + DAY_IN_SECONDS;
     }
 
 

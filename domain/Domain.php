@@ -18,24 +18,36 @@ class Domain extends DomainBase
     /**
      * EE Core Version Required for Add-on
      */
-    const CORE_VERSION_REQUIRED = '4.9.44.rc.022';
+    const CORE_VERSION_REQUIRED = '4.9.47.rc.005';
 
 
     /**
      * String used as the prefix for the registration tracker meta key for the RegistrationsNotifiedCommand
      */
-    const REGISTRATION_TRACKER_PREFIX = 'ee_auen_processed_';
+    const META_KEY_PREFIX_REGISTRATION_TRACKER = 'ee_auen_processed_';
+
+
+    /**
+     * String used as the prefix for the admin tracker meta key for the RegistrationsNotifiedCommand.
+     */
+    const META_KEY_PREFIX_ADMIN_TRACKER = 'ee_auen_processed_for_admin';
 
     /**
      * Represents the string used to reference the extra meta for holding the days before threshold.
      *
      * @var string
      */
-    const DAYS_BEFORE_THRESHOLD_IDENTIFIER = 'automation_days_before';
+    const META_KEY_DAYS_BEFORE_THRESHOLD = 'automation_days_before';
 
 
     /**
-     * Represents the string used to reference the extra meta for holding whether the automation is active or not.
+     * Slug for the Automate Upcoming Event message type
      */
-    const AUTOMATION_ACTIVE_IDENTIFIER = 'automation_active';
+    const MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT = 'automate_upcoming_event';
+
+
+    /**
+     * Slug for the Automate Upcoming Datetime message type
+     */
+    const MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME = 'automate_upcoming_datetime';
 }

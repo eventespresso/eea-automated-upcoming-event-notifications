@@ -17,7 +17,7 @@ class LoadAddonTest extends EE_UnitTestCase
      *
      * @since 1.0.0
      */
-    function test_loadingAddon()
+    public function test_loadingAddon()
     {
         $this->assertEquals(
             has_action(

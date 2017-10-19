@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EE_Error;
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\Command;
 
@@ -28,6 +29,7 @@ abstract class UpcomingNotificationsCommand extends Command
      * UpcomingNotificationsCommand constructor.
      *
      * @param array $message_template_groups
+     * @throws EE_Error
      */
     public function __construct(array $message_template_groups)
     {
@@ -41,6 +43,7 @@ abstract class UpcomingNotificationsCommand extends Command
      *
      * @param EE_Message_Template_Group[] $message_template_groups
      * @return EE_Message_Template_Group[]
+     * @throws EE_Error
      */
     private function validateGroups(array $message_template_groups)
     {

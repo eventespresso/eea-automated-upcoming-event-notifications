@@ -46,10 +46,11 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
      * That's covered by other tests.  However we use this to track what data got sent in and use that to test
      * expectations for what _should_ have been sent to the messages module.
      *
-     * @param $data
-     * @param $message_type
+     * @param array  $data
+     * @param string $message_type
+     * @param        $context
      */
-    public function triggerMessages(array $data, $message_type)
+    public function triggerMessages(array $data, $message_type, $context)
     {
         $this->messages_triggered = array_merge($this->messages_triggered, $data);
     }

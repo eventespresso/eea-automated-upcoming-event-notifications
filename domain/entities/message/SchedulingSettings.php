@@ -5,6 +5,7 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\mess
 use EE_Error;
 use EE_Message_Template_Group;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\exceptions\InvalidIdentifierException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -47,78 +48,65 @@ class SchedulingSettings
     /**
      * Returns whatever is set for the days before threshold for this schedule.
      *
+     * @param string $context
      * @return int
      * @throws EE_Error
      */
-    public function currentThreshold()
+    public function currentThreshold($context)
     {
-        if (! isset($this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER])) {
-            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$this->message_template_group->get_extra_meta(
-                Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+        $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
+        if (! isset($this->cache[$meta_key])) {
+            $this->cache[$meta_key] = (int) $this->message_template_group->get_extra_meta(
+                $meta_key,
                 true,
                 1
             );
         }
-        return $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER];
+        return $this->cache[$meta_key];
     }
 
 
     /**
-     * Sets the days before threshold to the provided value.
+     * Sets the days before threshold to the provided value for the given context.
      *
      * @param int $new_threshold
+     * @param string $context
      * @return bool|int @see EE_Base_Class::update_extra_meta
      * @throws EE_Error
      */
-    public function setCurrentThreshold($new_threshold)
+    public function setCurrentThreshold($new_threshold, $context)
     {
+        $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
         $saved = $this->message_template_group->update_extra_meta(
-            Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
-            (int)$new_threshold
+            $meta_key,
+            (int) $new_threshold
         );
         if ($saved) {
-            $this->cache[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER] = (int)$new_threshold;
+            $this->cache[$meta_key] = (int) $new_threshold;
         }
         return $saved;
     }
 
 
     /**
-     * Returns whether the automation is active or not.
-     *
-     * @return bool
+     * @return array
      * @throws EE_Error
+     * @throws InvalidIdentifierException
      */
-    public function isActive()
+    public function allActiveContexts()
     {
-        if (! isset($this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER])) {
-            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = (bool)$this->message_template_group->get_extra_meta(
-                Domain::AUTOMATION_ACTIVE_IDENTIFIER,
-                true,
-                false
-            );
+        $cache_key = EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX
+                     . '_'
+                     . $this->message_template_group->message_type();
+        if (! isset($this->cache[$cache_key])) {
+            $contexts = array_keys($this->message_template_group->contexts_config());
+            $this->cache[$cache_key] = array();
+            foreach ($contexts as $context) {
+                if ($this->message_template_group->is_context_active($context)) {
+                    $this->cache[$cache_key][] = $context;
+                }
+            }
         }
-        return $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER];
-    }
-
-
-    /**
-     * Used to set the automation to be active or not.
-     *
-     * @param bool $is_active
-     * @return bool|int @see EE_Base_Class::update_extra_meta
-     * @throws EE_Error
-     */
-    public function setIsActive($is_active)
-    {
-        $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN);
-        $saved     = $this->message_template_group->update_extra_meta(
-            Domain::AUTOMATION_ACTIVE_IDENTIFIER,
-            $is_active
-        );
-        if ($saved) {
-            $this->cache[Domain::AUTOMATION_ACTIVE_IDENTIFIER] = $is_active;
-        }
-        return $saved;
+        return $this->cache[$cache_key];
     }
 }

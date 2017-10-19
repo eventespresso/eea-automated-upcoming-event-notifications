@@ -24,6 +24,13 @@ class RegistrationsNotifiedCommand extends Command
 
 
     /**
+     * This will be the message type context for which these registrations got notified on.
+     * @var string
+     */
+    private $context;
+
+
+    /**
      * A unique string used as the identifier for tracking this registration is notified.
      *
      * @var
@@ -35,12 +42,14 @@ class RegistrationsNotifiedCommand extends Command
      * RegistrationsNotifiedCommand constructor.
      *
      * @param        array EE_Registration[] $registrations
+     * @param        $context
      * @param string $id_ref
      */
-    public function __construct(array $registrations, $id_ref)
+    public function __construct(array $registrations, $context, $id_ref)
     {
         $this->registrations = $this->validateRegistrations($registrations);
         $this->identifier    = $id_ref;
+        $this->context = $context;
     }
 
 
@@ -77,5 +86,14 @@ class RegistrationsNotifiedCommand extends Command
     public function getIdentifier()
     {
         return $this->identifier;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getContext()
+    {
+        return $this->context;
     }
 }

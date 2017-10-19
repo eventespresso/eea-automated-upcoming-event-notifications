@@ -47,19 +47,28 @@ class SchedulingMetaboxFormHandler extends FormHandler
 
 
     /**
+     * This is whatever message template context the view is for.
+     * @var string
+     */
+    protected $context;
+
+
+    /**
      * SchedulingMetaboxFormHandler constructor.
      *
      * @param EE_Message_Template_Group $message_template_group
      * @param EE_Registry               $registry
+     * @param string                    $context
      * @throws DomainException
-     * @throws InvalidDataTypeException
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
      */
-    public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry)
+    public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry, $context)
     {
         $this->message_template_group = $message_template_group;
         $this->scheduling_settings    = new SchedulingSettings($message_template_group);
-        $label                        = esc_html__('Scheduling_Settings', 'event_espresso');
+        $this->context = $context;
+        $label                        = esc_html__('Scheduling Settings', 'event_espresso');
         parent::__construct(
             $label,
             $label,
@@ -94,13 +103,15 @@ class SchedulingMetaboxFormHandler extends FormHandler
      */
     public function process($form_data = array())
     {
-        $valid_data = (array)parent::process($form_data);
+        $valid_data = (array) parent::process($form_data);
         if (empty($valid_data)) {
             return false;
         }
 
-        $this->scheduling_settings->setCurrentThreshold($valid_data[Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER]);
-        $this->scheduling_settings->setIsActive($valid_data[Domain::AUTOMATION_ACTIVE_IDENTIFIER]);
+        $this->scheduling_settings->setCurrentThreshold(
+            $valid_data[Domain::META_KEY_DAYS_BEFORE_THRESHOLD],
+            $this->context
+        );
         return true;
     }
 
@@ -124,24 +135,13 @@ class SchedulingMetaboxFormHandler extends FormHandler
                     array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
                 'subsections'      => array(
-                    Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER => new EE_Text_Input(array(
+                    Domain::META_KEY_DAYS_BEFORE_THRESHOLD => new EE_Text_Input(array(
                         'validation_strategies'  => new EE_Int_Validation_Strategy(),
                         'normalization_strategy' => new EE_Int_Normalization(),
-                        'html_name'              => Domain::DAYS_BEFORE_THRESHOLD_IDENTIFIER,
+                        'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
                         'html_label_text'        => '',
-                        'default'                => $this->scheduling_settings->currentThreshold(),
-                    )),
-                    Domain::AUTOMATION_ACTIVE_IDENTIFIER     => new EE_Select_Input(
-                        array(
-                            true  => esc_html__('On', 'event_espresso'),
-                            false => esc_html__('Off', 'event_espresso'),
-                        ),
-                        array(
-                            'html_name'       => Domain::AUTOMATION_ACTIVE_IDENTIFIER,
-                            'html_label_text' => esc_html__('Scheduling for this template is:', 'event_espresso'),
-                            'default'         => $this->scheduling_settings->isActive(),
-                        )
-                    ),
+                        'default'                => $this->scheduling_settings->currentThreshold($this->context),
+                    ))
                 ),
             )
         );
@@ -157,10 +157,9 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected function getContentString()
     {
         $message_type = $this->message_template_group->message_type();
-        if ((
-            $message_type !== 'automate_upcoming_datetime'
-            && $message_type !== 'automate_upcoming_event'
-        )
+        if (
+            $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
         ) {
             return esc_html__(
                 'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime message type templates',
@@ -172,20 +171,20 @@ class SchedulingMetaboxFormHandler extends FormHandler
          * Note because of the way the form is setup, the 3rd argument is the fully rendered html for the form. So we
          * need to make sure to exclude that from our format strings.
          */
-        return $message_type === 'automate_upcoming_datetime'
+        return $message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             ? esc_html(
                 _n(
-                    '%1$sSend notifications %4$s day before the datetime.%2$s%1$s%5$s%2$s',
-                    '%1$sSend notifications %4$s days before the datetime.%2$s%1$s%5$s%2$s',
-                    $this->scheduling_settings->currentThreshold(),
+                    '%1$sSend notifications %4$s day before the datetime.%2$',
+                    '%1$sSend notifications %4$s days before the datetime.%2$',
+                    $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
             )
             : esc_html(
                 _n(
-                    '%1$sSend notifications %4$s day before the event.%2$s%1$s%5$s%2$s',
-                    '%1$sSend notifications %4$s days before the event.%2$s%1$s%5$s%2$s',
-                    $this->scheduling_settings->currentThreshold(),
+                    '%1$sSend notifications %4$s day before the event.%2$s',
+                    '%1$sSend notifications %4$s days before the event.%2$s',
+                    $this->scheduling_settings->currentThreshold($this->context),
                     'event_espresso'
                 )
             );
