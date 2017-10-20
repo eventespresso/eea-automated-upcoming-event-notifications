@@ -45,7 +45,8 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $date_three_days_from_now,
             'automate_upcoming_datetime'
         );
-        //okay so our data should include the expected datetime plus one registration on just the global template group id
+        //okay so our data should include the expected datetime plus one registration on just the global template
+        // group id
         $data = $this->command_handler_mock->getData($this->message_template_groups['datetime']);
         $this->assertCount(1, $data);
         //the key should = that of the global template
@@ -70,13 +71,11 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         //We don't expect any data to get returned in this scenario because the event modified is not attached to any of
         //those groups.
         $global_group->deactivate_context('admin');
-        $custom_mtg_settings = array();
         /** @var EE_Message_Template_Group $message_template_group */
         foreach ($this->message_template_groups['datetime'] as $message_template_group) {
             if ($message_template_group->is_global()) {
                 continue;
             }
-            $custom_mtg_settings[$message_template_group->ID()] = new SchedulingSettings($message_template_group);
             $message_template_group->activate_context('admin');
         }
         $this->assertEmpty($this->command_handler_mock->getData($this->message_template_groups['datetime']));
@@ -115,7 +114,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         foreach ($this->events as $event) {
             foreach ($event->datetimes() as $datetime) {
                 $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-                $this->assertFalse($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
+                $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
             }
         }
 
@@ -128,7 +127,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         );
         foreach ($datetimes as $datetime) {
             $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-            $this->assertFalse($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
+            $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
         }
 
         //now let's set the message template groups to active
@@ -152,7 +151,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         //be a marker for admin processed.
         foreach ($datetimes as $datetime) {
             $this->assertCount(0, $this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-            $this->assertTrue($datetime->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
+            $this->assertCount(1, $this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
         }
     }
 }

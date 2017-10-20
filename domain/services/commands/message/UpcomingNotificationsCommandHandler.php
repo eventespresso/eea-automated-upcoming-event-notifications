@@ -2,7 +2,9 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
@@ -87,22 +89,67 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param EEM_Message_Template_Group[] $message_template_groups
      * @return array
+     * @throws InvalidIdentifierException
      * @throws EE_Error
      */
     protected function getData(array $message_template_groups)
     {
         $data = array();
         if (! empty($message_template_groups)) {
-            $registration_ids_to_exclude = $this->registrationIdsAlreadyNotified();
-            $data                        = $this->getDataForCustomMessageTemplateGroups(
-                $message_template_groups,
-                $registration_ids_to_exclude
-            );
-            $data                        = $this->getDataForGlobalMessageTemplateGroup(
-                $message_template_groups,
-                $data,
-                $registration_ids_to_exclude
-            );
+            $global_group = null;
+            $registration_ids_to_exclude = array();
+            /** @var EE_Message_Template_Group $message_template_group */
+            foreach ($message_template_groups as $message_template_group) {
+                //if this is a global group then assign to global group property and continue (will be used later)
+                if ($message_template_group->is_global()) {
+                    $global_group = $message_template_group;
+                    continue;
+                }
+                $settings = new SchedulingSettings($message_template_group);
+                $active_contexts = $settings->allActiveContexts();
+                if (count($active_contexts) < 1) {
+                    continue;
+                }
+                foreach ($active_contexts as $context) {
+                    $registration_ids_to_exclude[$context] = isset($registration_ids_to_exclude[$context])
+                        ? $registration_ids_to_exclude[$context]
+                        : $this->registrationIdsAlreadyNotified($context);
+                    $retrieved_data = $this->getDataForCustomMessageTemplateGroup(
+                        $settings,
+                        $context,
+                        $registration_ids_to_exclude[$context]
+                    );
+                    $data = $this->combineDataByGroupAndContext(
+                        $message_template_group,
+                        $context,
+                        $data,
+                        $retrieved_data
+                    );
+                }
+            }
+            if ($global_group instanceof EE_Message_Template_Group) {
+                $settings = new SchedulingSettings($global_group);
+                $active_contexts = $settings->allActiveContexts();
+                if (count($active_contexts) > 0) {
+                    foreach ($active_contexts as $context) {
+                        $registration_ids_to_exclude[$context] = isset($registration_ids_to_exclude[$context])
+                           ? $registration_ids_to_exclude[$context]
+                           : $this->registrationIdsAlreadyNotified($context);
+                        $retrieved_data = $this->getDataForGlobalMessageTemplateGroup(
+                            $settings,
+                            $context,
+                            $data,
+                            $registration_ids_to_exclude[$context]
+                        );
+                        $data = $this->combineDataByGroupAndContext(
+                            $global_group,
+                            $context,
+                            $data,
+                            $retrieved_data
+                        );
+                    }
+                }
+            }
         }
         return $data;
     }
@@ -217,21 +264,24 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * HAVE been notified at some point.  These registrations will then be excluded from the query for what
      * registrations to send notifications for.
      *
-     * @return array  An array of registration ids.
+     * @param string $context  The context we're getting the notified registrations for.
+     * @return array An array of registration ids.
      */
-    abstract protected function registrationIdsAlreadyNotified();
+    abstract protected function registrationIdsAlreadyNotified($context);
 
 
     /**
-     * This retrieves the data for all the custom message template groups used for triggering the messages.
+     * This retrieves the data for the given SchedulingSettings
      *
-     * @param EE_Message_Template_Group[] $message_template_groups
-     * return array An array of data for processing.
-     * @param array                       $registration_ids_to_exclude
+     * @param SchedulingSettings $scheduling_settings
+     * @param string             $context   What context this is for.
+     * @param array              $registration_ids_to_exclude
      * @return
+     * @internal param SchedulingSettings $settings
      */
-    abstract protected function getDataForCustomMessageTemplateGroups(
-        array $message_template_groups,
+    abstract protected function getDataForCustomMessageTemplateGroup(
+        SchedulingSettings $scheduling_settings,
+        $context,
         array $registration_ids_to_exclude
     );
 
@@ -239,15 +289,32 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     /**
      * This retrieves the data for the global message template group (if present).
      *
-     * @param EE_Message_Template_Group[] $message_template_groups
-     * @param array                       $data
-     * @param array                       $registration_ids_to_exclude
+     * @param SchedulingSettings $scheduling_settings This should contain a global EE_Message_Template_Group object.
+     * @param string             $context  What context this is for
+     * @param array              $data
+     * @param array              $registration_ids_to_exclude
      * @return array
      */
     abstract protected function getDataForGlobalMessageTemplateGroup(
-        array $message_template_groups,
+        SchedulingSettings $scheduling_settings,
+        $context,
         array $data,
         array $registration_ids_to_exclude
+    );
+
+
+    /**
+     * @param EE_Message_Template_Group $message_template_group
+     * @param string                    $context The context for the data
+     * @param array                     $data    The data to be combined with
+     * @param array                     $incoming_data  The incoming data for combining
+     * @return array
+     */
+    abstract protected function combineDataByGroupAndContext(
+        EE_Message_Template_Group $message_template_group,
+        $context,
+        array $data,
+        array $incoming_data
     );
 
 

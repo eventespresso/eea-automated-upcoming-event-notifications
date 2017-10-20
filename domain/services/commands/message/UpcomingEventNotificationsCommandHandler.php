@@ -65,124 +65,78 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     /**
      * This retrieves the data containing registrations for all the custom message template groups.
      *
-     * @param EE_Message_Template_Group[] $message_template_groups
-     * @param array                       $registration_ids_to_exclude
+     * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
+     * @param string                                         $context
+     * @param array                                          $registration_ids_to_exclude
      * @return array An array of data for processing.
-     * @throws InvalidIdentifierException
      * @throws EE_Error
      */
-    protected function getDataForCustomMessageTemplateGroups(
-        array $message_template_groups,
+    protected function getDataForCustomMessageTemplateGroup(
+        SchedulingSettings $scheduling_settings,
+        $context,
         array $registration_ids_to_exclude
     ) {
-        $data                        = array();
         $additional_query_parameters = $registration_ids_to_exclude
             ? array('REG_ID' => array('NOT IN', $registration_ids_to_exclude))
             : array();
-        foreach ($message_template_groups as $message_template_group) {
-            $settings = new SchedulingSettings($message_template_group);
-            $active_contexts = $settings->allActiveContexts();
-            //if no contexts are active then just continue past this message template group.
-            if (count($active_contexts) < 1) {
-                continue;
-            }
-            foreach ($active_contexts as $context) {
-                //if $context is admin, then we clear the additional query params because we don't exclude registrations
-                //already notified for admin notifications.
-                $extra_query_params = $context === 'admin'
-                    ? array()
-                    : $additional_query_parameters;
-                $registrations = $this->getRegistrationsForMessageTemplateGroupAndContext(
-                    $message_template_group,
-                    $settings,
-                    $context,
-                    $extra_query_params
-                );
-                if ($registrations) {
-                    $data = $this->addToDataByGroupAndRegistrationsAndContext(
-                        $message_template_group,
-                        $registrations,
-                        $data,
-                        $context
-                    );
-                }
-            }
-        }
-        return $data;
+        $registrations = $this->getRegistrationsForMessageTemplateGroup(
+            $scheduling_settings,
+            $context,
+            $additional_query_parameters
+        );
+        return $registrations ? $registrations : array();
     }
 
 
     /**
      * This retrieves the data containing registrations for the global message template group (if present).
      *
-     * @param EE_Message_Template_Group[] $message_template_groups
-     * @param array                       $data
-     * @param array                       $registration_ids_to_exclude
+     * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
+     * @param string                                         $context
+     * @param array                                          $data
+     * @param array                                          $registration_ids_to_exclude
      * @return array
-     * @throws InvalidIdentifierException
      * @throws EE_Error
      */
     protected function getDataForGlobalMessageTemplateGroup(
-        array $message_template_groups,
+        SchedulingSettings $scheduling_settings,
+        $context,
         array $data,
         array $registration_ids_to_exclude
     ) {
-        $global_message_template_group = $this->extractGlobalMessageTemplateGroup($message_template_groups);
-        if (! $global_message_template_group instanceof EE_Message_Template_Group) {
-            return $data;
+        if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
+            return array();
         }
 
-        $settings = new SchedulingSettings($global_message_template_group);
-
-        //if there are no active contexts for the global group then get out.
-        $active_contexts = $settings->allActiveContexts();
-        if (count($active_contexts) < 1) {
-            return $data;
-        }
         //extract the ids of registrations already in the data array.
-        $registration_ids = array();
-        foreach ($data as $context => $message_template_group_registrations) {
-            $registration_ids = array_merge(array_keys($message_template_group_registrations), $registration_ids);
-        }
-        $registration_ids            = array_unique(array_merge($registration_ids, $registration_ids_to_exclude));
+        $registration_ids = isset($data[$context])
+            ? array_keys($data[$context])
+            : array();
+        $registration_ids = array_unique(array_merge($registration_ids, $registration_ids_to_exclude));
         $additional_where_parameters = array();
         if ($registration_ids) {
             $additional_where_parameters['REG_ID'] = array('NOT IN', $registration_ids);
         }
-
-        foreach ($active_contexts as $context) {
-            $registrations = $this->getRegistrationsForMessageTemplateGroupAndContext(
-                $global_message_template_group,
-                $settings,
-                $context,
-                $additional_where_parameters
-            );
-            if ($registrations) {
-                $data = $this->addToDataByGroupAndRegistrationsAndContext(
-                    $global_message_template_group,
-                    $registrations,
-                    $data,
-                    $context
-                );
-            }
-        }
-        return $data;
+        $registrations = $this->getRegistrationsForMessageTemplateGroup(
+            $scheduling_settings,
+            $context,
+            $additional_where_parameters
+        );
+        return $registrations ? $registrations : array();
     }
 
 
     /**
-     * @param EE_Message_Template_Group $message_template_group
-     * @param SchedulingSettings        $settings
-     * @param string                    $context
-     * @param array                     $additional_where_parameters
+     * @param SchedulingSettings $settings
+     * @param string             $context
+     * @param array              $additional_where_parameters
      * @return EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
      */
-    protected function getRegistrationsForMessageTemplateGroupAndContext(
-        EE_Message_Template_Group $message_template_group,
+    protected function getRegistrationsForMessageTemplateGroup(
         SchedulingSettings $settings,
         $context,
-        $additional_where_parameters = array()
+        array $additional_where_parameters = array()
     ) {
         $where = array(
             'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
@@ -197,45 +151,37 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             'REG_deleted'                  => 0,
         );
 
-        //add exclusion for admin context
-        if ($context === 'admin') {
-            $where['OR'] = array(
-                'Event.Extra_Meta.EXM_key' => array('NOT IN', array(Domain::META_KEY_PREFIX_ADMIN_TRACKER)),
-                'Event.Extra_Meta.EXM_key*null' => array('IS NULL')
-            );
-        }
         if ($additional_where_parameters) {
             $where = array_merge($where, $additional_where_parameters);
         }
-        if ($message_template_group->is_global()) {
+        if ($settings->getMessageTemplateGroup()->is_global()) {
             $where['OR*global_conditions'] = array(
-                'Event.Message_Template_Group.GRP_ID'      => $message_template_group->ID(),
+                'Event.Message_Template_Group.GRP_ID'      => $settings->getMessageTemplateGroup()->ID(),
                 'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
             );
         } else {
-            $where['Event.Message_Template_Group.GRP_ID'] = $message_template_group->ID();
+            $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
         }
         return $this->registration_model->get_all(array($where, 'group_by' => 'REG_ID'));
     }
 
-
     /**
-     * This appends to the (existing) data array using the given message template group, registrations and existing data
-     * array.
+     * Combines data for this handler.
      *
      * @param EE_Message_Template_Group $message_template_group
+     * @param string                    $context The context for the data
+     * @param array                     $data    The data to be aggregated
      * @param EE_Registration[]         $registrations
-     * @param array                     $data
-     * @param string                    $context
      * @return array
      * @throws EE_Error
      */
-    protected function addToDataByGroupAndRegistrationsAndContext(
+    protected function combineDataByGroupAndContext(
         EE_Message_Template_Group $message_template_group,
-        array $registrations,
+        $context,
         array $data,
-        $context
+        array $registrations
     ) {
+        //here the incoming data is an array of registrations.
         foreach ($registrations as $registration) {
             $data[$message_template_group->ID()][$context][$registration->ID()] = $registration;
         }
@@ -248,17 +194,21 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * HAVE been notified at some point.  These registrations will then be excluded from the query for what
      * registrations to send notifications for.
      *
+     * @param $context
      * @return array An array of registration ids.
      * @throws EE_Error
      */
-    protected function registrationIdsAlreadyNotified()
+    protected function registrationIdsAlreadyNotified($context)
     {
+        $meta_key = $context === 'admin'
+            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
+            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
         $where = array(
             'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
             'Event.Datetime.DTT_EVT_start' => array('>', time()),
             'STS_ID'                       => EEM_Registration::status_id_approved,
             'REG_deleted'                  => 0,
-            'Extra_Meta.EXM_key'           => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . 'EVT',
+            'Extra_Meta.EXM_key'           => $meta_key . 'EVT',
         );
         return $this->registration_model->get_col(array($where));
     }

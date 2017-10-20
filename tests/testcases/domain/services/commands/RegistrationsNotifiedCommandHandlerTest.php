@@ -63,7 +63,7 @@ class RegistrationsNotifiedCommandHandlerTest extends EE_UnitTestCase
         //merge so we should have two groups of registrations for two events.
         $registrations = array_merge($registrations_for_event_group_one, $registrations_for_event_group_two);
         //set them processed
-        $this->command_handler_mock->setRegistrationsProcessed($registrations, 'admin', 'EVT');
+        $this->command_handler_mock->setRegistrationsProcessed($registrations, 'admin', 'testing');
         //validate that registrations were NOT set processed in the db (because they only get set processed when
         //processing for attendee context.
         $this->assertEquals(
@@ -77,9 +77,16 @@ class RegistrationsNotifiedCommandHandlerTest extends EE_UnitTestCase
             )
         );
 
-        //validate that each event has the admin processed tracker set.
-        $this->assertTrue($event_one->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
-        $this->assertTrue($event_two->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
+        //validate that the registrations were set processed for the admin context.
+        $this->assertEquals(
+            5,
+            EEM_Registration::instance()->count(
+                array(
+                    array(
+                        'Extra_Meta.EXM_key' => Domain::META_KEY_PREFIX_ADMIN_TRACKER . 'testing'
+                    )
+                )
+            )
+        );
     }
-
 }

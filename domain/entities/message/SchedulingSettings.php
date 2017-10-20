@@ -109,4 +109,13 @@ class SchedulingSettings
         }
         return $this->cache[$cache_key];
     }
+
+
+    /**
+     * @return EE_Message_Template_Group
+     */
+    public function getMessageTemplateGroup()
+    {
+        return $this->message_template_group;
+    }
 }

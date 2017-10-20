@@ -56,13 +56,7 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
                 if (! $registration instanceof EE_Registration) {
                     continue;
                 }
-                if ($id_ref === 'EVT' && $context === 'admin') {
-                    $increment_count = $this->setAdminProcessed($registration);
-                }
-                //only process registrations if the context is not admin.
-                if ($context !== 'admin' && $this->setRegistrationProcessed($registration, $id_ref)) {
-                    $increment_count = true;
-                }
+                $this->setRegistrationProcessed($registration, $id_ref, $context);
                 if ($increment_count) {
                     $count++;
                 }
@@ -77,33 +71,18 @@ class RegistrationsNotifiedCommandHandler extends CommandHandler
      *
      * @param EE_Registration $registration
      * @param string          $id_ref
+     * @param string          $context  Will determine what meta key to use.
      * @return int|bool        @see EE_Base_Class::add_extra_meta
      * @throws EE_Error
      */
-    protected function setRegistrationProcessed(EE_Registration $registration, $id_ref)
+    protected function setRegistrationProcessed(EE_Registration $registration, $id_ref, $context)
     {
+        $meta_key_prefix = $context === 'admin'
+            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
+            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
         return $registration->update_extra_meta(
-            Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
+            $meta_key_prefix . $id_ref,
             true
         );
-    }
-
-
-    /**
-     * Use to record that the admin has been notified for the event attached to this registration.
-     *
-     * @param EE_Registration $registration
-     * @return bool|int
-     * @throws EE_Error
-     */
-    protected function setAdminProcessed(EE_Registration $registration)
-    {
-        $event = $registration->event_obj();
-        if ($event instanceof EE_Event) {
-            return $event->update_extra_meta(
-                Domain::META_KEY_PREFIX_ADMIN_TRACKER,
-                true
-            );
-        }
     }
 }

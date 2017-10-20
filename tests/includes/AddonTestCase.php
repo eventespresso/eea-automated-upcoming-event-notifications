@@ -57,18 +57,23 @@ class AddonTestCase extends EE_UnitTestCase
     }
 
 
-
     /**
      * Helper method to return registrations that have registrations recorded as being processed.
+     *
+     * @param        $id_ref
+     * @param string $context
      * @return EE_Registration[]
      */
-    protected function getRegistrationsProcessed($id_ref)
+    protected function getRegistrationsProcessed($id_ref, $context = 'attendee')
     {
+        $meta_key_prefix = $context === 'admin'
+            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
+            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return EEM_Registration::instance()->get_all(
             array(
                 array(
-                    'Extra_Meta.EXM_key' => Domain::META_KEY_PREFIX_REGISTRATION_TRACKER . $id_ref,
+                    'Extra_Meta.EXM_key' => $meta_key_prefix . $id_ref,
                 ),
             )
         );
