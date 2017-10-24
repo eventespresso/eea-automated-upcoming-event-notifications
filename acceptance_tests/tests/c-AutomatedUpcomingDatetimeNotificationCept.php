@@ -27,8 +27,8 @@ $I->loginAsAdmin();
 // - 1 notification for the above user to Automated Upcoming Datetime message type.
 // - 1 notification for dudeb@example.org user to Automated Upcoming Event message type.
 // - 1 notification for the above user to the Automated Upcoming Datetime message type.
-// - 1 notifications to the Event Admin for Automated Upcoming Event message type.
-// - 1 notifications to the Event Admin for Automated Upcoming Datetime message type.
+// - 2 notifications to the Event Admin for Automated Upcoming Event message type.
+// - 2 notifications to the Event Admin for Automated Upcoming Datetime message type.
 
 $I->amOnDefaultMessageTemplateListTablePage();
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
@@ -107,7 +107,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    1,
+    2,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'
@@ -132,7 +132,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    1,
+    2,
     'admin@example.com',
     'to',
     'Automated Upcoming Datetime Notification'

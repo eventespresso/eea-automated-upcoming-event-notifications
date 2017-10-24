@@ -42,7 +42,7 @@ $I->fillField(
     'Ticket A'
 );
 $I->click(EventsAdmin::EVENT_EDITOR_PUBLISH_BUTTON_SELECTOR);
-$I->waitForText('Event published.');
+$I->waitForText('Event published.', 15);
 $link = $I->observeLinkUrlAt(EventsAdmin::EVENT_EDITOR_VIEW_LINK_AFTER_PUBLISH_SELECTOR);
 
 //get event id
@@ -65,7 +65,7 @@ $I->waitForText('Congratulations', 15);
 
 $I->loginAsAdmin();
 
-//go and edit the default template and admin context so that it has the threshold changed to 2 days.
+//go and edit the default template and admin context so that it has the threshold changed to 3 days.
 $I->amOnDefaultMessageTemplateListTablePage();
 $I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
@@ -167,7 +167,6 @@ $I->dontSee(
     )
 );
 
-//should still only be one for the admin context.
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     0,
     'dude@example.org',
@@ -177,8 +176,10 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Email',
     'Registrant'
 );
+//we expect two, because the admin context receieves a notification whenever new registrations fall within the range of
+//threshold.
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    1,
+    2,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'
@@ -257,7 +258,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    1,
+    2,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'
