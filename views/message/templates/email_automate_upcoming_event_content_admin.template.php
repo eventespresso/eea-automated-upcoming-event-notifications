@@ -29,7 +29,7 @@
             <div class="content">
                 <h1><?php esc_html_e('Upcoming Event Notification', 'event_espresso'); ?></h1>
                 <?php esc_html_e(
-                    'Here is a list of approved attendee(s) registered for the following event:',
+                    'Attendees for the following events have received an upcoming event notification:',
                     'event_espresso'
                 ); ?>
                 <table>

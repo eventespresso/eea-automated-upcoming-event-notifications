@@ -35,7 +35,7 @@
                             <p class="lead">
                                 <?php
                                     esc_html_e(
-                                        "We're reaching out to remind you of an upcoming event you registered for on our website. Here's a copy of your registration details:",
+                                        "We're reaching out to remind you of upcoming events you registered for on our website. Here's a copy of your registration details:",
                                         'event_espresso'
                                     );
                                 ?>

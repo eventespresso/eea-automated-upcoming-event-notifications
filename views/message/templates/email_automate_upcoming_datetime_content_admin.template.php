@@ -30,7 +30,7 @@
                 <h1><?php esc_html_e('Upcoming Datetime Notification', 'event_espresso'); ?></h1>
                 <?php printf(
                     esc_html__(
-                        'Here is a list of approved attendee(s) registered for the following event on %s:',
+                        'An upcoming datetime notification has been sent to attendees for following event on %s:',
                         'event_espresso'
                     ),
                     '[SPECIFIC_DATETIME_START] - [SPECIFIC_DATETIME_END]'
