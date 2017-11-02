@@ -26,6 +26,11 @@ class Scheduler
 {
 
     /**
+     * Custom schedule frequency for automated notifications.
+     */
+    const CRON_FREQUENCY_DEFAULT = 'ee_every_three_hours';
+
+    /**
      * @var CommandBusInterface
      */
     protected $command_bus;
@@ -42,6 +47,13 @@ class Scheduler
      */
     protected $loader;
 
+
+    /**
+     * This will be the frequency of the cron event running
+     * @var string
+     */
+    protected $cron_frequency;
+
     /**
      * Scheduler constructor.
      *
@@ -57,18 +69,51 @@ class Scheduler
         $this->command_bus = $command_bus;
         $this->loader      = $loader;
         $this->message_template_group_model = $message_template_group_model;
+        $this->setCronFrequency();
+        add_filter('cron_schedules', array($this, 'registerCustomSchedule'));
         //register tasks (this is on the hook that will fire on EEH_Activation)
         add_filter('FHEE__EEH_Activation__get_cron_tasks', array($this, 'registerScheduledTasks'));
 
         //register callbacks for scheduled events.
         add_action(
-            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check',
+            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check',
             array($this, 'checkForUpcomingDatetimeNotificationsToSchedule')
         );
         add_action(
-            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check',
+            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check',
             array($this, 'checkForUpcomingEventNotificationsToSchedule')
         );
+    }
+
+
+    /**
+     * Sets the cron frequency property.
+     */
+    protected function setCronFrequency()
+    {
+        $this->cron_frequency = apply_filters(
+            'FHEE__EventEspresso_core_domain_services_tasks_Scheduler__construct___cron_frequency',
+            self::CRON_FREQUENCY_DEFAULT
+        );
+    }
+
+
+    /**
+     * Callback for the `cron_schedules` hook to register a custom schedule used for this cron event.
+     * @param array $schedules
+     * @return array
+     */
+    public function registerCustomSchedule($schedules)
+    {
+        $cron_frequency = $this->getCronFrequency();
+        //only set this custom schedule if it hasn't been overridden by some other custom schedule.
+        if ($cron_frequency === self::CRON_FREQUENCY_DEFAULT) {
+            $schedules[self::CRON_FREQUENCY_DEFAULT] = array(
+                'interval' => HOUR_IN_SECONDS * 3,
+                'display'  => esc_html__('Once Every Three Hours', 'event_espresso')
+            );
+        }
+        return $schedules;
     }
 
 
@@ -81,16 +126,16 @@ class Scheduler
     public function registerScheduledTasks($tasks)
     {
         //this will set the schedule to the nearest upcoming midnight as a recurring daily schedule.
-        $tasks['AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check'] = array(
+        $tasks['AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check'] = array(
             EEH_DTT_Helper::tomorrow(),
-            'daily',
+            $this->cron_frequency,
         );
         return $tasks;
     }
 
 
     /**
-     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check
+     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check
      * schedule and queries the database for any upcoming Datetimes that meet the criteria for any message
      * template groups that are active for automation.
      *
@@ -119,7 +164,7 @@ class Scheduler
 
 
     /**
-     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check
+     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check
      * schedule and queries the database for any upcoming Events that meet the criteria for any message
      * template groups that are active for automation.
      *
@@ -140,6 +185,20 @@ class Scheduler
                 array($message_template_groups)
             )
         );
+    }
+
+
+
+    /**
+     * Return the frequency currently set for the scheduled automation check.
+     * @return string
+     */
+    public function getCronFrequency()
+    {
+        if (empty($this->cron_frequency)) {
+            $this->setCronFrequency();
+        }
+        return $this->cron_frequency;
     }
 
 
