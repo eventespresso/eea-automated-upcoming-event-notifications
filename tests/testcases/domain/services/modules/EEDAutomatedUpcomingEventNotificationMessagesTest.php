@@ -183,7 +183,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
         $this->assertNotFalse(
             strpos(
                 $messages['attendee']->content(),
-                'We\'re reaching out to remind you of an upcoming event you registered for on our website. '
+                'We\'re reaching out to remind you of upcoming events you registered for on our website. '
                 . 'Here\'s a copy of your registration details:'
             )
         );

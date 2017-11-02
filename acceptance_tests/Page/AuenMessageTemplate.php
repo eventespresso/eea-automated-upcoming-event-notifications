@@ -43,5 +43,5 @@ class AuenMessageTemplate
      * The reference for the scheduled cron event.
      * @var string
      */
-    const AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK = 'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__daily_check';
+    const AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK = 'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check';
 }

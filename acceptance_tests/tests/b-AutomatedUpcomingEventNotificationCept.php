@@ -41,8 +41,8 @@ $I->fillField(
     EventsAdmin::eventEditorTicketNameFieldSelector(),
     'Ticket A'
 );
-$I->click(EventsAdmin::EVENT_EDITOR_PUBLISH_BUTTON_SELECTOR);
-$I->waitForText('Event published.', 15);
+$I->publishEvent();
+$I->waitForText('Event published.', 20);
 $link = $I->observeLinkUrlAt(EventsAdmin::EVENT_EDITOR_VIEW_LINK_AFTER_PUBLISH_SELECTOR);
 
 //get event id
@@ -140,7 +140,6 @@ $I->waitForText('Congratulations', 15);
 $I->loginAsAdmin();
 
 //now let's go to crontrol and trigger the sends
-//now let's go to crontrol and trigger the sends
 $I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
 
 //verify we did not get any more messages generated.
@@ -176,10 +175,9 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Email',
     'Registrant'
 );
-//we expect two, because the admin context receieves a notification whenever new registrations fall within the range of
-//threshold.
+//we expect one, because once a notification is sent for an event and the context its not sent again.
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    2,
+    1,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'
@@ -258,7 +256,7 @@ $I->verifyMatchingCountofTextInMessageActivityListTableFor(
     'Registrant'
 );
 $I->verifyMatchingCountofTextInMessageActivityListTableFor(
-    2,
+    1,
     'admin@example.com',
     'to',
     'Automated Upcoming Event Notification'

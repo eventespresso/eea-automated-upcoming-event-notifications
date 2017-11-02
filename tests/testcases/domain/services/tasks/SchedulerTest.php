@@ -36,6 +36,12 @@ class SchedulerTest extends EE_UnitTestCase
         $this->scheduler_mock = null;
     }
 
+
+    public function testGetCronFrequency()
+    {
+        $this->assertEquals('ee_every_three_hours', $this->scheduler_mock->getCronFrequency());
+    }
+
     
     public function testGetActiveMessageTemplateGroupsForAutomation()
     {

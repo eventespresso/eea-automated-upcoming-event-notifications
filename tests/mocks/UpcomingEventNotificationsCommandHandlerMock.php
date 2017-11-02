@@ -1,19 +1,27 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
+use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommandHandler;
 use EEM_Registration;
 use EE_Registry;
 
 class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotificationsCommandHandler
 {
-
     /**
      * Used for keeping track of messages triggered. It's reset to an empty array on every call to process.
      * Used to simulate what actually got sent on to the messages module.
      * @var array
      */
     public $messages_triggered = array();
+
+
+    /**
+     * Used by test cases to flag whether to trigger actual message sends.
+     * @var bool
+     */
+    private $trigger_actual_messages = false;
+
 
     public function __construct()
     {
@@ -24,7 +32,8 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
             EE_Registry::instance()->create(
                 'EventEspresso\core\services\commands\CommandFactory'
             ),
-            EEM_Registration::instance()
+            EEM_Registration::instance(),
+            EEM_Event::instance()
         );
     }
 
@@ -32,6 +41,16 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
     {
         $this->messages_triggered = array();
         parent::process($data);
+    }
+
+
+    /**
+     * Used by testcases to flag whether actual messages should be sent or not.
+     * @param bool $trigger_actual_messages
+     */
+    public function setTriggerActualMessages($trigger_actual_messages = false)
+    {
+        $this->trigger_actual_messages = $trigger_actual_messages;
     }
 
 
@@ -53,11 +72,20 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
     public function triggerMessages(array $data, $message_type, $context)
     {
         $this->messages_triggered = array_merge($this->messages_triggered, $data);
+        if ($this->trigger_actual_messages) {
+            parent::triggerMessages($data, $message_type, $context);
+        }
     }
 
 
     public function extractGlobalMessageTemplateGroup(array $message_template_groups)
     {
         return parent::extractGlobalMessageTemplateGroup($message_template_groups);
+    }
+
+
+    public function aggregateEventsForContext(array $registrations, array $incoming_events, $context)
+    {
+        return parent::aggregateEventsForContext($registrations, $incoming_events, $context);
     }
 }

@@ -1,9 +1,7 @@
 <?php
 
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingDatetimeNotificationsCommandHandlerMock;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 
 class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
 {
@@ -110,13 +108,8 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $this->command_handler_mock->getData($this->message_template_groups['datetime'])
         );
         //for each of our datetimes there should be no registrations processed and no admin processed.
-        /** @var EE_Event $event */
-        foreach ($this->events as $event) {
-            foreach ($event->datetimes() as $datetime) {
-                $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-                $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
-            }
-        }
+        $this->assertEmpty($this->getDatetimesProcessed());
+        $this->assertEmpty($this->getDatetimesProcessed('admin'));
 
         //setting dates to within the threshold but NOT setting any message template groups active.  Should still result
         //in no registrations processed.
@@ -125,12 +118,10 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         $this->command_handler_mock->process(
             $this->command_handler_mock->getData($this->message_template_groups['datetime'])
         );
-        foreach ($datetimes as $datetime) {
-            $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-            $this->assertEmpty($this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
-        }
+        $this->assertEmpty($this->getDatetimesProcessed());
+        $this->assertEmpty($this->getDatetimesProcessed('admin'));
 
-        //now let's set the message template groups to active
+        //now let's set the message template groups to active for admin context
         $global_group = $this->command_handler_mock->extractGlobalMessageTemplateGroup(
             $this->message_template_groups['datetime']
         );
@@ -147,11 +138,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $this->command_handler_mock->getData($this->message_template_groups['datetime'])
         );
 
-        //now process again and there should be NO registrations marked processed for each datetime but there SHOULD
-        //be a marker for admin processed.
-        foreach ($datetimes as $datetime) {
-            $this->assertCount(0, $this->getRegistrationsProcessed('DTT_' . $datetime->ID()));
-            $this->assertCount(1, $this->getRegistrationsProcessed('DTT_' . $datetime->ID(), 'admin'));
-        }
+        $this->assertEmpty($this->getDatetimesProcessed());
+        $this->assertCount(2, $this->getDatetimesProcessed('admin'));
     }
 }

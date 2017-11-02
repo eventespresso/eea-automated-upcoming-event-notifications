@@ -2,9 +2,8 @@
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
-use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\RegistrationsNotifiedCommandHandlerMock;
+use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EventsNotifiedCommandHandlerMock;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingEventNotificationsCommandHandlerMock;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 
 class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 {
@@ -16,24 +15,25 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 
 
     /**
-     * @var RegistrationsNotifiedCommandHandlerMock
+     * @var EventsNotifiedCommandHandlerMock
      */
-    private $registrations_notified_command_handler_mock;
+    private $events_notified_command_handler_mock;
 
 
     public function setUp()
     {
         parent::setUp();
         $this->command_handler_mock = new UpcomingEventNotificationsCommandHandlerMock();
-        $this->registrations_notified_command_handler_mock = new RegistrationsNotifiedCommandHandlerMock();
+        $this->events_notified_command_handler_mock = new EventsNotifiedCommandHandlerMock();
     }
 
     public function tearDown()
     {
         parent::tearDown();
         $this->command_handler_mock = null;
-        $this->registrations_notified_command_handler_mock = null;
+        $this->events_notified_command_handler_mock = null;
     }
+
 
 
 
@@ -112,6 +112,72 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
     }
 
 
+    public function testTriggerUpcomingEventNotificationProcess()
+    {
+        //first if there is no upcoming datetime, then there should be no registrations processed.
+        $this->command_handler_mock->process(
+            $this->command_handler_mock->getData($this->message_template_groups['event'])
+        );
+        /** @var EE_Event $event */
+        $this->assertEmpty($this->getEventsProcessed());
+        //should be no admin processed records for the events
+        $this->assertEmpty($this->getEventsProcessed('admin'));
+
+        //setting dates to within the threshold but NOT setting any message template groups active.  Should still result
+        //in no registrations processed.
+        $four_days_from_now = new DateTime('now +4 days', new DateTimeZone(get_option('timezone_string')));
+        $this->setOneDatetimeOnEventsToDate($four_days_from_now, 2);
+        $this->command_handler_mock->process(
+            $this->command_handler_mock->getData($this->message_template_groups['event'])
+        );
+        $this->assertEmpty($this->getEventsProcessed());
+        $this->assertEmpty($this->getEventsProcessed('admin'));
+
+        $global_group = $this->command_handler_mock->extractGlobalMessageTemplateGroup(
+            $this->message_template_groups['event']
+        );
+        //now let's set the message template groups to active
+        $global_group->activate_context('attendee');
+
+        /** @var EE_Message_Template_Group $message_template_group */
+        foreach ($this->message_template_groups['event'] as $message_template_group) {
+            if ($message_template_group->is_global()) {
+                continue;
+            }
+            $message_template_group->activate_context('attendee');
+        }
+
+        /**
+         * The expectation here is because this is an _event_ based notification (for the attendee context), if the
+         * event has ANY datetime matching the "upcoming" threshold, then all the registrations for that event will get
+         * notified (regardless of whether they have access to the date triggering the message or not).  So this means
+         * since our expectation data has 3 registrations per event, and our threshold should trigger two events to
+         * match, we should get 6 registrations returned for our test.
+         * However we should not see ANY admin notification recorded (because that was not activated).
+         */
+        $this->command_handler_mock->process(
+            $this->command_handler_mock->getData($this->message_template_groups['event'])
+        );
+        $this->assertCount(2, $this->getEventsProcessed());
+        //messages triggered should have accumulated a total of 6 registrations
+        $this->assertCount(6, $this->command_handler_mock->messages_triggered);
+        $this->assertEmpty($this->getEventsProcessed('admin'));
+
+        //The expectation is that each registration will only ever get processed ONCE for an event (so if an event has
+        //multiple datetimes, and that registration belonged to multiple datetimes, it would still only get one email
+        // sent for that event, this message type, and the threshold given.  In this case triggering processing again
+        // should result in no registrations being queued up for sending.
+        $this->command_handler_mock->process(
+            $this->command_handler_mock->getData($this->message_template_groups['event'])
+        );
+        //this should still be six.
+        $this->assertCount(2, $this->getEventsProcessed());
+
+        //this should be empty (meaning no messages processed)
+        $this->assertEmpty($this->command_handler_mock->messages_triggered);
+    }
+
+
     /**
      * This simply makes sure that if an admin is marked as having already received notification for otherwise
      * conditions that sends notifications, that there will be no registrations returned for the admin to be notified
@@ -141,15 +207,28 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         $this->assertCount(3, $data[$global_group->ID()]['admin']);
         $registrations = $data[$global_group->ID()]['admin'];
 
-        //now let's set the notification flag as notified for these registrations.
-        $this->registrations_notified_command_handler_mock->setRegistrationsProcessed(
+        $aggregated_events = $this->command_handler_mock->aggregateEventsForContext(
             $registrations,
-            'admin',
-            'EVT'
+            array(),
+            'admin'
         );
+
+        //verify we have $aggregated_events for the given context
+        $this->assertArrayHasKey('admin', $aggregated_events);
+        $this->assertInstanceOf('EE_Event', reset($aggregated_events['admin']));
+
+        //now let's set the notification flag as notified for these events.
+        $this->events_notified_command_handler_mock->setEventsProcessed(
+            $aggregated_events['admin'],
+            'admin'
+        );
+
+        // verify the single event was processed.
+        $this->assertCount(1, $this->getEventsProcessed('admin'));
 
         //let's try getting data again
         $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
+
         //this time there should be NO data.
         $this->assertEmpty($data);
 
@@ -165,78 +244,81 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         $this->assertEmpty($data);
     }
 
-    
-    public function testTriggerUpcomingEventNotificationProcess()
+
+    /**
+     * In this test we're verifying:
+     * - if multiple events (in our test we use 3) are authored by the same event author
+     * - if one event is attached to a custom message template group.
+     * - if the other two are attached to the global message template group.
+     * - if all message template groups have the same set threshold.
+     * - then the admin will receive a notification for just the registrations belonging to the event attached to
+     *   the custom message template group and
+     * - then the admin will receive one additional notification for the global template and registrations belonging to
+     *   the remaining events.
+     */
+    public function testEventAddedToCustomMessageTemplateGroupForAdminContext()
     {
-        //first if there is no upcoming datetime, then there should be no registrations processed.
-        $this->command_handler_mock->process(
-            $this->command_handler_mock->getData($this->message_template_groups['event'])
-        );
-        /** @var EE_Event $event */
-        $this->assertEmpty($this->getRegistrationsProcessed('EVT'));
-        //should be no admin processed records for the events
-        foreach ($this->events as $event) {
-            $this->assertFalse($event->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
-        }
-
-        //setting dates to within the threshold but NOT setting any message template groups active.  Should still result
-        //in no registrations processed.
-        $four_days_from_now = new DateTime('now +4 days', new DateTimezone(get_option('timezone_string')));
-        $this->setOneDatetimeOnEventsToDate($four_days_from_now, 2);
-        $this->command_handler_mock->process(
-            $this->command_handler_mock->getData($this->message_template_groups['event'])
-        );
-        $this->assertEmpty($this->getRegistrationsProcessed('EVT'));
-
-        //same value expected for admin notifications
-        foreach ($this->events as $event) {
-            $this->assertFalse($event->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
-        }
-
-        $global_group = $this->command_handler_mock->extractGlobalMessageTemplateGroup(
-            $this->message_template_groups['event']
-        );
-        //now let's set the message template groups to active
-        $global_group->activate_context('attendee');
-
+        //activate admin context for all event groups
         /** @var EE_Message_Template_Group $message_template_group */
         foreach ($this->message_template_groups['event'] as $message_template_group) {
-            if ($message_template_group->is_global()) {
-                continue;
+            $message_template_group->activate_context('admin');
+        }
+
+        //set all events to within the threshold (defaults to 5 days via setup).
+        $four_days_from_now = new DateTime('now +4 days', new DateTimeZone(get_option('timezone_string')));
+        $this->setOneDatetimeOnEventsToDate($four_days_from_now, 3);
+
+        //let's make sure we set up the rest of the data needed for generating actual messages.
+        $this->setTransactionForEvents();
+
+        $this->command_handler_mock->setTriggerActualMessages(true);
+        $this->command_handler_mock->process(
+            $this->command_handler_mock->getData($this->message_template_groups['event'])
+        );
+
+        //okay so now we can retrieve the messages for our expectations.  Let's just retrieve the admin messages.
+        $messages_to_generate = EEM_Message::instance()->get_all();
+
+        //let's go ahead and generate those puppies
+        EED_Messages::generate_now(array_keys($messages_to_generate));
+
+
+        //k now let's pull our messages for verification
+        $expected_messages = EEM_Message::instance()->get_all(
+            array(
+                array(
+                    'MSG_messenger' => 'email',
+                    'MSG_message_type' => Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT,
+                    'MSG_context' => 'admin'
+                )
+            )
+        );
+
+        //first we expect there to be two messages for the admin context.
+        $this->assertCount(2, $expected_messages);
+
+        //let's remap the keys of the array to the group_id for further testing.
+        $mapped_messages = array();
+        array_walk(
+            $expected_messages,
+            function ($message, $message_id) use (&$mapped_messages) {
+                $mapped_messages[$message->GRP_ID()] = $message;
             }
-            $message_template_group->activate_context('attendee');
-        }
-
-        /**
-         * The expectation here is because this is an _event_ based notification (for the attendee context), if the
-         * event has ANY datetime matching the "upcoming" threshold, then all the registrations for that event will get
-         * notified (regardless of whether they have access to the date triggering the message or not).  So this means
-         * since our expectation data has 3 registrations per event, and our threshold should trigger two events to
-         * match, we should get 6 registrations returned for our test.
-         * However we should not see ANY admin notification recorded (because that was not activated).
-         */
-        $this->command_handler_mock->process(
-            $this->command_handler_mock->getData($this->message_template_groups['event'])
         );
-        $this->assertCount(6, $this->getRegistrationsProcessed('EVT'));
-        //messages triggered should have accumulated a total of 6 registrations
-        $this->assertCount(6, $this->command_handler_mock->messages_triggered);
-        foreach ($this->events as $event) {
-            $this->assertFalse($event->get_extra_meta(Domain::META_KEY_PREFIX_ADMIN_TRACKER, true, false));
-        }
 
+        //next we expect that one of these is the global group and one of them is the custom group.
+        $this->assertArrayHasKey($this->global_event_message_template_group_id, $mapped_messages);
+        $this->assertArrayHasKey($this->custom_event_message_template_group_id, $mapped_messages);
 
-        //The expectation is that each registration will only ever get processed ONCE for an event (so if an event has
-        //multiple datetimes, and that registration belonged to multiple datetimes, it would still only get one email
-        // sent for that event, this message type, and the threshold given.  In this case triggering processing again
-        // should result in no registrations being queued up for sending.
-        $this->command_handler_mock->process(
-            $this->command_handler_mock->getData($this->message_template_groups['event'])
-        );
-        //this should still be six.
-        $this->assertCount(6, $this->getRegistrationsProcessed('EVT'));
+        //next we expect that the global group message has two events listed
+        /** @var EE_Message $global_group_message */
+        $global_group_message = $mapped_messages[$this->global_event_message_template_group_id];
+        $this->assertEquals(2, substr_count($global_group_message->content(), 'Event:'));
 
-        //this should be empty (meaning no messages processed)
-        $this->assertEmpty($this->command_handler_mock->messages_triggered);
+        //next we expect that the custom group message has only one event listed. And its the first event.
+        /** @var EE_Message $custom_group_message */
+        $custom_group_message = $mapped_messages[$this->custom_event_message_template_group_id];
+        $this->assertEquals(1, substr_count($custom_group_message->content(), 'Event:'));
+        $this->assertEquals(1, substr_count($custom_group_message->content(), 'Event attached to Custom Group'));
     }
 }
