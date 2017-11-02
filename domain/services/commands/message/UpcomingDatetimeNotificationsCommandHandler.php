@@ -45,6 +45,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param CommandFactoryInterface $command_factory
      * @param EEM_Registration        $registration_model
      * @param EEM_Datetime            $datetime_model
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function __construct(
         CommandBusInterface $command_bus,
@@ -85,24 +88,25 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
              * @var array  $datetimes_and_registrations
              */
             foreach ($context_datetimes_and_registrations as $context => $datetimes_and_registrations) {
+                $datetimes_processed = array();
                 foreach ($datetimes_and_registrations as $datetime_and_registrations) {
                     $this->triggerMessages(
                         $datetime_and_registrations,
                         Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
                         $context
                     );
-                    //extract the datetime so we can use for the processed reference.
-                    $datetime = isset($datetime_and_registrations[0]) ? $datetime_and_registrations[0] : null;
-                    if ($datetime instanceof EE_Datetime) {
-                        //extract the registrations and mark them as having been notified.  Even though messages will
-                        // get sent on a separate request, we don't have access to that so we simply mark them as
-                        // having been processed.
-                        $registrations = isset($datetime_and_registrations[1])
-                            ? $datetime_and_registrations[1]
-                            : array();
-                        $this->setRegistrationsProcessed($registrations, $context, 'DTT_' . $datetime->ID());
+                    if (isset($datetime_and_registrations[0])
+                        && $datetime_and_registrations[0] instanceof EE_Datetime
+                    ) {
+                        $datetimes_processed[] = $datetime_and_registrations[0];
                     }
                 }
+                //set the datetimes as having been processed.
+                $this->setItemsProcessed(
+                    $datetimes_processed,
+                    $context,
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\datetime\DatetimesNotifiedCommand'
+                );
             }
         }
     }
@@ -113,7 +117,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
-     * @param array                                          $registration_ids_to_exclude
+     * @param array                                          $registrations_to_exclude_where_query
      * @return array An array of data for processing.
      * @throws EE_Error
      * @throws InvalidIdentifierException
@@ -121,11 +125,12 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registration_ids_to_exclude
+        array $registrations_to_exclude_where_query
     ) {
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
-            $context
+            $context,
+            $registrations_to_exclude_where_query
         );
     }
 
@@ -136,7 +141,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
      * @param array                                          $data
-     * @param array                                          $registration_ids_to_exclude
+     * @param array                                          $registrations_to_exclude_where_query
      * @return array
      * @throws EE_Error
      * @throws InvalidIdentifierException
@@ -145,7 +150,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registration_ids_to_exclude
+        array $registrations_to_exclude_where_query
     ) {
         if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
             return $data;
@@ -158,6 +163,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         if ($datetime_ids) {
             $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
         }
+        $additional_datetime_where_conditions = array_merge(
+            $additional_datetime_where_conditions,
+            $registrations_to_exclude_where_query
+        );
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
             $context,
@@ -214,13 +223,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             return $data;
         }
 
-        //get registration_ids_to_exclude for the given  but only if the context is not admin
-        $registration_ids_to_exclude = $this->registrationIdsToExclude($datetimes, $context);
-
         foreach ($datetimes as $datetime) {
             $registrations = $this->getRegistrationsForDatetime(
-                $datetime,
-                $registration_ids_to_exclude
+                $datetime
             );
             if (! $registrations) {
                 continue;
@@ -251,7 +256,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                 'BETWEEN',
                 array(
                     $this->getStartTimeForQuery(),
-                    $this->getStartTimeForQuery() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
+                    $this->getStartTimeForQuery()
+                    + (DAY_IN_SECONDS * $settings->currentThreshold($context))
+                    + $this->cron_frequency_buffer,
                 ),
             ),
             'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),
@@ -277,13 +284,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * Get registrations for given message template group and Datetime.
      *
      * @param EE_Datetime $datetime
-     * @param array       $registration_ids_to_exclude
      * @return \EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
      */
     protected function getRegistrationsForDatetime(
-        EE_Datetime $datetime,
-        array $registration_ids_to_exclude = array()
+        EE_Datetime $datetime
     ) {
         //get registration ids for each datetime and include with the array.
         $where = array(
@@ -291,56 +296,33 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'Ticket.Datetime.DTT_ID' => $datetime->ID(),
             'REG_deleted'            => 0,
         );
-        if ($registration_ids_to_exclude) {
-            $where['REG_ID'] = array('NOT IN', $registration_ids_to_exclude);
-        }
         return $this->registration_model->get_all(array($where));
     }
 
 
     /**
-     * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
-     * HAVE been notified at some point.  These registrations will then be excluded from the query for what
-     * registrations to send notifications for.
+     * The purpose for this method is to get the where condition for excluding registrations that have already been
+     * notified.  For this command handler, since notifications are tracked against datetimes, we will get all the
+     * datetimes that have been notified and this conditional will be used in the initial query for getting datetimes.
      *
-     * @param $context
-     * @return array An array of registration ids.
-     */
-    protected function registrationIdsAlreadyNotified($context)
-    {
-        //we're not doing the query here because this message type allows for possibly sending messages for each
-        // datetime so we need to delay the query until we have the datetimes to make the query for.
-        return array();
-    }
-
-
-    /**
-     * Gets the registrations for the given datetimes that have already been notified.
-     *
-     * @param EE_Datetime[] $datetimes
-     * @param string        $context
-     * @return array
+     * @param string $context The context we're getting the notified registrations for.
+     * @return array The array should be in the format used for EE model where conditions.  Eg.
+     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      * @throws EE_Error
      */
-    protected function registrationIdsToExclude(array $datetimes, $context)
+    protected function registrationsToExcludeWhereQueryConditions($context)
     {
-        //first prep our keys for the extra_meta
-        $extra_meta_keys = array();
-        $meta_key_prefix = $context === 'admin'
-            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
-            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
-        foreach ($datetimes as $datetime) {
-            $extra_meta_keys[] = $meta_key_prefix . 'DTT_' . $datetime->ID();
-        }
+        //get all datetimes that have already been notified (greater than now)
+        $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
-            'Ticket.Datetime.DTT_ID' => array('IN', array_keys($datetimes)),
-            'STS_ID'                 => EEM_Registration::status_id_approved,
-            'REG_deleted'            => 0,
-            'Extra_Meta.EXM_key'     => array('IN', $extra_meta_keys),
+            'DTT_EVT_start' => array('>', time()),
+            'Extra_Meta.EXM_key' => $meta_key
         );
-        return $this->registration_model->get_col(array($where));
+        $datetime_ids_notified = $this->datetime_model->get_col(array($where));
+        return array(
+            'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified)
+        );
     }
-
 
     /**
      * Combines data for this handler.

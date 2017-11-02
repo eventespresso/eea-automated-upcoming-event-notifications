@@ -2,7 +2,10 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EE_Base_Class;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
@@ -12,11 +15,11 @@ use EventEspresso\core\services\commands\CommandInterface;
 use EEM_Registration;
 use EEM_Event;
 use EED_Automated_Upcoming_Event_Notification_Messages;
-use EE_Registration;
 use EE_Message_Template_Group;
 use EEM_Message_Template_Group;
 use EE_Error;
 use EventEspresso\core\services\commands\CompositeCommandHandler;
+use EventEspresso\core\services\loaders\LoaderFactory;
 use InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
@@ -39,11 +42,21 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
+     * This will hold the set cron schedule frequency buffer in seconds.  Used by the queries involving threshold range.
+     * @var int
+     */
+    protected $cron_frequency_buffer;
+
+
+    /**
      * UpcomingNotificationsCommandHandler constructor.
      *
      * @param CommandBusInterface     $command_bus
      * @param CommandFactoryInterface $command_factory
      * @param EEM_Registration        $registration_model
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function __construct(
         CommandBusInterface $command_bus,
@@ -52,6 +65,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     ) {
         $this->registration_model = $registration_model;
         parent::__construct($command_bus, $command_factory);
+        $this->setCronFrequencyBuffer();
     }
 
 
@@ -97,7 +111,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $data = array();
         if (! empty($message_template_groups)) {
             $global_group = null;
-            $registration_ids_to_exclude = array();
+            $registrations_to_exclude_where_query = array();
             /** @var EE_Message_Template_Group $message_template_group */
             foreach ($message_template_groups as $message_template_group) {
                 //if this is a global group then assign to global group property and continue (will be used later)
@@ -111,13 +125,15 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                     continue;
                 }
                 foreach ($active_contexts as $context) {
-                    $registration_ids_to_exclude[$context] = isset($registration_ids_to_exclude[$context])
-                        ? $registration_ids_to_exclude[$context]
-                        : $this->registrationIdsAlreadyNotified($context);
+                    $registrations_to_exclude_where_query[$context] = isset(
+                        $registrations_to_exclude_where_query[$context]
+                    )
+                        ? $registrations_to_exclude_where_query[$context]
+                        : $this->registrationsToExcludeWhereQueryConditions($context);
                     $retrieved_data = $this->getDataForCustomMessageTemplateGroup(
                         $settings,
                         $context,
-                        $registration_ids_to_exclude[$context]
+                        $registrations_to_exclude_where_query[$context]
                     );
                     $data = $this->combineDataByGroupAndContext(
                         $message_template_group,
@@ -132,14 +148,16 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                 $active_contexts = $settings->allActiveContexts();
                 if (count($active_contexts) > 0) {
                     foreach ($active_contexts as $context) {
-                        $registration_ids_to_exclude[$context] = isset($registration_ids_to_exclude[$context])
-                           ? $registration_ids_to_exclude[$context]
-                           : $this->registrationIdsAlreadyNotified($context);
+                        $registrations_to_exclude_where_query[$context] = isset(
+                            $registrations_to_exclude_where_query[$context]
+                        )
+                           ? $registrations_to_exclude_where_query[$context]
+                           : $this->registrationsToExcludeWhereQueryConditions($context);
                         $retrieved_data = $this->getDataForGlobalMessageTemplateGroup(
                             $settings,
                             $context,
                             $data,
-                            $registration_ids_to_exclude[$context]
+                            $registrations_to_exclude_where_query[$context]
                         );
                         $data = $this->combineDataByGroupAndContext(
                             $global_group,
@@ -184,24 +202,24 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * Receives an array of registrations and calls `setRegistrationReceivedNotification` for each registration.
-     * If you need the response from the setting of this value (success/fail) then its suggested you call
-     * `setRegistrationReceivedNotification`
+     * Receives an array of EE_BaseClass Items and sends them to the correct command handler for the given $model_name.
      *
-     * @param EE_Registration[] $registrations
-     * @param string            $context  The message type context for which these registrations were processed.
-     * @param string            $identifier
+     * @param EE_Base_Class[] $items                              The items that will be marked as processed.
+     * @param string          $context                            The message type context for which these
+     *                                                            registrations were processed.
+     * @param string          $notification_received_command_fqcn The fully qualified class name for the command that
+     *                                                            will process the items
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      */
-    protected function setRegistrationsProcessed(array $registrations, $context, $identifier)
+    protected function setItemsProcessed(array $items, $context, $notification_received_command_fqcn)
     {
-        if ($registrations) {
+        if ($items) {
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\registration\RegistrationsNotifiedCommand',
-                    array($registrations, $context, $identifier)
+                    $notification_received_command_fqcn,
+                    array($items, $context)
                 )
             );
         }
@@ -260,14 +278,69 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
-     * HAVE been notified at some point.  These registrations will then be excluded from the query for what
-     * registrations to send notifications for.
+     * Return the correct notification meta key for items that have already been notified for the given context.
+     * @param string $context
+     * @return string
+     */
+    protected function getNotificationMetaKeyForContext($context)
+    {
+        return $context === 'admin'
+            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
+            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
+    }
+
+
+    /**
+     * Sets the cron_frequency property that is used in queries
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     */
+    private function setCronFrequencyBuffer()
+    {
+        //Even though $this->commandBus->getCommandHandlerManager() has an instance of the Loader cached in a property
+        //it's not accessible, once/if that changes then I can use it instead of the LoaderFactory.
+        /** @var Scheduler $scheduler */
+        $scheduler = LoaderFactory::getLoader()->getShared(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
+        );
+        $registered_schedules = wp_get_schedules();
+        $registered_cron_frequency = $scheduler->getCronFrequency();
+        $this->cron_frequency_buffer = isset(
+            $registered_schedules[$registered_cron_frequency],
+            $registered_schedules[$registered_cron_frequency]['interval']
+        )
+            ? $registered_schedules[$registered_cron_frequency]['interval']
+            : HOUR_IN_SECONDS * 3;
+        //let's add a filterable buffer (why? Because wp-cron is imprecise and won't ALWAYS fire on the set interval).
+        $this->cron_frequency_buffer += $this->getCronFrequencyBuffer();
+    }
+
+
+    /**
+     * WordPress Cron (wp-cron) is imprecise.  We cannot rely on the events being processed exactly on the interval.
+     * This buffer (filterable) allows for extending the query range beyond the next cron scheduled event to cover
+     * impreciseness of the schedule.
+     * @return int  number of seconds for buffer.
+     */
+    private function getCronFrequencyBuffer()
+    {
+        return (int) apply_filters(
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_UpcomingNotificationsCommandHandler__getCronFrequencyBuffer',
+            MINUTE_IN_SECONDS * 30
+        );
+    }
+
+
+    /**
+     * The purpose for this method is to get the where condition for excluding registrations that have already been
+     * notified.
      *
      * @param string $context  The context we're getting the notified registrations for.
-     * @return array An array of registration ids.
+     * @return array  The array should be in the format used for EE model where conditions.  Eg.
+     *                array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      */
-    abstract protected function registrationIdsAlreadyNotified($context);
+    abstract protected function registrationsToExcludeWhereQueryConditions($context);
 
 
     /**
@@ -275,14 +348,13 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param SchedulingSettings $scheduling_settings
      * @param string             $context   What context this is for.
-     * @param array              $registration_ids_to_exclude
+     * @param array              $registrations_to_exclude_where_query
      * @return
-     * @internal param SchedulingSettings $settings
      */
     abstract protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registration_ids_to_exclude
+        array $registrations_to_exclude_where_query
     );
 
 
@@ -290,16 +362,16 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * This retrieves the data for the global message template group (if present).
      *
      * @param SchedulingSettings $scheduling_settings This should contain a global EE_Message_Template_Group object.
-     * @param string             $context  What context this is for
+     * @param string             $context
      * @param array              $data
-     * @param array              $registration_ids_to_exclude
+     * @param array              $registrations_to_exclude_where_query
      * @return array
      */
     abstract protected function getDataForGlobalMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registration_ids_to_exclude
+        array $registrations_to_exclude_where_query
     );
 
 

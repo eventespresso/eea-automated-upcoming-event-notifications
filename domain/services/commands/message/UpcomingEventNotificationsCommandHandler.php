@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
 use EE_Registration;
@@ -10,8 +11,9 @@ use EE_Error;
 use EE_Message_Template_Group;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
-use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\commands\CommandBusInterface;
+use EventEspresso\core\services\commands\CommandFactoryInterface;
 use InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
@@ -27,6 +29,35 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
  */
 class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsCommandHandler
 {
+
+
+    /**
+     * @var EEM_Event
+     */
+    protected $event_model;
+
+
+    /**
+     * UpcomingEventNotificationsCommandHandler constructor.
+     *
+     * @param CommandBusInterface     $command_bus
+     * @param CommandFactoryInterface $command_factory
+     * @param EEM_Registration        $registration_model
+     * @param EEM_Event               $event_model
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     */
+    public function __construct(
+        CommandBusInterface $command_bus,
+        CommandFactoryInterface $command_factory,
+        EEM_Registration $registration_model,
+        EEM_Event $event_model
+    ) {
+        parent::__construct($command_bus, $command_factory, $registration_model);
+        $this->event_model = $event_model;
+    }
+
 
     /**
      * This should handle the processing of provided data and the actual triggering of the messages.
@@ -45,6 +76,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         }
 
         //loop through each Message Template Group and it queue up its registrations for generation.
+        $events = array();
         /**
          * @var int $message_template_group_id
          * @var EE_Registration[] $context_and_registrations
@@ -55,9 +87,19 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
              * @var EE_Registration[] $registrations
              */
             foreach ($context_and_registrations as $context => $registrations) {
+                //collect events for the registrations for marking as notified for this context.
+                $events = $this->aggregateEventsForContext($registrations, $events, $context);
                 $this->triggerMessages($registrations, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT, $context);
-                $this->setRegistrationsProcessed($registrations, $context, 'EVT');
             }
+        }
+
+        //k now let's record all the events notified for each context.
+        foreach ($events as $context => $event_objects) {
+            $this->setItemsProcessed(
+                $event_objects,
+                $context,
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\event\EventsNotifiedCommand'
+            );
         }
     }
 
@@ -67,60 +109,19 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
-     * @param array                                          $registration_ids_to_exclude
+     * @param array                                          $registrations_to_exclude_where_query
      * @return array An array of data for processing.
      * @throws EE_Error
      */
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registration_ids_to_exclude
+        array $registrations_to_exclude_where_query
     ) {
-        $additional_query_parameters = $registration_ids_to_exclude
-            ? array('REG_ID' => array('NOT IN', $registration_ids_to_exclude))
-            : array();
         $registrations = $this->getRegistrationsForMessageTemplateGroup(
             $scheduling_settings,
             $context,
-            $additional_query_parameters
-        );
-        return $registrations ? $registrations : array();
-    }
-
-
-    /**
-     * This retrieves the data containing registrations for the global message template group (if present).
-     *
-     * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
-     * @param string                                         $context
-     * @param array                                          $data
-     * @param array                                          $registration_ids_to_exclude
-     * @return array
-     * @throws EE_Error
-     */
-    protected function getDataForGlobalMessageTemplateGroup(
-        SchedulingSettings $scheduling_settings,
-        $context,
-        array $data,
-        array $registration_ids_to_exclude
-    ) {
-        if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
-            return array();
-        }
-
-        //extract the ids of registrations already in the data array.
-        $registration_ids = isset($data[$context])
-            ? array_keys($data[$context])
-            : array();
-        $registration_ids = array_unique(array_merge($registration_ids, $registration_ids_to_exclude));
-        $additional_where_parameters = array();
-        if ($registration_ids) {
-            $additional_where_parameters['REG_ID'] = array('NOT IN', $registration_ids);
-        }
-        $registrations = $this->getRegistrationsForMessageTemplateGroup(
-            $scheduling_settings,
-            $context,
-            $additional_where_parameters
+            $registrations_to_exclude_where_query
         );
         return $registrations ? $registrations : array();
     }
@@ -144,7 +145,9 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                 'BETWEEN',
                 array(
                     $this->getStartTimeForQuery(),
-                    $this->getStartTimeForQuery() + (DAY_IN_SECONDS * $settings->currentThreshold($context)),
+                    $this->getStartTimeForQuery()
+                    + (DAY_IN_SECONDS * $settings->currentThreshold($context))
+                    + $this->cron_frequency_buffer,
                 ),
             ),
             'STS_ID'                       => EEM_Registration::status_id_approved,
@@ -163,6 +166,47 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
         }
         return $this->registration_model->get_all(array($where, 'group_by' => 'REG_ID'));
+    }
+
+
+    /**
+     * This retrieves the data containing registrations for the global message template group (if present).
+     *
+     * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
+     * @param string                                         $context
+     * @param array                                          $data
+     * @param array                                          $registrations_to_exclude_where_query
+     * @return array
+     * @throws EE_Error
+     */
+    protected function getDataForGlobalMessageTemplateGroup(
+        SchedulingSettings $scheduling_settings,
+        $context,
+        array $data,
+        array $registrations_to_exclude_where_query
+    ) {
+        if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
+            return array();
+        }
+
+        //extract the ids of registrations already in the data array.
+        $additional_where_conditions = array();
+        $registration_ids = isset($data[$context])
+            ? array_keys($data[$context])
+            : array();
+        if ($registration_ids) {
+            $additional_where_conditions['REG_ID'] = array('NOT_IN', $registration_ids);
+        }
+        $additional_where_conditions = array_merge(
+            $additional_where_conditions,
+            $registrations_to_exclude_where_query
+        );
+        $registrations = $this->getRegistrationsForMessageTemplateGroup(
+            $scheduling_settings,
+            $context,
+            $additional_where_conditions
+        );
+        return $registrations ? $registrations : array();
     }
 
     /**
@@ -190,26 +234,68 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
 
 
     /**
-     * The purpose of this method is to get all the ids for approved registrations for published, upcoming events that
-     * HAVE been notified at some point.  These registrations will then be excluded from the query for what
-     * registrations to send notifications for.
+     * The purpose for this method is to get the where condition for excluding registrations that have already been
+     * notified.
+     * For this command handler we need to get all the events that have been notified and then use those ids for the
+     * where query that will then be used in the eventual registrations query.
      *
-     * @param $context
-     * @return array An array of registration ids.
+     * @param string $context The context we're getting the notified registrations for.
+     * @return array The array should be in the format used for EE model where conditions.  Eg.
+     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      * @throws EE_Error
      */
-    protected function registrationIdsAlreadyNotified($context)
+    protected function registrationsToExcludeWhereQueryConditions($context)
     {
-        $meta_key = $context === 'admin'
-            ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
-            : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
+        $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
-            'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
-            'Event.Datetime.DTT_EVT_start' => array('>', time()),
-            'STS_ID'                       => EEM_Registration::status_id_approved,
-            'REG_deleted'                  => 0,
-            'Extra_Meta.EXM_key'           => $meta_key . 'EVT',
+            'Datetime.DTT_EVT_start' => array('>', time()),
+            'Extra_Meta.EXM_key'           => $meta_key,
         );
-        return $this->registration_model->get_col(array($where));
+        $event_ids_notified = $this->event_model->get_col(array($where));
+        return $event_ids_notified
+            ? array(
+                'EVT_ID*already_notified' => array('NOT IN', $event_ids_notified),
+            )
+            : array();
+    }
+
+
+    /**
+     * Retrieves EE_Event objects that haven't already been set on the $events variable for all the registrations sent
+     * in for the given context.
+     *
+     * @param EE_Registration[] $registrations
+     * @param array             $incoming_events
+     * @param string            $context
+     * @return array
+     * @throws EE_Error
+     */
+    protected function aggregateEventsForContext(array $registrations, array $incoming_events, $context)
+    {
+        $event_ids = $incoming_events
+                     && isset($incoming_events[$context])
+            ? array_keys($incoming_events[$context])
+            : array();
+        $event_ids_for_query = array();
+        /** @var EE_Registration $registration */
+        foreach ($registrations as $registration) {
+            if (! in_array($registration->event_ID(), $event_ids, true)) {
+                $event_ids_for_query[$registration->event_ID()] = $registration->event_ID();
+            }
+        }
+        //k now we should have an array of event_ids for the query.
+        if ($event_ids_for_query) {
+            $events = $this->event_model->get_all(
+                array(
+                    array('EVT_ID' => array('IN', $event_ids_for_query))
+                )
+            );
+            if ($events) {
+                $incoming_events[$context] = isset($incoming_events[$context])
+                    ? array_merge($incoming_events[$context], $events)
+                    : $events;
+            }
+        }
+        return $incoming_events;
     }
 }
