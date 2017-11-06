@@ -28,11 +28,27 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * EE_Messages_Registrations_By_Datetime_incoming_data constructor.
      *
      * @param array $data
+     * @throws EE_Error
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function __construct($data = array())
     {
-        self::validate_incoming_data($data);
+        if (! self::validate_incoming_data($data)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    esc_html__(
+                        'The incoming data argument for %1$s is expected to be an array where the first element is an %2$s object or %3$s and the second element is either a %4$s object or an array of %4$s objects.',
+                        'event_espresso'
+                    ),
+                    __METHOD__,
+                    'EE_Datetime',
+                    'null',
+                    'EE_Registration'
+                )
+            );
+        };
         parent::__construct($data);
     }
 
@@ -45,82 +61,95 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
-    public static function convert_data_for_persistent_storage($datetime_and_registrations)
+    public static function convert_data_for_persistent_storage(array $datetime_and_registrations)
     {
-        self::validate_incoming_data($datetime_and_registrations);
         //make sure $registrations are an array.
         /** @noinspection ArrayCastingEquivalentInspection */
         $datetime_and_registrations[1] = is_array($datetime_and_registrations[1])
             ? $datetime_and_registrations[1]
             : array($datetime_and_registrations[1]);
-        $registration_ids              = array_filter(
-            array_map(
-                function ($registration) {
-                    if ($registration instanceof EE_Registration) {
-                        return $registration->ID();
-                    }
-                    return false;
-                },
-                $datetime_and_registrations[1]
-            )
-        );
-        return array($datetime_and_registrations[0]->ID(), $registration_ids);
+
+        if (! self::validate_incoming_data($datetime_and_registrations)) {
+            return array();
+        }
+
+        $datetime_id = $datetime_and_registrations[0] instanceof EE_Datetime
+            ? $datetime_and_registrations[0]->ID()
+            : $datetime_and_registrations[0];
+        $first_registration_item = reset($datetime_and_registrations[1]);
+        if ($first_registration_item instanceof EE_Registration) {
+            $registration_ids              = array_filter(
+                array_map(
+                    function ($registration) {
+                        if ($registration instanceof EE_Registration) {
+                            return $registration->ID();
+                        }
+                        return false;
+                    },
+                    $datetime_and_registrations[1]
+                )
+            );
+        } else {
+            $registration_ids = $datetime_and_registrations[1];
+        }
+
+
+        return array($datetime_id, $registration_ids);
     }
 
 
     /**
-     * Validate incoming data to make sure its the expected format.
+     * Validate incoming data to make sure its the expected format.  We could have either ids or the actual objects, so
+     * let's simply validate
      *
      * @param $datetime_and_registrations
+     * @return bool
+     * @throws EE_Error
      * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
-    protected static function validate_incoming_data($datetime_and_registrations)
+    protected static function validate_incoming_data(array $datetime_and_registrations)
     {
+        //first split the array into its component parts for validation
         /**
-         * is there a datetime
+         * We allow null for the first argument.  But if its not null, then it must be either a `EE_Datetime` object or
+         * an integer ($datetime_id).
          */
-        if (! (
-                $datetime_and_registrations[1] instanceof EE_Registration
-                || (
-                    is_array($datetime_and_registrations[1])
-                    && reset($datetime_and_registrations[1]) instanceof EE_Registration
-                )
+        if ($datetime_and_registrations[0] !== null
+            && ! (
+                $datetime_and_registrations[0] instanceof EE_Datetime
+                || ! is_int($datetime_and_registrations[0])
             )
         ) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    esc_html__(
-                        'The %1$s class expects an array with the first item being an instance of %2$s.',
-                        'event_espresso'
-                    ),
-                    __CLASS__,
-                    'EE_Datetime'
-                )
-            );
+            return false;
         }
 
-        /**
-         * is there a registration
-         */
-        if (! $datetime_and_registrations[1] instanceof EE_Registration
-            &&(
-                is_array($datetime_and_registrations[1])
-                && ! reset($datetime_and_registrations[1]) instanceof EE_Registration
-            )
-        ) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    esc_html__(
-                        'The %1$s class expects an array with the second item either being an instance of %2$s'
-                        . ' or an array of %2$s objects.',
-                        'event_espresso'
-                    ),
-                    __CLASS__,
-                    'EE_Registration'
+        //next is the registrations.
+        $first_item = reset($datetime_and_registrations[1]);
+
+        if ($first_item instanceof EE_Registration) {
+            return true;
+        }
+
+        //okay we've made it here so we likely have a set of registration ids.  In which case let's do some simple
+        //validation that at least ensures these reg_ids exist for registrations in the db.
+        if (is_int($first_item)) {
+            $count_of_actual_registrations = EEM_Registration::instance()->count(
+                array(
+                    array(
+                        'REG_ID' => array('IN', $datetime_and_registrations[1])
+                    )
                 )
             );
+            return $count_of_actual_registrations === count($datetime_and_registrations[1]);
         }
+
+        //made it here, then it ain't valid.
+        return false;
     }
 
 
