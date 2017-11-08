@@ -25,7 +25,6 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
     }
 
 
-
     public function testGetDataForUpcomingDatetimeMessageType()
     {
         //first lets' make sure that on initial call, there is no data. There shouldn't be because none of the groups
@@ -58,12 +57,17 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         //go to the next level.
         $data = $data[$global_group->ID()];
         $this->assertEquals('admin', key($data));
-        //pop datetime and registrations off of the context array.
+        //pop datetime_id and registration items off of the context array.
         $data = array_pop($data['admin']);
-        $this->assertInstanceOf('EE_Datetime', $data[0]);
-        $this->assertEquals($expected_datetime->ID(), $data[0]->ID());
+        $this->assertEquals($expected_datetime->ID(), $data[0]);
         $this->assertCount(1, $data[1]);
-        $this->assertInstanceOf('EE_Registration', reset($data[1]));
+        $registration_id = key($data[1]);
+        $registration_record = reset($data[1]);
+        $this->assertCount(3, $registration_record);
+        $this->assertArrayHasKey('REG_ID', $registration_record);
+        $this->assertArrayHasKey('EVT_ID', $registration_record);
+        $this->assertArrayHasKey('ATT_ID', $registration_record);
+        $this->assertEquals($registration_id, $registration_record['REG_ID']);
 
         //k let's set the Global Message Template Group to inactive and the custom message template groups to active.
         //We don't expect any data to get returned in this scenario because the event modified is not attached to any of
@@ -80,7 +84,7 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
 
         //okay now let's set all message template groups active, and then add one more datetime ahead but only on a
         // custom message template group.
-        $this->setOneDateTimeOnEventToGivenDate(
+        $expected_datetime = $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
             'automate_upcoming_datetime',
             true
@@ -91,12 +95,21 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         // message template group with one datetime and registration on it.
         $data = $this->command_handler_mock->getData($this->message_template_groups['datetime']);
         $this->assertCount(2, $data);
-        foreach ($data as $message_template_group_id => $datetimes_and_registrations) {
-            $this->assertEquals('admin', key($datetimes_and_registrations));
-            $datetimes_and_registrations = array_pop($datetimes_and_registrations['admin']);
-            $this->assertInstanceOf('EE_Datetime', $datetimes_and_registrations[0]);
-            $this->assertCount(1, $datetimes_and_registrations[1]);
-            $this->assertInstanceOf('EE_Registration', reset($datetimes_and_registrations[1]));
+        foreach ($data as $message_template_group_id => $datetimeids_and_registration_items) {
+            $this->assertEquals('admin', key($datetimeids_and_registration_items));
+            $datetime_id = key($datetimeids_and_registration_items['admin']);
+            $datetimeids_and_registration_items = reset($datetimeids_and_registration_items['admin']);
+            $this->assertCount(1, $datetimeids_and_registration_items[1]);
+            //each datetimeids_and_registration_items array element attached to the has the key as the datetime_id.
+            //The first element in the array (value for that key) should be a matching datetime_id.
+            $this->assertEquals($datetime_id, $datetimeids_and_registration_items[0]);
+            $registration_id = key($datetimeids_and_registration_items[1]);
+            $registration_record = reset($datetimeids_and_registration_items[1]);
+            $this->assertCount(3, $registration_record);
+            $this->assertArrayHasKey('REG_ID', $registration_record);
+            $this->assertArrayHasKey('ATT_ID', $registration_record);
+            $this->assertArrayHasKey('EVT_ID', $registration_record);
+            $this->assertEquals($registration_id, $registration_record['REG_ID']);
         }
     }
 

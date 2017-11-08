@@ -72,6 +72,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     /**
      * @param UpcomingNotificationsCommand|CommandInterface $command
      * @return bool
+     * @throws InvalidIdentifierException
      * @throws EE_Error
      * @throws InvalidArgumentException
      */
@@ -204,22 +205,18 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     /**
      * Receives an array of EE_BaseClass Items and sends them to the correct command handler for the given $model_name.
      *
-     * @param EE_Base_Class[] $items                              The items that will be marked as processed.
-     * @param string          $context                            The message type context for which these
-     *                                                            registrations were processed.
-     * @param string          $notification_received_command_fqcn The fully qualified class name for the command that
-     *                                                            will process the items
+     * @param array           $arguments                          The arguments sent to the processing command.
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      */
-    protected function setItemsProcessed(array $items, $context, $notification_received_command_fqcn)
+    protected function setItemsProcessed(array $arguments)
     {
-        if ($items) {
+        if ($arguments) {
             $this->commandBus()->execute(
                 $this->commandFactory()->getNew(
-                    $notification_received_command_fqcn,
-                    array($items, $context)
+                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\ItemsNotifiedCommand',
+                    $arguments
                 )
             );
         }
@@ -329,6 +326,33 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_UpcomingNotificationsCommandHandler__getCronFrequencyBuffer',
             MINUTE_IN_SECONDS * 30
         );
+    }
+
+
+
+    /**
+     * This receives the results from a registration query and adds the registration_ids as the keys for each record.
+     *
+     * @param array $registration_query_results
+     * @return array
+     */
+    protected function setKeysToRegistrationIds(array $registration_query_results)
+    {
+        $final_result = array();
+        foreach ($registration_query_results as $registration_query_result) {
+            if (isset($registration_query_result['REG_ID'])) {
+                //set all values to ints
+                $registration_query_result = array_map(
+                //using (int) because its significantly faster than intval.
+                    function ($value) {
+                        return (int) $value;
+                    },
+                    $registration_query_result
+                );
+                $final_result[$registration_query_result['REG_ID']] = $registration_query_result;
+            }
+        }
+        return $final_result;
     }
 
 

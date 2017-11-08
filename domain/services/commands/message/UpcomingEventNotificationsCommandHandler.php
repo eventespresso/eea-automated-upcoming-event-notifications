@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use const ARRAY_A;
 use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
@@ -76,29 +77,29 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         }
 
         //loop through each Message Template Group and it queue up its registrations for generation.
-        $events = array();
+        $event_ids = array();
         /**
          * @var int $message_template_group_id
          * @var EE_Registration[] $context_and_registrations
          */
-        foreach ($data as $message_template_group_id => $context_and_registrations) {
+        foreach ($data as $message_template_group_id => $context_and_registration_data) {
             /**
              * @var string $context
              * @var EE_Registration[] $registrations
              */
-            foreach ($context_and_registrations as $context => $registrations) {
-                //collect events for the registrations for marking as notified for this context.
-                $events = $this->aggregateEventsForContext($registrations, $events, $context);
-                $this->triggerMessages($registrations, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT, $context);
+            foreach ($context_and_registration_data as $context => $registration_data) {
+                $registration_ids = array_keys($registration_data);
+                //collect event-ids for the registrations for marking as notified for this context.
+                $event_ids = $this->aggregateEventsForContext($registration_data, $event_ids, $context);
+                $this->triggerMessages($registration_ids, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT, $context);
             }
         }
 
+
         //k now let's record all the events notified for each context.
-        foreach ($events as $context => $event_objects) {
+        foreach ($event_ids as $context => $event_ids_for_context) {
             $this->setItemsProcessed(
-                $event_objects,
-                $context,
-                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\event\EventsNotifiedCommand'
+                array($this->event_model, $event_ids_for_context, $context)
             );
         }
     }
@@ -165,7 +166,17 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
         }
-        return $this->registration_model->get_all(array($where, 'group_by' => 'REG_ID'));
+        return $this->setKeysToRegistrationIds(
+            $this->registration_model->get_all_wpdb_results(
+                array($where, 'group_by' => 'REG_ID'),
+                ARRAY_A,
+                array(
+                    'REG_ID' => array('REG_ID', '%d'),
+                    'ATT_ID' => array('ATT_ID', '%d'),
+                    'EVT_ID' => array('Registration.EVT_ID', '%d')
+                )
+            )
+        );
     }
 
 
@@ -213,9 +224,11 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * Combines data for this handler.
      *
      * @param EE_Message_Template_Group $message_template_group
-     * @param string                    $context The context for the data
-     * @param array                     $data    The data to be aggregated
-     * @param EE_Registration[]         $registrations
+     * @param string                    $context       The context for the data
+     * @param array                     $data          The data to be aggregated
+     * @param array                     $registrations results from the query where the keys are the registration_id
+     *                                                 and the values are an an associative array for the columns
+     *                                                 'ATT_ID', 'REG_ID', and 'EVT_ID';
      * @return array
      * @throws EE_Error
      */
@@ -226,8 +239,8 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         array $registrations
     ) {
         //here the incoming data is an array of registrations.
-        foreach ($registrations as $registration) {
-            $data[$message_template_group->ID()][$context][$registration->ID()] = $registration;
+        foreach ($registrations as $registration_id => $registration_query_results_record) {
+            $data[$message_template_group->ID()][$context][$registration_id] = $registration_query_results_record;
         }
         return $data;
     }
@@ -264,38 +277,22 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * Retrieves EE_Event objects that haven't already been set on the $events variable for all the registrations sent
      * in for the given context.
      *
-     * @param EE_Registration[] $registrations
-     * @param array             $incoming_events
+     * @param $registration_result_records $registrations  In the format
+     *                                     array(array('REG_ID' => 'x', 'ATT_ID' => 'x', 'EVT_ID' => 'x'));
+     * @param array             $incoming_event_ids
      * @param string            $context
      * @return array
      * @throws EE_Error
      */
-    protected function aggregateEventsForContext(array $registrations, array $incoming_events, $context)
-    {
-        $event_ids = $incoming_events
-                     && isset($incoming_events[$context])
-            ? array_keys($incoming_events[$context])
-            : array();
-        $event_ids_for_query = array();
-        /** @var EE_Registration $registration */
-        foreach ($registrations as $registration) {
-            if (! in_array($registration->event_ID(), $event_ids, true)) {
-                $event_ids_for_query[$registration->event_ID()] = $registration->event_ID();
-            }
+    protected function aggregateEventsForContext(
+        array $registration_result_records,
+        array $incoming_event_ids,
+        $context
+    ) {
+        foreach ($registration_result_records as $registration_result_record) {
+            $registration_event_id = $registration_result_record['EVT_ID'];
+            $incoming_event_ids[$context][$registration_event_id] = $registration_event_id;
         }
-        //k now we should have an array of event_ids for the query.
-        if ($event_ids_for_query) {
-            $events = $this->event_model->get_all(
-                array(
-                    array('EVT_ID' => array('IN', $event_ids_for_query))
-                )
-            );
-            if ($events) {
-                $incoming_events[$context] = isset($incoming_events[$context])
-                    ? array_merge($incoming_events[$context], $events)
-                    : $events;
-            }
-        }
-        return $incoming_events;
+        return $incoming_event_ids;
     }
 }

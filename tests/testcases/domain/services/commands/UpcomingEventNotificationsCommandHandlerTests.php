@@ -2,7 +2,7 @@
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\includes\AddonTestCase;
-use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\EventsNotifiedCommandHandlerMock;
+use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\ItemsNotifiedCommandHandlerMock;
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\UpcomingEventNotificationsCommandHandlerMock;
 
 class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
@@ -15,23 +15,23 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 
 
     /**
-     * @var EventsNotifiedCommandHandlerMock
+     * @var ItemsNotifiedCommandHandlerMock
      */
-    private $events_notified_command_handler_mock;
+    private $items_notified_command_handler_mock;
 
 
     public function setUp()
     {
         parent::setUp();
         $this->command_handler_mock = new UpcomingEventNotificationsCommandHandlerMock();
-        $this->events_notified_command_handler_mock = new EventsNotifiedCommandHandlerMock();
+        $this->items_notified_command_handler_mock = new ItemsNotifiedCommandHandlerMock(EEM_Extra_Meta::instance());
     }
 
     public function tearDown()
     {
         parent::tearDown();
         $this->command_handler_mock = null;
-        $this->events_notified_command_handler_mock = null;
+        $this->items_notified_command_handler_mock = null;
     }
 
 
@@ -50,7 +50,7 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         //k now let's activate just the global message template group and set the date for our groups
         $global_group->activate_context('admin');
         $date_three_days_from_now = new DateTime('now +3 days', new DateTimeZone(get_option('timezone_string')));
-        $this->setOneDateTimeOnEventToGivenDate(
+        $expected_datetime = $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
             'automate_upcoming_event'
         );
@@ -66,15 +66,19 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         // is against ANY datetime for the event within the threshold.  So that means all three registrations on the
         // event should get returned..
         $this->assertCount(3, $data[$global_group->ID()]['admin']);
-        //if we pop the first array element that should have our expected data.
-        $data = array_pop($data[$global_group->ID()]['admin']);
-        $this->assertInstanceOf('EE_Registration', $data);
+        $registration_id = key($data[$global_group->ID()]['admin']);
+        $registration_record = reset($data[$global_group->ID()]['admin']);
+        $this->assertCount(3, $registration_record);
+        $this->assertArrayHasKey('REG_ID', $registration_record);
+        $this->assertArrayHasKey('ATT_ID', $registration_record);
+        $this->assertArrayHasKey('EVT_ID', $registration_record);
+        $this->assertEquals($registration_id, $registration_record['REG_ID']);
+
 
         //k let's set the Global Message Template Group to inactive and the custom message template groups to active.
         //We don't expect any data to get returned in this scenario because the event modified is not attached to any of
         //those groups.
         $global_group->deactivate_context('admin');
-        $custom_mtg_settings = array();
         /** @var EE_Message_Template_Group $message_template_group */
         foreach ($this->message_template_groups['event'] as $message_template_group) {
             if ($message_template_group->is_global()) {
@@ -90,7 +94,7 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 
         //okay now let's set all message template groups active, and then add one more datetime ahead but only on a
         // custom message template group.
-        $this->setOneDateTimeOnEventToGivenDate(
+        $expected_datetime = $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
             'automate_upcoming_event',
             true
@@ -101,12 +105,17 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         //template group with three registrations on it.
         $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
         $this->assertCount(2, $data);
-        foreach ($data as $message_template_group_id => $context_and_registrations) {
-            foreach ($context_and_registrations as $context => $registrations) {
+        foreach ($data as $message_template_group_id => $context_and_registration_records) {
+            foreach ($context_and_registration_records as $context => $registration_records) {
                 $this->assertEquals('admin', $context);
-                $this->assertCount(3, $registrations);
-                $registrations = array_pop($registrations);
-                $this->assertInstanceOf('EE_Registration', $registrations);
+                $this->assertCount(3, $registration_records);
+                $registration_id = key($registration_records);
+                $registration_record_items = reset($registration_records);
+                $this->assertCount(3, $registration_record_items);
+                $this->assertArrayHasKey('REG_ID', $registration_record_items);
+                $this->assertArrayHasKey('ATT_ID', $registration_record_items);
+                $this->assertArrayHasKey('EVT_ID', $registration_record_items);
+                $this->assertEquals($registration_id, $registration_record_items['REG_ID']);
             }
         }
     }
@@ -194,10 +203,11 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         //activate just admin context for the test
         $global_group->activate_context('admin');
         $date_three_days_from_now = new DateTime('now +3 days', new DateTimeZone(get_option('timezone_string')));
-        $this->setOneDateTimeOnEventToGivenDate(
+        $expected_datetime = $this->setOneDateTimeOnEventToGivenDate(
             $date_three_days_from_now,
             'automate_upcoming_event'
         );
+        $expected_event = $expected_datetime->event();
         //okay so our data should include the expected datetime plus one registration on just the global template
         // group id
         $data = $this->command_handler_mock->getData($this->message_template_groups['event']);
@@ -215,11 +225,13 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
 
         //verify we have $aggregated_events for the given context
         $this->assertArrayHasKey('admin', $aggregated_events);
-        $this->assertInstanceOf('EE_Event', reset($aggregated_events['admin']));
+        //verify the event id in this array matches the event the datetime was added to.
+        $this->assertEquals($expected_event->ID(), reset($aggregated_events['admin']));
 
         //now let's set the notification flag as notified for these events.
-        $this->events_notified_command_handler_mock->setEventsProcessed(
+        $this->items_notified_command_handler_mock->setItemsProcessed(
             $aggregated_events['admin'],
+            EEM_Event::instance(),
             'admin'
         );
 
@@ -235,7 +247,8 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         //let's loop through the registrations and just add some extra_meta on them.  This covers any tricky joins that
         //may result in incorrect results for queries.
         /** @var EE_Registration $registration */
-        foreach ($registrations as $registration) {
+        foreach (array_keys($registrations) as $registration_id) {
+            $registration = EEM_Registration::instance()->get_one_by_ID($registration_id);
             $registration->add_extra_meta('some_extra_meta_key', true);
         }
         //let's try getting data again
@@ -301,7 +314,7 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         $mapped_messages = array();
         array_walk(
             $expected_messages,
-            function ($message, $message_id) use (&$mapped_messages) {
+            function (EE_Message $message, $message_id) use (&$mapped_messages) {
                 $mapped_messages[$message->GRP_ID()] = $message;
             }
         );

@@ -350,24 +350,24 @@ class AddonTestCase extends EE_UnitTestCase
         //matching the initial set of conditions.
         /** @var EE_Event $event */
         foreach ($this->events as $event_to_check) {
-            if ($has_custom) {
-                $where = array(
-                    'Event.EVT_ID' => $event_to_check->ID(),
-                    'MTP_message_type' => $message_type,
-                    'MTP_messenger' => 'email',
-                );
-            } else {
-                $where = array(
-                    'MTP_message_type' => $message_type,
-                    'MTP_messenger' => 'email',
-                    'MTP_is_global' => 1,
-                );
-            }
-            //attempt to get the message template group
+            //set a default for the event which is our fallback if $has_custom is true there is no event
+            $event = $event_to_check;
+            //attempt to get a custom message template group for the event
+            $where = array(
+                'Event.EVT_ID' => $event_to_check->ID(),
+                'MTP_message_type' => $message_type,
+                'MTP_messenger' => 'email',
+            );
             $message_template_group = EEM_Message_Template_Group::instance()->get_one(array($where));
-            //if we have a group, great let's get out
-            if ($message_template_group) {
+            if ($has_custom && $message_template_group instanceof EE_Message_Template_Group) {
                 $event = $event_to_check;
+                break;
+            }
+
+            //if we are not looking for an event added to a custom group and our query didn't return a group, then we
+            //can just break because we have our event.
+            if (! $has_custom && ! $message_template_group instanceof EE_Message_Template_Group) {
+                break;
             }
         }
 

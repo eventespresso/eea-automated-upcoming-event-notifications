@@ -64,7 +64,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      */
-    public static function convert_data_for_persistent_storage(array $datetime_and_registrations)
+    public static function convert_data_for_persistent_storage($datetime_and_registrations)
     {
         //make sure $registrations are an array.
         /** @noinspection ArrayCastingEquivalentInspection */

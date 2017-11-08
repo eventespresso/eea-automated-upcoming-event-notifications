@@ -82,30 +82,26 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
          * @var int $message_template_group_id
          * @var array $context_datetimes_and_registrations
          */
-        foreach ($data as $message_template_group_id => $context_datetimes_and_registrations) {
+        foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
             /**
              * @var string $context
-             * @var array  $datetimes_and_registrations
+             * @var array  $datetime_ids_and_registrations
              */
-            foreach ($context_datetimes_and_registrations as $context => $datetimes_and_registrations) {
+            foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 $datetimes_processed = array();
-                foreach ($datetimes_and_registrations as $datetime_and_registrations) {
+                foreach ($datetime_ids_and_registrations as $datetime_id_and_registrations) {
+                    //convert the second array value on $datetime_id_and_registrations to just be the registration ids.
+                    $datetime_id_and_registrations[1] = array_keys($datetime_id_and_registrations[1]);
                     $this->triggerMessages(
-                        $datetime_and_registrations,
+                        $datetime_id_and_registrations,
                         Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
                         $context
                     );
-                    if (isset($datetime_and_registrations[0])
-                        && $datetime_and_registrations[0] instanceof EE_Datetime
-                    ) {
-                        $datetimes_processed[] = $datetime_and_registrations[0];
-                    }
+                    $datetimes_processed[] = $datetime_id_and_registrations[0];
                 }
                 //set the datetimes as having been processed.
                 $this->setItemsProcessed(
-                    $datetimes_processed,
-                    $context,
-                    'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\datetime\DatetimesNotifiedCommand'
+                    array($this->datetime_model, $datetimes_processed, $context)
                 );
             }
         }
@@ -214,23 +210,23 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         array $datetime_additional_where_conditions = array()
     ) {
         $data     = array();
-        $datetimes = $this->getDatetimesForMessageTemplateGroupAndContext(
+        $datetime_ids = $this->getDatetimesForMessageTemplateGroupAndContext(
             $settings,
             $context,
             $datetime_additional_where_conditions
         );
-        if (! $datetimes) {
+        if (! $datetime_ids) {
             return $data;
         }
 
-        foreach ($datetimes as $datetime) {
-            $registrations = $this->getRegistrationsForDatetime(
-                $datetime
+        foreach ($datetime_ids as $datetime_id) {
+            $registration_ids = $this->getRegistrationsForDatetime(
+                $datetime_id
             );
-            if (! $registrations) {
+            if (! $registration_ids) {
                 continue;
             }
-            $data[$datetime->ID()] = array($datetime, $registrations);
+            $data[$datetime_id] = array($datetime_id, $registration_ids);
         }
         return $data;
     }
@@ -242,7 +238,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param SchedulingSettings $settings
      * @param string             $context
      * @param array              $additional_where_parameters
-     * @return EE_Base_Class|EE_Datetime[]
+     * @return array (an array of datetime ids)
      * @throws EE_Error
      * @internal param EE_Message_Template_Group $message_template_group
      */
@@ -275,28 +271,38 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         } else {
             $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
         }
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->datetime_model->get_all(array($where, 'group_by' => 'DTT_ID'));
+
+        return $this->datetime_model->get_col(array($where, 'group_by' => 'DTT_ID'));
     }
 
 
     /**
-     * Get registrations for given message template group and Datetime.
+     * Get registration results for given message template group and Datetime.
      *
-     * @param EE_Datetime $datetime
-     * @return \EE_Base_Class[]|EE_Registration[]
+     * @param int $datetime_id
+     * @return array    Array of results where keys are registration ID and has the values in the format:
+     *                  array( 'REG_ID' => %d, 'ATT_ID' => %d, 'EVT_ID' => %d )
      * @throws EE_Error
      */
-    protected function getRegistrationsForDatetime(
-        EE_Datetime $datetime
-    ) {
+    protected function getRegistrationsForDatetime($datetime_id) {
         //get registration ids for each datetime and include with the array.
         $where = array(
             'STS_ID'                 => EEM_Registration::status_id_approved,
-            'Ticket.Datetime.DTT_ID' => $datetime->ID(),
+            'Ticket.Datetime.DTT_ID' => $datetime_id,
             'REG_deleted'            => 0,
         );
-        return $this->registration_model->get_all(array($where));
+
+        return $this->setKeysToRegistrationIds(
+            $this->registration_model->get_all_wpdb_results(
+                array($where, 'group_by' => 'REG_ID'),
+                ARRAY_A,
+                array(
+                    'REG_ID' => array('REG_ID', '%d'),
+                    'ATT_ID' => array('ATT_ID', '%d'),
+                    'EVT_ID' => array('Registration.EVT_ID', '%d')
+                )
+            )
+        );
     }
 
 
@@ -319,9 +325,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'Extra_Meta.EXM_key' => $meta_key
         );
         $datetime_ids_notified = $this->datetime_model->get_col(array($where));
-        return array(
-            'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified)
-        );
+        return $datetime_ids_notified
+            ? array(
+                'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified)
+            )
+            : array();
     }
 
     /**
@@ -341,10 +349,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         array $datetimes_and_registrations
     ) {
         //here the incoming data is an array of arrays where the key is datetime_ID and the value is
-        // an array where the first value is the EE_Datetime, and the second value is the registrations attached to that
-        // datetime.
-        foreach ($datetimes_and_registrations as $datetime_id => $datetime_and_registrations) {
-            $data[$message_template_group->ID()][$context][$datetime_id] = $datetime_and_registrations;
+        // an array where the first value is the datetime_id, and the second value is the registration query results for
+        //the registrations attached to that datetime ('ATT_ID', 'EVT_ID', and 'REG_ID' is with each result)
+        foreach ($datetimes_and_registrations as $datetime_id => $datetime_id_and_registrations) {
+            $datetime_id = (int) $datetime_id;
+            $data[$message_template_group->ID()][$context][$datetime_id] = $datetime_id_and_registrations;
         }
         return $data;
     }
