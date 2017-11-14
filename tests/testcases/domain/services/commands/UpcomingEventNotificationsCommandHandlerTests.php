@@ -68,10 +68,11 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
         $this->assertCount(3, $data[$global_group->ID()]['admin']);
         $registration_id = key($data[$global_group->ID()]['admin']);
         $registration_record = reset($data[$global_group->ID()]['admin']);
-        $this->assertCount(3, $registration_record);
+        $this->assertCount(4, $registration_record);
         $this->assertArrayHasKey('REG_ID', $registration_record);
         $this->assertArrayHasKey('ATT_ID', $registration_record);
         $this->assertArrayHasKey('EVT_ID', $registration_record);
+        $this->assertArrayHasKey('TXN_ID', $registration_record);
         $this->assertEquals($registration_id, $registration_record['REG_ID']);
 
 
@@ -111,10 +112,11 @@ class UpcomingEventNotificationsCommandHandlerTests extends AddonTestCase
                 $this->assertCount(3, $registration_records);
                 $registration_id = key($registration_records);
                 $registration_record_items = reset($registration_records);
-                $this->assertCount(3, $registration_record_items);
+                $this->assertCount(4, $registration_record_items);
                 $this->assertArrayHasKey('REG_ID', $registration_record_items);
                 $this->assertArrayHasKey('ATT_ID', $registration_record_items);
                 $this->assertArrayHasKey('EVT_ID', $registration_record_items);
+                $this->assertArrayHasKey('TXN_ID', $registration_record_items);
                 $this->assertEquals($registration_id, $registration_record_items['REG_ID']);
             }
         }

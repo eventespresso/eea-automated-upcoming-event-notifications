@@ -5,6 +5,7 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\m
 use EE_Registry;
 use EEM_Registration;
 use EEM_Datetime;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 
 class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNotificationsCommandHandler
 {
@@ -18,7 +19,8 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
                 'EventEspresso\core\services\commands\CommandFactory'
             ),
             EEM_Registration::instance(),
-            EEM_Datetime::instance()
+            EEM_Datetime::instance(),
+            new SplitRegistrationDataRecordForBatches()
         );
     }
 

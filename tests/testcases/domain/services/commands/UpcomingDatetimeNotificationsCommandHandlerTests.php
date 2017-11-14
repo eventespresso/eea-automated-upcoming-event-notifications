@@ -63,10 +63,11 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
         $this->assertCount(1, $data[1]);
         $registration_id = key($data[1]);
         $registration_record = reset($data[1]);
-        $this->assertCount(3, $registration_record);
+        $this->assertCount(4, $registration_record);
         $this->assertArrayHasKey('REG_ID', $registration_record);
         $this->assertArrayHasKey('EVT_ID', $registration_record);
         $this->assertArrayHasKey('ATT_ID', $registration_record);
+        $this->assertArrayHasKey('TXN_ID', $registration_record);
         $this->assertEquals($registration_id, $registration_record['REG_ID']);
 
         //k let's set the Global Message Template Group to inactive and the custom message template groups to active.
@@ -105,10 +106,11 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $this->assertEquals($datetime_id, $datetimeids_and_registration_items[0]);
             $registration_id = key($datetimeids_and_registration_items[1]);
             $registration_record = reset($datetimeids_and_registration_items[1]);
-            $this->assertCount(3, $registration_record);
+            $this->assertCount(4, $registration_record);
             $this->assertArrayHasKey('REG_ID', $registration_record);
             $this->assertArrayHasKey('ATT_ID', $registration_record);
             $this->assertArrayHasKey('EVT_ID', $registration_record);
+            $this->assertArrayHasKey('TXN_ID', $registration_record);
             $this->assertEquals($registration_id, $registration_record['REG_ID']);
         }
     }

@@ -5,6 +5,7 @@ use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommandHandler;
 use EEM_Registration;
 use EE_Registry;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 
 class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotificationsCommandHandler
 {
@@ -33,7 +34,8 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
                 'EventEspresso\core\services\commands\CommandFactory'
             ),
             EEM_Registration::instance(),
-            EEM_Event::instance()
+            EEM_Event::instance(),
+            new SplitRegistrationDataRecordForBatches()
         );
     }
 
