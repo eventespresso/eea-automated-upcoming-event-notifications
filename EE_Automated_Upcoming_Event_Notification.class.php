@@ -178,7 +178,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Registration' => EE_Dependency_Map::load_from_cache,
                 'EEM_Datetime'     => EE_Dependency_Map::load_from_cache,
-                'EventEspresso\core\services\messages\SplitRegistrationDataRecordForBatches'
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches'
                 => EE_Dependency_Map::load_from_cache
             )
         );
@@ -188,7 +188,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                 'EventEspresso\core\services\commands\CommandBusInterface' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Registration' => EE_Dependency_Map::load_from_cache,
-                'EventEspresso\core\services\messages\SplitRegistrationDataRecordForBatches'
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches'
                     => EE_Dependency_Map::load_from_cache
             )
         );
@@ -199,7 +199,7 @@ class EE_Automated_Upcoming_Event_Notification extends EE_Addon
                 'EventEspresso\core\services\commands\CommandFactoryInterface' => EE_Dependency_Map::load_from_cache,
                 'EEM_Registration' => EE_Dependency_Map::load_from_cache,
                 'EEM_Event' => EE_Dependency_Map::load_from_cache,
-                'EventEspresso\core\services\messages\SplitRegistrationDataRecordForBatches'
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches'
                     => EE_Dependency_Map::load_from_cache
             )
         );
