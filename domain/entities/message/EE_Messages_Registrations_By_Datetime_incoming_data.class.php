@@ -120,10 +120,8 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
          * an integer ($datetime_id).
          */
         if ($datetime_and_registrations[0] !== null
-            && ! (
-                $datetime_and_registrations[0] instanceof EE_Datetime
-                || ! is_int($datetime_and_registrations[0])
-            )
+            && ! $datetime_and_registrations[0] instanceof EE_Datetime
+            && ! is_int($datetime_and_registrations[0])
         ) {
             return false;
         }
