@@ -2,9 +2,9 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
-use EE_Base_Class;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidIdentifierException;
@@ -42,6 +42,12 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
+     * @var SplitRegistrationDataRecordForBatches
+     */
+    protected $split_data_service;
+
+
+    /**
      * This will hold the set cron schedule frequency buffer in seconds.  Used by the queries involving threshold range.
      * @var int
      */
@@ -51,9 +57,10 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     /**
      * UpcomingNotificationsCommandHandler constructor.
      *
-     * @param CommandBusInterface     $command_bus
-     * @param CommandFactoryInterface $command_factory
-     * @param EEM_Registration        $registration_model
+     * @param CommandBusInterface                   $command_bus
+     * @param CommandFactoryInterface               $command_factory
+     * @param EEM_Registration                      $registration_model
+     * @param SplitRegistrationDataRecordForBatches $split_data_service
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
@@ -61,9 +68,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     public function __construct(
         CommandBusInterface $command_bus,
         CommandFactoryInterface $command_factory,
-        EEM_Registration $registration_model
+        EEM_Registration $registration_model,
+        SplitRegistrationDataRecordForBatches $split_data_service
     ) {
         $this->registration_model = $registration_model;
+        $this->split_data_service = $split_data_service;
         parent::__construct($command_bus, $command_factory);
         $this->setCronFrequencyBuffer();
     }
@@ -92,7 +101,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             );
         }
         $data = $this->getData($command->getMessageTemplateGroups());
-        $this->process($data);
+        if ($this->shouldBatch($data)) {
+            $this->processBatches($data);
+        } else {
+            $this->process($data);
+        }
         return true;
     }
 
@@ -330,6 +343,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
 
+
     /**
      * This receives the results from a registration query and adds the registration_ids as the keys for each record.
      *
@@ -353,6 +367,19 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             }
         }
         return $final_result;
+    }
+
+
+    /**
+     * Returns the count at which batching is triggered for the notifications.
+     * @return int
+     */
+    protected function getRegistrationBatchThreshold()
+    {
+        return apply_filters(
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_UpcomingNotificationsCommandHandler__getRegistrationBatchThreshold',
+            150
+        );
     }
 
 
@@ -412,6 +439,26 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         array $data,
         array $incoming_data
     );
+
+
+
+    /**
+     * Determines whether the number of registrations within the given data warrants processing these as batches.
+     * "Batching" in this context is simply ensuring that the messages queued up for generation have a limited number of
+     * registrations attached to them so that there's less risk of a server timing out while generating the messages.
+     * @param array $data
+     * @return bool
+     */
+    abstract protected function shouldBatch($data);
+
+
+
+
+    /**
+     * This method takes care of dividing up the data into appropriate batches and processing each batch.
+     * @param array $data
+     */
+    abstract protected function processBatches($data);
 
 
     /**

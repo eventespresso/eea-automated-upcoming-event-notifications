@@ -11,6 +11,7 @@ use EE_Message_Template_Group;
 use EE_Datetime;
 use EE_Registration;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
@@ -41,10 +42,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     /**
      * UpcomingDatetimeNotificationsCommandHandler constructor.
      *
-     * @param CommandBusInterface     $command_bus
-     * @param CommandFactoryInterface $command_factory
-     * @param EEM_Registration        $registration_model
-     * @param EEM_Datetime            $datetime_model
+     * @param CommandBusInterface                   $command_bus
+     * @param CommandFactoryInterface               $command_factory
+     * @param EEM_Registration                      $registration_model
+     * @param EEM_Datetime                          $datetime_model
+     * @param SplitRegistrationDataRecordForBatches $split_data_service
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
@@ -53,9 +55,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         CommandBusInterface $command_bus,
         CommandFactoryInterface $command_factory,
         EEM_Registration $registration_model,
-        EEM_Datetime $datetime_model
+        EEM_Datetime $datetime_model,
+        SplitRegistrationDataRecordForBatches $split_data_service
     ) {
-        parent::__construct($command_bus, $command_factory, $registration_model);
+        parent::__construct($command_bus, $command_factory, $registration_model, $split_data_service);
         $this->datetime_model = $datetime_model;
     }
 
@@ -89,15 +92,14 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
              */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 $datetimes_processed = array();
-                foreach ($datetime_ids_and_registrations as $datetime_id_and_registrations) {
-                    //convert the second array value on $datetime_id_and_registrations to just be the registration ids.
-                    $datetime_id_and_registrations[1] = array_keys($datetime_id_and_registrations[1]);
+                foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
+                    $message_data = array($datetime_id, array_keys($registration_records));
                     $this->triggerMessages(
-                        $datetime_id_and_registrations,
+                        $message_data,
                         Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
                         $context
                     );
-                    $datetimes_processed[] = $datetime_id_and_registrations[0];
+                    $datetimes_processed[] = $datetime_id;
                 }
                 //set the datetimes as having been processed.
                 $this->setItemsProcessed(
@@ -299,7 +301,8 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                 array(
                     'REG_ID' => array('REG_ID', '%d'),
                     'ATT_ID' => array('ATT_ID', '%d'),
-                    'EVT_ID' => array('Registration.EVT_ID', '%d')
+                    'EVT_ID' => array('Registration.EVT_ID', '%d'),
+                    'TXN_ID' => array('Registration.TXN_ID', '%d')
                 )
             )
         );
@@ -356,5 +359,83 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             $data[$message_template_group->ID()][$context][$datetime_id] = $datetime_id_and_registrations;
         }
         return $data;
+    }
+
+
+
+    /**
+     * Determines whether the number of registrations within the given data warrants processing these as batches.
+     * "Batching" in this context is simply ensuring that the messages queued up for generation have a limited number of
+     * registrations attached to them so that there's less risk of a server timing out while generating the messages.
+     *
+     * @param array $data
+     * @return bool
+     */
+    protected function shouldBatch($data)
+    {
+        foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
+                foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
+                    if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+
+    /**
+     * This method takes care of dividing up the data into appropriate batches and processing each batch.
+     * The messages system itself has batching in place for each message queued for generation.  The batching here just
+     * ensures that the message system receives a smaller amount of data for each message to be generated.
+     *
+     * @param array $data
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     */
+    protected function processBatches($data)
+    {
+        $non_batched_items_for_processing = array();
+        //process batches for each context and message template group.
+        foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
+                foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
+                    //only batch if necessary.
+                    if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
+                        $batches = $context === 'admin'
+                            ? $this->split_data_service->splitDataByEventId(
+                                $registration_records,
+                                $this->getRegistrationBatchThreshold()
+                            )
+                            : $this->split_data_service->splitDataByAttendeeId(
+                                $registration_records,
+                                $this->getRegistrationBatchThreshold()
+                            );
+                        foreach ($batches as $batch) {
+                            $item_for_processing = array(
+                                $message_template_group_id => array(
+                                    $context => array(
+                                        $datetime_id,
+                                        $this->split_data_service->convertStringIndexesToIdFor($batch)
+                                    )
+                                )
+                            );
+                            $this->process($item_for_processing);
+                        }
+                        continue;
+                    }
+                    $non_batched_items_for_processing[$message_template_group_id][$context][$datetime_id]
+                        = $registration_records;
+                }
+            }
+        }
+        if ($non_batched_items_for_processing) {
+            $this->process($non_batched_items_for_processing);
+        }
     }
 }
