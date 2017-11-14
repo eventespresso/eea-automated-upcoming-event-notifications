@@ -21,6 +21,7 @@ use EE_Error;
 use EventEspresso\core\services\commands\CompositeCommandHandler;
 use EventEspresso\core\services\loaders\LoaderFactory;
 use InvalidArgumentException;
+use ReflectionException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -193,6 +194,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * @param array  $data
      * @param string $message_type
      * @param string $context
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function triggerMessages(array $data, $message_type, $context)
     {
