@@ -1,6 +1,8 @@
 <?php
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -40,6 +42,11 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      * @param string $message_type_name
      * @param array  $data
      * @param string $context
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public static function prep_and_queue_messages($message_type_name, array $data, $context)
     {
@@ -86,6 +93,11 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      * @param array $data
      * @param       $context
      * @return EE_Message_To_Generate[]
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     protected static function setup_messages_to_generate_for_all_active_messengers($message_type, array $data, $context)
     {
