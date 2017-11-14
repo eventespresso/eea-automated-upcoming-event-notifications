@@ -15,6 +15,7 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
 use InvalidArgumentException;
+use ReflectionException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -60,15 +61,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
-
     /**
      * This should handle the processing of provided data and the actual triggering of the messages.
      *
      * @param array $data
      * @throws EE_Error
+     * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
-     * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     protected function process(array $data)
     {
@@ -394,6 +395,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function processBatches($data)
     {
