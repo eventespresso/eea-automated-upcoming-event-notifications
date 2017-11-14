@@ -90,8 +90,11 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
              */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 $datetimes_processed = array();
-                foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
-                    $message_data = array($datetime_id, array_keys($registration_records));
+                foreach ($datetime_ids_and_registrations as $datetime_id => $datetimeid_and_registration_records) {
+                    $message_data = array(
+                        $datetime_id,
+                        array_keys($datetimeid_and_registration_records[1])
+                    );
                     $this->triggerMessages(
                         $message_data,
                         Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
@@ -220,13 +223,14 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         }
 
         foreach ($datetime_ids as $datetime_id) {
-            $registration_ids = $this->getRegistrationsForDatetime(
+            $datetime_id = (int) $datetime_id;
+            $registration_records = $this->getRegistrationsForDatetime(
                 $datetime_id
             );
-            if (! $registration_ids) {
+            if (! $registration_records) {
                 continue;
             }
-            $data[$datetime_id] = array($datetime_id, $registration_ids);
+            $data[$datetime_id] = array($datetime_id, $registration_records);
         }
         return $data;
     }
@@ -291,7 +295,6 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'Ticket.Datetime.DTT_ID' => $datetime_id,
             'REG_deleted'            => 0,
         );
-
         return $this->setKeysToRegistrationIds(
             $this->registration_model->get_all_wpdb_results(
                 array($where, 'group_by' => 'REG_ID'),
@@ -384,7 +387,6 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     }
 
 
-
     /**
      * This method takes care of dividing up the data into appropriate batches and processing each batch.
      * The messages system itself has batching in place for each message queued for generation.  The batching here just
@@ -403,7 +405,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //process batches for each context and message template group.
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
-                foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
+                foreach ($datetime_ids_and_registrations as $datetime_id => $datetimeid_and_registration_records) {
+                    //popoff $registration records from the second element.
+                    $registration_records = $datetimeid_and_registration_records[1];
                     //only batch if necessary.
                     if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
                         $batches = $context === 'admin'
@@ -419,7 +423,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                             $item_for_processing = array(
                                 $message_template_group_id => array(
                                     $context => array(
-                                        $datetime_id,
+                                        (int) $datetime_id,
                                         $this->split_data_service->convertStringIndexesToIdFor($batch)
                                     )
                                 )
