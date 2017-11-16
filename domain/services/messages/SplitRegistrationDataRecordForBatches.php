@@ -279,18 +279,21 @@ class SplitRegistrationDataRecordForBatches
             return ($record1_count > $record2_count) ? -1 : 1;
         });
         return $records;
-        // uasort($records, function ($record1, $record2) {
-        //     $record1_count = count($record1);
-        //     $record2_count = count($record2);
-        //     if ($record1_count === $record2_count) {
-        //         return 0;
-        //     }
-        //     return ($record1_count > $record2_count) ? -1 : 1;
-        // });
-        // return $records;
     }
 
 
+    /**
+     * This is a utility function that works around the fact that PHP versions prior to PHP 7 might not preserve array
+     * position on items sorted where values are equal.  This ensures that when values are equal their position is
+     * preserved.
+     *
+     * @see https://github.com/vanderlee/PHP-stable-sort-functions/blob/master/classes/StableSort.php where code was
+     *      obtained.
+     *
+     * @param array $items_to_sort
+     * @param       $value_compare_function
+     * @return bool
+     */
     protected function customStableSort(array &$items_to_sort, $value_compare_function)
     {
         $index = 0;
