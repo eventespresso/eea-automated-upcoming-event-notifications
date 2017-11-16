@@ -270,7 +270,7 @@ class SplitRegistrationDataRecordForBatches
      */
     protected function sortByCountOfRecordsDescending(array $records)
     {
-        uasort($records, function ($record1, $record2) {
+        $this->customStableSort($records, function ($record1, $record2) {
             $record1_count = count($record1);
             $record2_count = count($record2);
             if ($record1_count === $record2_count) {
@@ -279,6 +279,32 @@ class SplitRegistrationDataRecordForBatches
             return ($record1_count > $record2_count) ? -1 : 1;
         });
         return $records;
+        // uasort($records, function ($record1, $record2) {
+        //     $record1_count = count($record1);
+        //     $record2_count = count($record2);
+        //     if ($record1_count === $record2_count) {
+        //         return 0;
+        //     }
+        //     return ($record1_count > $record2_count) ? -1 : 1;
+        // });
+        // return $records;
+    }
+
+
+    protected function customStableSort(array &$items_to_sort, $value_compare_function)
+    {
+        $index = 0;
+        foreach ($items_to_sort as &$item) {
+            $item = array($index++, $item);
+        }
+        $result = uasort($items_to_sort, function ($a, $b) use ($value_compare_function) {
+            $result = call_user_func($value_compare_function, $a[1], $b[1]);
+            return $result === 0 ? $a[0] - $b[0] : $result;
+        });
+        foreach ($items_to_sort as &$item) {
+            $item = $item[1];
+        }
+        return $result;
     }
 
 
