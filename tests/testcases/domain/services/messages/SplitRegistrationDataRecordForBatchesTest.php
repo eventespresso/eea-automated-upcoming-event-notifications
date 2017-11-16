@@ -336,6 +336,23 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
         //count of $expected result should match count of actual result
         $this->assertCount(count($expected_result), $actual_result);
 
+        if ($key === 'EVT_ID Group') {
+            echo "\n";
+            echo "-------------- Actual -------------- ";
+            echo "\n";
+            var_dump(reset($actual_result));
+            echo "\n";
+            var_dump($actual_result);
+            echo "\n";
+            echo "\n";
+            echo "------------- Expected --------------";
+            echo "\n";
+            var_dump(reset($expected_result));
+            echo "\n";
+            var_dump($expected_result));
+            echo "\n";
+        }
+
         //the first result in $expected should match the first result in $actual.
         $this->assertSame(reset($expected_result), reset($actual_result));
 
