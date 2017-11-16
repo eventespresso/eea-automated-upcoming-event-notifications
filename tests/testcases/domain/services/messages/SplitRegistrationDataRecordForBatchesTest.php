@@ -43,23 +43,23 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
                 2,
                 array(
                     'B_1' => array(
-                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => '1'),
+                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => 1),
                     ),
                     'B_2' => array(
-                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '2'),
-                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '2'),
+                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 2),
+                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 2),
                     ),
                     'B_3' => array(
-                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => '3'),
-                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '3'),
+                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => 3),
+                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 3),
                     ),
                     'B_4' => array(
-                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '5'),
-                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '5')
+                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 5),
+                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 5)
                     ),
                     'B_5' => array(
-                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => '4'),
+                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => 4),
                     ),
                 )
             ),
@@ -68,19 +68,19 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
                 4,
                 array(
                     'B_1' => array(
-                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '2'),
-                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '2'),
+                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 2),
+                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 2),
                     ),
                     'B_2' => array(
-                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => '3'),
-                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '3'),
-                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '5'),
-                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '5'),
+                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => 3),
+                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 3),
+                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 5),
+                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 5),
                     ),
                     'B_3' => array(
-                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => '4'),
+                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => 4),
                     ),
                 )
             ),
@@ -89,17 +89,17 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
                 8,
                 array(
                     'B_1' => array(
-                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '2'),
-                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '2'),
-                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => '3'),
-                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '3'),
-                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '5'),
-                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '5'),
+                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 2),
+                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 2),
+                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => 3),
+                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 3),
+                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 5),
+                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 5),
                     ),
                     'B_2' => array(
-                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => '4'),
+                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => 4),
                     )
                 )
             )
@@ -298,23 +298,23 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
                 $this->getSampleDataSet(),
                 array(
                     'TXN_ID_1' => array(
-                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => '1'),
+                        'REG_ID_15' => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => 1),
+                        'REG_ID_22' => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => 1),
                     ),
                     'TXN_ID_2' => array(
-                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '2'),
-                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '2'),
+                        'REG_ID_16' => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 2),
+                        'REG_ID_20' => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 2),
                     ),
                     'TXN_ID_3' => array(
-                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => '3'),
-                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '3'),
+                        'REG_ID_17' => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => 3),
+                        'REG_ID_21' => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 3),
                     ),
                     'TXN_ID_5' => array(
-                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '5'),
-                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '5')
+                        'REG_ID_19' => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 5),
+                        'REG_ID_23' => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 5)
                     ),
                     'TXN_ID_4' => array(
-                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => '4'),
+                        'REG_ID_18' => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => 4),
                     ),
                 )
             )
@@ -337,14 +337,14 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
         $this->assertCount(count($expected_result), $actual_result);
 
         //the first result in $expected should match the first result in $actual.
-        $this->assertEquals(reset($expected_result), reset($actual_result));
+        $this->assertSame(reset($expected_result), reset($actual_result));
 
         //if we loop through each inner array value on actual, that should match the corresponding inner value count of
         //expected
         foreach ($actual_result as $actual_result_key => $inner_records) {
             $this->assertCount(count($inner_records), $expected_result[$actual_result_key]);
             //the REG_IDs in the inner values should match the reg_ids in the corresponding expected result.
-            $this->assertEquals(array_keys($inner_records), array_keys($expected_result[$actual_result_key]));
+            $this->assertSame(array_keys($inner_records), array_keys($expected_result[$actual_result_key]));
         }
     }
 
@@ -360,7 +360,7 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
     {
         $actual_result = $this->service_mock->splitDataByAttendeeId($records, $batch_limit);
         $this->assertCount(count($expected_result), $actual_result);
-        $this->assertEquals(reset($expected_result), reset($actual_result));
+        $this->assertSame(reset($expected_result), reset($actual_result));
     }
 
 
@@ -375,7 +375,7 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
     {
         $actual_result = $this->service_mock->splitDataByEventId($records, $batch_limit);
         $this->assertCount(count($expected_result), $actual_result);
-        $this->assertEquals(reset($expected_result), reset($actual_result));
+        $this->assertSame(reset($expected_result), reset($actual_result));
     }
 
 
@@ -391,7 +391,7 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
     {
         $actual_result = $this->service_mock->splitDataByTransactionId($records, $batch_limit);
         $this->assertCount(count($expected_result), $actual_result);
-        $this->assertEquals(reset($expected_result), reset($actual_result));
+        $this->assertSame(reset($expected_result), reset($actual_result));
     }
 
 
@@ -407,15 +407,15 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
     private function getSampleDataSet()
     {
         return array(
-            15 => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-            16 => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '2'),
-            17 => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => '3'),
-            18 => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => '4'),
-            19 => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '5'),
-            20 => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '2'),
-            21 => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => '3'),
-            22 => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => '1'),
-            23 => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => '5')
+            15 => array('REG_ID' => 15, 'ATT_ID' => 20, 'EVT_ID' => 30, 'TXN_ID' => 1),
+            16 => array('REG_ID' => 16, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 2),
+            17 => array('REG_ID' => 17, 'ATT_ID' => 22, 'EVT_ID' => 32, 'TXN_ID' => 3),
+            18 => array('REG_ID' => 18, 'ATT_ID' => 22, 'EVT_ID' => 30, 'TXN_ID' => 4),
+            19 => array('REG_ID' => 19, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 5),
+            20 => array('REG_ID' => 20, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 2),
+            21 => array('REG_ID' => 21, 'ATT_ID' => 21, 'EVT_ID' => 31, 'TXN_ID' => 3),
+            22 => array('REG_ID' => 22, 'ATT_ID' => 21, 'EVT_ID' => 30, 'TXN_ID' => 1),
+            23 => array('REG_ID' => 23, 'ATT_ID' => 20, 'EVT_ID' => 32, 'TXN_ID' => 5)
         );
     }
 }
