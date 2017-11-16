@@ -336,7 +336,7 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
         //count of $expected result should match count of actual result
         $this->assertCount(count($expected_result), $actual_result);
 
-        if ($key === 'EVT_ID Group') {
+        if ($key === 'EVT_ID') {
             echo "\n";
             echo "-------------- Actual -------------- ";
             echo "\n";
