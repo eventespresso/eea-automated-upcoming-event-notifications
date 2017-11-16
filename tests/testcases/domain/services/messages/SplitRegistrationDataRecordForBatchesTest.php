@@ -349,7 +349,7 @@ class SplitRegistrationDataRecordForBatchesTest extends AddonTestCase
             echo "\n";
             var_dump(reset($expected_result));
             echo "\n";
-            var_dump($expected_result));
+            var_dump($expected_result);
             echo "\n";
         }
 
