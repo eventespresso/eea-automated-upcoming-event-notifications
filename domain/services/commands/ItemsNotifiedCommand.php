@@ -72,10 +72,11 @@ class ItemsNotifiedCommand extends Command
             },
             $ids
         );
+        $model = $this->model;
         return array_filter(
             $ids,
-            function ($item_id) {
-                return $this->model->exists_by_ID($item_id);
+            function ($item_id) use ($model) {
+                return $model->exists_by_ID($item_id);
             }
         );
     }
