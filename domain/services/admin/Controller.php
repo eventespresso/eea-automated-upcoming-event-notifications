@@ -56,6 +56,9 @@ class Controller
      *
      * @param EE_Request $request
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function __construct(EE_Request $request)
     {
@@ -201,10 +204,10 @@ class Controller
     {
         //if the id is 0 then let's attempt to get from request
         $id = $id
-            ? $id
-            : $this->request->get('id');
+            ? absint($id)
+            : absint($this->request->get('id'));
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return EEM_Message_Template_Group::instance()->get_one_by_ID(absint($id));
+        return $id > 0 ? EEM_Message_Template_Group::instance()->get_one_by_ID($id) : null;
     }
 
 
