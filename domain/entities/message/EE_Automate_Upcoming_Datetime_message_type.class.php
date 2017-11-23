@@ -56,7 +56,7 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
             'admin'    => array(
                 'label'       => esc_html__('Event Admin', 'event_espresso'),
                 'description' => esc_html__(
-                    'This template is what event administrators will receive with an approved registration',
+                    'This template will be used to generate the message from the context of Event Administrator (event author).',
                     'event_espresso'
                 ),
             ),
