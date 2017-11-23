@@ -89,7 +89,7 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
                 return $shortcode;
         }
 
-        if (strpos($shortcode, '[IF_DATETIME_*' !== false)) {
+        if (strpos($shortcode, '[IF_DATETIME_*') !== false) {
             $attributes = $this->_get_shortcode_attrs($shortcode);
             //note for previews we allow the use of a 'preview_show', and 'preview_hide' as the value. So users
             //can see what it will look like.
