@@ -57,6 +57,9 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
             return '';
         }
         $specific_datetime = $this->_message_type->get_specific_datetime();
+        if (! $specific_datetime instanceof EE_Datetime) {
+            return '';
+        }
 
         switch ($shortcode) {
             case '[SPECIFIC_DATETIME_START]':
