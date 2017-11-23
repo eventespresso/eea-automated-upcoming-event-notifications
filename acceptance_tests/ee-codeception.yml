@@ -1,4 +1,2 @@
 addon:
   - AuenGeneral
-external_plugins:
-  - wp-crontrol

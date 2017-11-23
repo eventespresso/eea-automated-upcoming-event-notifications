@@ -81,7 +81,7 @@ $I->see('Scheduling Settings');
 $I->seeInField(AuenMessageTemplate::AUTOMATION_DAYS_BEFORE_FIELD_SELECTOR, '3');
 
 //now let's go to crontrol and trigger the sends
-$I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
+$I->manuallyTriggerCronEvent();
 
 //go and checkout what's on the message activity list table.
 $I->amGoingTo('Verify that there is only one message for the admin context generated from this test.');
@@ -140,7 +140,7 @@ $I->waitForText('Congratulations', 15);
 $I->loginAsAdmin();
 
 //now let's go to crontrol and trigger the sends
-$I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
+$I->manuallyTriggerCronEvent();
 
 //verify we did not get any more messages generated.
 $I->amGoingTo('Verify there were no more messages generated.');

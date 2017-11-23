@@ -57,8 +57,7 @@ $I->see('The template for Primary Registrant Recipient is currently active.');
 
 //make sure wp-crontrol is active. The plugin was included in the install via ee-codeception.yml
 //check that the event for the messages schedule is present.
-$I->activateWPCrontrolPlugin();
-$I->seeDailyScheduledEventSetup();
+$I->seeScheduledCronSetup();
 
 //for the purpose of all tests we need send on same request to be set for messages
 $I->amOnMessageSettingsPage();

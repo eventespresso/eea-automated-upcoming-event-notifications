@@ -44,7 +44,7 @@ $I->switchContextTo('Registrant');
 $I->toggleContextState('Registrant Recipient');
 $I->click('Save');
 
-$I->manuallyTriggerCronEvent(AuenMessageTemplate::AUTOMATION_DAILY_CHECK_CRON_EVENT_HOOK);
+$I->manuallyTriggerCronEvent();
 
 $I->amOnMessagesActivityListTablePage();
 //set per page to a higher value
