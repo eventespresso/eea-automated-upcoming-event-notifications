@@ -21,11 +21,14 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_message_type
 {
 
+    /**
+     * EE_Automate_Upcoming_Datetime_message_type constructor.
+     */
     public function __construct()
     {
         $this->name              = Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME;
         $this->description       = esc_html__(
-            'This message type automates sending messages to registrations for an upcoming datetime. Messages are sent at the threshold you define (eg 3 days before) prior to a datetime on an event. Messages for this message type are sent to approved registrations and are only triggered for datetimes on upcoming and/or sold out, and published upcoming events. Note that this will send a the message for each datetime on the event.',
+            'This message type automates sending messages to registrations for an upcoming datetime. Messages are sent at the threshold you define (eg 3 days before) prior to a datetime on an event. Messages for this message type are sent to approved registrations and are only triggered for datetimes on upcoming and/or sold out, and published upcoming events. Note that this will send the message for each datetime on the event.',
             'event_espresso'
         );
         $this->label             = array(
