@@ -300,6 +300,7 @@ class SplitRegistrationDataRecordForBatches
         foreach ($items_to_sort as &$item) {
             $item = array($index++, $item);
         }
+        unset($item);
         $result = uasort($items_to_sort, function ($a, $b) use ($value_compare_function) {
             $result = call_user_func($value_compare_function, $a[1], $b[1]);
             return $result === 0 ? $a[0] - $b[0] : $result;
@@ -307,6 +308,7 @@ class SplitRegistrationDataRecordForBatches
         foreach ($items_to_sort as &$item) {
             $item = $item[1];
         }
+        unset($item);
         return $result;
     }
 
