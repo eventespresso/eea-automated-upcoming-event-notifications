@@ -39,7 +39,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
             throw new InvalidArgumentException(
                 sprintf(
                     esc_html__(
-                        'The incoming data argument for %1$s is expected to be an array where the first element is an %2$s object or %3$s and the second element is either a %4$s object or an array of %4$s objects.',
+                        'The incoming data argument for %1$s is expected to be an array where the first element is an %2$s object or %3$s and the second element is either an %4$s object or an array of %4$s objects.',
                         'event_espresso'
                     ),
                     __METHOD__,
