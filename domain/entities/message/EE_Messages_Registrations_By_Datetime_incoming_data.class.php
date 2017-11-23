@@ -48,7 +48,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
                     'EE_Registration'
                 )
             );
-        };
+        }
         parent::__construct($data);
     }
 
