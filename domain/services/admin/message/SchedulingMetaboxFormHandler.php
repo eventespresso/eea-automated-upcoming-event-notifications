@@ -16,7 +16,6 @@ use EventEspresso\core\libraries\form_sections\strategies\filter\VsprintfFilter;
 use EE_Text_Input;
 use EE_Int_Validation_Strategy;
 use EE_Int_Normalization;
-use EE_Select_Input;
 use InvalidArgumentException;
 use LogicException;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
