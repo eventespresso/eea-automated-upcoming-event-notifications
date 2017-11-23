@@ -148,9 +148,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                 'BETWEEN',
                 array(
                     $this->getStartTimeForQuery(),
-                    $this->getStartTimeForQuery()
-                    + (DAY_IN_SECONDS * $settings->currentThreshold($context))
-                    + $this->cron_frequency_buffer,
+                    $this->getEndTimeForQuery($settings, $context),
                 ),
             ),
             'STS_ID'                       => EEM_Registration::status_id_approved,

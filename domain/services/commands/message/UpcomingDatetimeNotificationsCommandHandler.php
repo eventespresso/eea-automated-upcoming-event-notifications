@@ -256,9 +256,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                 'BETWEEN',
                 array(
                     $this->getStartTimeForQuery(),
-                    $this->getStartTimeForQuery()
-                    + (DAY_IN_SECONDS * $settings->currentThreshold($context))
-                    + $this->cron_frequency_buffer,
+                    $this->getEndTimeForQuery($settings, $context),
                 ),
             ),
             'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),

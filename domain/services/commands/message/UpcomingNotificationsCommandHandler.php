@@ -294,6 +294,25 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
+     * This returns the end time for the "upcoming" queries.  It's set to:
+     * - the start time for the query
+     * - + the current threshold (which is an integer) times a day in seconds.
+     * - + the cron frequency buffer (which is a filtered buffer allowing for wp-cron impreciseness)
+     *
+     * @param SchedulingSettings $settings
+     * @param string             $context
+     * @return int
+     * @throws EE_Error
+     */
+    protected function getEndTimeForQuery(SchedulingSettings $settings, $context)
+    {
+        return $this->getStartTimeForQuery()
+               + (DAY_IN_SECONDS * $settings->currentThreshold($context))
+               + $this->cron_frequency_buffer;
+    }
+
+
+    /**
      * Return the correct notification meta key for items that have already been notified for the given context.
      * @param string $context
      * @return string
