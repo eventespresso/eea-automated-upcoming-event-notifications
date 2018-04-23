@@ -12,6 +12,5 @@
         "src/info.json",
         "src/circle.yml",
         "src/.travis.yml"
-    ],
-    "github" : true
+    ]
 }
