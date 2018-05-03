@@ -6,13 +6,13 @@ use DomainException;
 use EE_Registry;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\request\RequestInterface;
 use InvalidArgumentException;
 use LogicException;
 use WP_Screen;
 use EEM_Message_Template_Group;
 use EE_Message_Template_Group;
 use EEM_Base;
-use EE_Request;
 use Exception;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
@@ -39,7 +39,7 @@ class Controller
 
 
     /**
-     * @var  EE_Request
+     * @var  RequestInterface
      */
     protected $request;
 
@@ -54,13 +54,13 @@ class Controller
     /**
      * Controller constructor.
      *
-     * @param EE_Request $request
+     * @param RequestInterface $request
      * @throws EE_Error
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      */
-    public function __construct(EE_Request $request)
+    public function __construct(RequestInterface $request)
     {
         $this->request = $request;
 
@@ -112,10 +112,10 @@ class Controller
      */
     protected function canLoad()
     {
-        if ($this->request->get('page', false) !== 'espresso_messages'
+        if ($this->request->getRequestParam('page', false) !== 'espresso_messages'
             || (
-                $this->request->get('action', '') !== 'update_message_template'
-                && $this->request->get('action', '') !== 'edit_message_template'
+                $this->request->getRequestParam('action', '') !== 'update_message_template'
+                && $this->request->getRequestParam('action', '') !== 'edit_message_template'
             )
         ) {
             //get out because we don't want this loading on this request.
@@ -141,7 +141,7 @@ class Controller
      */
     protected function isDisplay()
     {
-        return ! $this->request->get('noheader', false);
+        return ! $this->request->getRequestParam('noheader', false);
     }
 
 
@@ -205,7 +205,7 @@ class Controller
         //if the id is 0 then let's attempt to get from request
         $id = $id
             ? absint($id)
-            : absint($this->request->get('id'));
+            : absint($this->request->getRequestParam('id'));
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $id > 0 ? EEM_Message_Template_Group::instance()->get_one_by_ID($id) : null;
     }
@@ -245,7 +245,7 @@ class Controller
         //created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->get(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
+            || ! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
                 $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                 && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
@@ -259,7 +259,7 @@ class Controller
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
-                        Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->get(
+                        Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->getRequestParam(
                             Domain::META_KEY_DAYS_BEFORE_THRESHOLD
                         )
                     )
@@ -279,11 +279,11 @@ class Controller
     {
         /** display requests **/
         $this->context = $this->context === ''
-            ? sanitize_text_field($this->request->get('context', ''))
+            ? sanitize_text_field($this->request->getRequestParam('context', ''))
             : $this->context;
         /** form post requests */
         $this->context = $this->context === ''
-            ? sanitize_text_field($this->request->get('MTP_context', 'admin'))
+            ? sanitize_text_field($this->request->getRequestParam('MTP_context', 'admin'))
             : $this->context;
         return $this->context;
     }
