@@ -1,6 +1,9 @@
 <?php
+
+use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\loaders\LoaderFactory;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -24,9 +27,7 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Module
      */
     public static function set_hooks_admin()
     {
-        EE_Automated_Upcoming_Event_Notification::loader()->getShared(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller'
-        );
+        LoaderFactory::getLoader()->getShared(Controller::class);
     }
 
     /**
