@@ -188,6 +188,7 @@ class SplitRegistrationDataRecordForBatches
             }
 
             //recurse
+            /** @noinspection AdditionOperationOnArraysInspection */
             $batches += $this->splitGroupedData(
                 $keys_to_group_by,
                 $registration_records_grouped,
@@ -302,9 +303,10 @@ class SplitRegistrationDataRecordForBatches
         }
         unset($item);
         $result = uasort($items_to_sort, function ($a, $b) use ($value_compare_function) {
-            $result = call_user_func($value_compare_function, $a[1], $b[1]);
+            $result = $value_compare_function($a[1], $b[1]);
             return $result === 0 ? $a[0] - $b[0] : $result;
         });
+        /** @noinspection ReferenceMismatchInspection */
         foreach ($items_to_sort as &$item) {
             $item = $item[1];
         }
