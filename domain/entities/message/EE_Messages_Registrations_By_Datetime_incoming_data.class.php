@@ -63,6 +63,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public static function convert_data_for_persistent_storage($datetime_and_registrations)
     {
@@ -183,6 +184,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     protected function _setup_data()
     {
@@ -230,16 +232,13 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         $first_transaction = null;
         foreach ($this->reg_objs as $registration) {
             $transaction = $registration->transaction();
-            if ($transaction instanceof EE_Transaction) {
-                //do they match
-                if ($first_transaction !== $transaction) {
-                    //has $first_transaction been set yet?
-                    if ($first_transaction === null) {
-                        $first_transaction = $transaction;
-                        continue;
-                    }
-                    return null;
+            if ($transaction instanceof EE_Transaction && $first_transaction !== $transaction) {
+                //has $first_transaction been set yet?
+                if ($first_transaction === null) {
+                    $first_transaction = $transaction;
+                    continue;
                 }
+                return null;
             }
         }
         return $first_transaction;
