@@ -18,8 +18,6 @@ use EventEspresso\core\services\commands\CommandFactoryInterface;
 use InvalidArgumentException;
 use ReflectionException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * UpcomingEventNotificationsCommandHandler
  * CommandHandler for UpcomingEventNotificationsCommand
@@ -75,32 +73,32 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      */
     protected function process(array $data)
     {
-        //initial verification
+        // initial verification
         if (empty($data)) {
             return;
         }
 
-        //loop through each Message Template Group and it queue up its registrations for generation.
+        // loop through each Message Template Group and it queue up its registrations for generation.
         $event_ids = array();
         /**
-         * @var int $message_template_group_id
+         * @var int               $message_template_group_id
          * @var EE_Registration[] $context_and_registration_data
          */
         foreach ($data as $message_template_group_id => $context_and_registration_data) {
             /**
-             * @var string $context
+             * @var string            $context
              * @var EE_Registration[] $registration_data
              */
             foreach ($context_and_registration_data as $context => $registration_data) {
                 $registration_ids = array_keys($registration_data);
-                //collect event-ids for the registrations for marking as notified for this context.
+                // collect event-ids for the registrations for marking as notified for this context.
                 $event_ids = $this->aggregateEventsForContext($registration_data, $event_ids, $context);
                 $this->triggerMessages($registration_ids, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT, $context);
             }
         }
 
 
-        //k now let's record all the events notified for each context.
+        // k now let's record all the events notified for each context.
         foreach ($event_ids as $context => $event_ids_for_context) {
             $this->setItemsProcessed(
                 array($this->event_model, $event_ids_for_context, $context)
@@ -215,10 +213,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             return array();
         }
 
-        //extract the ids of registrations already in the data array.
+        // extract the ids of registrations already in the data array.
         $additional_where_conditions = array();
-        $registration_ids = isset($data[$context])
-            ? array_keys($data[$context])
+        $registration_ids = isset($data[ $context ])
+            ? array_keys($data[ $context ])
             : array();
         if ($registration_ids) {
             $additional_where_conditions['REG_ID'] = array('NOT_IN', $registration_ids);
@@ -257,9 +255,9 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         array $data,
         array $registrations
     ) {
-        //here the incoming data is an array of registrations.
+        // here the incoming data is an array of registrations.
         foreach ($registrations as $registration_id => $registration_query_results_record) {
-            $data[$message_template_group->ID()][$context][$registration_id] = $registration_query_results_record;
+            $data[ $message_template_group->ID() ][ $context ][ $registration_id ] = $registration_query_results_record;
         }
         return $data;
     }
@@ -281,7 +279,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
             'Datetime.DTT_EVT_start' => array('>', time()),
-            'Extra_Meta.EXM_key'           => $meta_key,
+            'Extra_Meta.EXM_key'     => $meta_key,
         );
         $event_ids_notified = $this->event_model->get_col(array($where));
         return $event_ids_notified
@@ -296,17 +294,17 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * Retrieves EE_Event objects that haven't already been set on the $events variable for all the registrations sent
      * in for the given context.
      *
-     * @param $registration_result_records $registrations  In the format
-     *                                     array(
-     *                                      array(
-     *                                       'REG_ID' => 'x',
-     *                                       'ATT_ID' => 'x',
-     *                                       'EVT_ID' => 'x',
-     *                                       'TXN_ID' => 'x'
-     *                                      )
-     *                                     );
-     * @param array             $incoming_event_ids
-     * @param string            $context
+     * @param        $registration_result_records $registrations  In the format
+     *                                            array(
+     *                                            array(
+     *                                            'REG_ID' => 'x',
+     *                                            'ATT_ID' => 'x',
+     *                                            'EVT_ID' => 'x',
+     *                                            'TXN_ID' => 'x'
+     *                                            )
+     *                                            );
+     * @param array  $incoming_event_ids
+     * @param string $context
      * @return array
      */
     protected function aggregateEventsForContext(
@@ -316,7 +314,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     ) {
         foreach ($registration_result_records as $registration_result_record) {
             $registration_event_id = $registration_result_record['EVT_ID'];
-            $incoming_event_ids[$context][$registration_event_id] = $registration_event_id;
+            $incoming_event_ids[ $context ][ $registration_event_id ] = $registration_event_id;
         }
         return $incoming_event_ids;
     }
@@ -361,11 +359,12 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         $non_batched_items_for_processing = array();
         /**
          * process batches for each context and message template group.
+         *
          * @var array $context_and_registration_data
          */
         foreach ($data as $message_template_group_id => $context_and_registration_data) {
             foreach ($context_and_registration_data as $context => $registration_data) {
-                //only batch if necessary
+                // only batch if necessary
                 if (count($registration_data) > $this->getRegistrationBatchThreshold()) {
                     $batches = $context === 'admin'
                         ? $this->split_data_service->splitDataByEventId(
@@ -379,14 +378,14 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
                     foreach ($batches as $batch) {
                         $item_for_processing = array(
                             $message_template_group_id => array(
-                                $context => $this->split_data_service->convertStringIndexesToIdFor($batch)
-                            )
+                                $context => $this->split_data_service->convertStringIndexesToIdFor($batch),
+                            ),
                         );
                         $this->process($item_for_processing);
                     }
                     continue;
                 }
-                $non_batched_items_for_processing[$message_template_group_id][$context] = $registration_data;
+                $non_batched_items_for_processing[ $message_template_group_id ][ $context ] = $registration_data;
             }
         }
         if ($non_batched_items_for_processing) {

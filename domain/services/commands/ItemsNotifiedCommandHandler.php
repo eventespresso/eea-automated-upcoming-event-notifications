@@ -9,8 +9,6 @@ use EventEspresso\core\services\commands\CommandInterface;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * ItemsNotifiedCommandHandler
  *
@@ -30,7 +28,7 @@ class ItemsNotifiedCommandHandler extends CommandHandler
     /**
      * EventsNotifiedCommandHandler constructor.
      *
-     * @param EEM_Extra_Meta          $extra_meta_model
+     * @param EEM_Extra_Meta $extra_meta_model
      */
     public function __construct(EEM_Extra_Meta $extra_meta_model)
     {
@@ -70,14 +68,14 @@ class ItemsNotifiedCommandHandler extends CommandHandler
                 ? Domain::META_KEY_PREFIX_ADMIN_TRACKER
                 : Domain::META_KEY_PREFIX_REGISTRATION_TRACKER;
             $model_name = $model->get_this_model_name();
-            //first let's see if there are already rows in the extra meta that have these ids.
+            // first let's see if there are already rows in the extra meta that have these ids.
             $already_notified_item_ids = $this->extra_meta_model->get_col(
                 array(
                     array(
-                        'EXM_key' => $meta_key,
-                        'OBJ_ID' => array('IN', $item_ids),
-                        'EXM_type' => $model_name
-                    )
+                        'EXM_key'  => $meta_key,
+                        'OBJ_ID'   => array('IN', $item_ids),
+                        'EXM_type' => $model_name,
+                    ),
                 ),
                 'OBJ_ID'
             );
@@ -86,7 +84,7 @@ class ItemsNotifiedCommandHandler extends CommandHandler
                 $item_ids = array_diff($item_ids, $already_notified_item_ids);
             }
 
-            //k now we should have a filtered list of item_ids to add the new meta record for.
+            // k now we should have a filtered list of item_ids to add the new meta record for.
             if ($item_ids) {
                 foreach ($item_ids as $item_id) {
                     $success = $this->setItemProcessed($item_id, $meta_key, $model_name);
@@ -104,8 +102,8 @@ class ItemsNotifiedCommandHandler extends CommandHandler
      * Use to save the flag indicating the item has received a notification.
      *
      * @param int    $item_id
-     * @param string $meta_key What meta_key is being used.
-     * @param string $model_name    What model the extra meta is for.
+     * @param string $meta_key   What meta_key is being used.
+     * @param string $model_name What model the extra meta is for.
      * @return bool|int @see EEM_Base::insert
      * @throws EE_Error
      */
@@ -113,9 +111,9 @@ class ItemsNotifiedCommandHandler extends CommandHandler
     {
         return $this->extra_meta_model->insert(
             array(
-                'EXM_key' => $meta_key,
-                'OBJ_ID' => $item_id,
-                'EXM_type' => $model_name
+                'EXM_key'  => $meta_key,
+                'OBJ_ID'   => $item_id,
+                'EXM_type' => $model_name,
             )
         );
     }

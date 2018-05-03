@@ -5,8 +5,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\Command;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * UpcomingNotificationsCommand
  * Abstract parent for all upcoming notifications commands.
@@ -44,8 +42,8 @@ abstract class UpcomingNotificationsCommand extends Command
      */
     private function validateGroups(array $message_template_groups)
     {
-        //make sure we only have instances of EE_Message_Template_Group in this array.
-        //also make sure the instance is only for a message type this is command is being implemented for.
+        // make sure we only have instances of EE_Message_Template_Group in this array.
+        // also make sure the instance is only for a message type this is command is being implemented for.
         return array_filter(
             $message_template_groups,
             function ($message_template_group) {

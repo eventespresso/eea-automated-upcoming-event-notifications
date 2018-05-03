@@ -22,9 +22,6 @@ use LogicException;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use ReflectionException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-
-
 /**
  * Form (and handler) for the scheduling metabox content.
  *
@@ -49,6 +46,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
 
     /**
      * This is whatever message template context the view is for.
+     *
      * @var string
      */
     protected $context;
@@ -67,9 +65,9 @@ class SchedulingMetaboxFormHandler extends FormHandler
     public function __construct(EE_Message_Template_Group $message_template_group, EE_Registry $registry, $context)
     {
         $this->message_template_group = $message_template_group;
-        $this->scheduling_settings    = new SchedulingSettings($message_template_group);
+        $this->scheduling_settings = new SchedulingSettings($message_template_group);
         $this->context = $context;
-        $label                        = esc_html__('Scheduling Settings', 'event_espresso');
+        $label = esc_html__('Scheduling Settings', 'event_espresso');
         parent::__construct(
             $label,
             $label,
@@ -112,7 +110,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
         }
 
         $this->scheduling_settings->setCurrentThreshold(
-            $valid_data[Domain::META_KEY_DAYS_BEFORE_THRESHOLD],
+            $valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ],
             $this->context
         );
         return true;
@@ -148,7 +146,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
                         'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
                         'html_label_text'        => '',
                         'default'                => $this->scheduling_settings->currentThreshold($this->context),
-                    ))
+                    )),
                 ),
             )
         );
@@ -168,8 +166,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected function getContentString()
     {
         $message_type = $this->message_template_group->message_type();
-        if (
-            $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+        if ($message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
         ) {
             return esc_html__(

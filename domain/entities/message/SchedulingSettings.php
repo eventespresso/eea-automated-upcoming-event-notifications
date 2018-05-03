@@ -11,9 +11,6 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
 use InvalidArgumentException;
 use ReflectionException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-
-
 /**
  * Provides access to the scheduling settings attached to a specific message template group.
  *
@@ -63,14 +60,14 @@ class SchedulingSettings
     public function currentThreshold($context)
     {
         $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
-        if (! isset($this->cache[$meta_key])) {
-            $this->cache[$meta_key] = (int) $this->message_template_group->get_extra_meta(
+        if (! isset($this->cache[ $meta_key ])) {
+            $this->cache[ $meta_key ] = (int) $this->message_template_group->get_extra_meta(
                 $meta_key,
                 true,
                 1
             );
         }
-        return $this->cache[$meta_key];
+        return $this->cache[ $meta_key ];
     }
 
 
@@ -94,7 +91,7 @@ class SchedulingSettings
             (int) $new_threshold
         );
         if ($saved) {
-            $this->cache[$meta_key] = (int) $new_threshold;
+            $this->cache[ $meta_key ] = (int) $new_threshold;
         }
         return $saved;
     }
@@ -110,16 +107,16 @@ class SchedulingSettings
         $cache_key = EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX
                      . '_'
                      . $this->message_template_group->message_type();
-        if (! isset($this->cache[$cache_key])) {
+        if (! isset($this->cache[ $cache_key ])) {
             $contexts = array_keys($this->message_template_group->contexts_config());
-            $this->cache[$cache_key] = array();
+            $this->cache[ $cache_key ] = array();
             foreach ($contexts as $context) {
                 if ($this->message_template_group->is_context_active($context)) {
-                    $this->cache[$cache_key][] = $context;
+                    $this->cache[ $cache_key ][] = $context;
                 }
             }
         }
-        return $this->cache[$cache_key];
+        return $this->cache[ $cache_key ];
     }
 
 

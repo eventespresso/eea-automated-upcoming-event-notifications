@@ -1,5 +1,7 @@
 <?php
+
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain;
+
 use DomainException;
 use EE_Addon;
 use EE_Base_Class;
@@ -25,8 +27,6 @@ use EventEspresso\core\services\loaders\LoaderInterface;
 use EventEspresso\core\services\request\Request;
 use InvalidArgumentException;
 use ReflectionException;
-
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
 /**
  * Class  EE_Automated_Upcoming_Event_Notification
@@ -77,12 +77,12 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         EE_Register_Addon::register(
             'Automated_Upcoming_Event_Notification',
             array(
-                'class_name' => self::class,
+                'class_name'       => self::class,
                 'version'          => $domain->version(),
                 'plugin_slug'      => 'eea_automated_upcoming_event_notifications',
                 'min_core_version' => Domain::CORE_VERSION_REQUIRED,
                 'main_file_path'   => $domain->pluginFile(),
-                'domain_fqcn' => Domain::class,
+                'domain_fqcn'      => Domain::class,
                 'pue_options'      => array(
                     'pue_plugin_slug' => 'eea-automated-upcoming-event-notifications',
                     'plugin_basename' => $domain->pluginBasename(),
@@ -90,11 +90,11 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
                     'use_wp_update'   => false,
                 ),
                 'message_types'    => array(
-                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT    => self::get_message_type_settings(
+                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT    => self::getMessageTypeSettings(
                         'EE_Automate_Upcoming_Event_message_type.class.php',
                         $domain
                     ),
-                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME => self::get_message_type_settings(
+                    Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME => self::getMessageTypeSettings(
                         'EE_Automate_Upcoming_Datetime_message_type.class.php',
                         $domain
                     ),
@@ -104,20 +104,21 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
                     . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notifications.module.php',
                     $domain->pluginPath()
                     . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
-                )
+                ),
             )
         );
     }
 
 
+    // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     /**
      * Register things that have to happen early in loading.
      */
     public function after_registration()
     {
         $this->registerDependencies();
-        //these have to happen earlier than module loading but after add-ons are loaded because
-        //the modules `set_hooks` methods run at `init 9`.
+        // these have to happen earlier than module loading but after add-ons are loaded because
+        // the modules `set_hooks` methods run at `init 9`.
         $this->loader->getShared(Scheduler::class);
         $this->loader->getShared(RegisterCustomShortcodeLibrary::class);
         add_filter(
@@ -128,6 +129,8 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         );
     }
 
+    // phpcs:enable
+
 
     /**
      * Return the settings array for the message type.
@@ -136,13 +139,13 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
      * @param DomainInterface $domain
      * @return array
      */
-    protected static function get_message_type_settings($mtfilename, DomainInterface $domain)
+    protected static function getMessageTypeSettings($mtfilename, DomainInterface $domain)
     {
         return array(
             'mtfilename'                                       => $mtfilename,
             'autoloadpaths'                                    => array(
                 $domain->pluginPath() . 'domain/entities/message',
-                $domain->pluginPath() . 'domain/services/messages'
+                $domain->pluginPath() . 'domain/services/messages',
             ),
             'messengers_to_activate_with'                      => array('email'),
             'messengers_to_validate_with'                      => array('email'),
@@ -174,51 +177,50 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         $this->dependencyMap()->registerDependencies(
             RegisterCustomShortcodeLibrary::class,
             array(
-                Domain::class => EE_Dependency_Map::load_from_cache
+                Domain::class => EE_Dependency_Map::load_from_cache,
             )
         );
         $this->dependencyMap()->registerDependencies(
             Scheduler::class,
             array(
-                CommandBusInterface::class => EE_Dependency_Map::load_from_cache,
+                CommandBusInterface::class   => EE_Dependency_Map::load_from_cache,
                 'EEM_Message_Template_Group' => EE_Dependency_Map::load_from_cache,
-                Loader::class => EE_Dependency_Map::load_from_cache
+                Loader::class                => EE_Dependency_Map::load_from_cache,
             )
-
         );
         $this->dependencyMap()->registerDependencies(
             UpcomingDatetimeNotificationsCommandHandler::class,
             array(
-                CommandBusInterface::class => EE_Dependency_Map::load_from_cache,
-                CommandFactoryInterface::class => EE_Dependency_Map::load_from_cache,
-                'EEM_Registration' => EE_Dependency_Map::load_from_cache,
-                'EEM_Datetime'     => EE_Dependency_Map::load_from_cache,
-                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache
+                CommandBusInterface::class                   => EE_Dependency_Map::load_from_cache,
+                CommandFactoryInterface::class               => EE_Dependency_Map::load_from_cache,
+                'EEM_Registration'                           => EE_Dependency_Map::load_from_cache,
+                'EEM_Datetime'                               => EE_Dependency_Map::load_from_cache,
+                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache,
             )
         );
         $this->dependencyMap()->registerDependencies(
             UpcomingNotificationsCommandHandler::class,
             array(
-                CommandBusInterface::class => EE_Dependency_Map::load_from_cache,
-                CommandFactoryInterface::class => EE_Dependency_Map::load_from_cache,
-                'EEM_Registration' => EE_Dependency_Map::load_from_cache,
-                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache
+                CommandBusInterface::class                   => EE_Dependency_Map::load_from_cache,
+                CommandFactoryInterface::class               => EE_Dependency_Map::load_from_cache,
+                'EEM_Registration'                           => EE_Dependency_Map::load_from_cache,
+                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache,
             )
         );
         $this->dependencyMap()->registerDependencies(
             UpcomingEventNotificationsCommandHandler::class,
             array(
-                CommandBusInterface::class => EE_Dependency_Map::load_from_cache,
-                CommandFactoryInterface::class => EE_Dependency_Map::load_from_cache,
-                'EEM_Registration' => EE_Dependency_Map::load_from_cache,
-                'EEM_Event' => EE_Dependency_Map::load_from_cache,
-                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache
+                CommandBusInterface::class                   => EE_Dependency_Map::load_from_cache,
+                CommandFactoryInterface::class               => EE_Dependency_Map::load_from_cache,
+                'EEM_Registration'                           => EE_Dependency_Map::load_from_cache,
+                'EEM_Event'                                  => EE_Dependency_Map::load_from_cache,
+                SplitRegistrationDataRecordForBatches::class => EE_Dependency_Map::load_from_cache,
             )
         );
         $this->dependencyMap()->registerDependencies(
             ItemsNotifiedCommandHandler::class,
             array(
-                'EEM_Extra_Meta' => EE_Dependency_Map::load_from_cache
+                'EEM_Extra_Meta' => EE_Dependency_Map::load_from_cache,
             )
         );
     }
@@ -241,7 +243,7 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         $single,
         EE_Base_Class $model
     ) {
-        //only modify default for the active context meta key
+        // only modify default for the active context meta key
         if ($model instanceof EE_Message_Template_Group
             && strpos($meta_key, EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX) !== false
             && ($model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME

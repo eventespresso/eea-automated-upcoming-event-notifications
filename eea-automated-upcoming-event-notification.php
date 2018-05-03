@@ -40,9 +40,9 @@
 // define versions and this file
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.093');
 
-//check php version, if not sufficient then deactivate and show notice
-//requires PHP 5.6 ++
-if ( ! defined('PHP_VERSION_ID')
+// check php version, if not sufficient then deactivate and show notice
+// requires PHP 5.6 ++
+if (! defined('PHP_VERSION_ID')
     || PHP_VERSION_ID < 50600
 ) {
     add_action('admin_notices', 'eea_auen_php_version_deactivation_and_notice');

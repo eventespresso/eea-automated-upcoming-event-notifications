@@ -18,9 +18,6 @@ use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message\SchedulingMetaboxFormHandler;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
-
 /**
  * This is the controller for things hooking into the EE admin for the addon.
  *
@@ -46,6 +43,7 @@ class Controller
 
     /**
      * This contains the message template context for the loaded view.
+     *
      * @var string
      */
     protected $context = '';
@@ -77,7 +75,6 @@ class Controller
             3
         );
     }
-
 
 
     /**
@@ -118,12 +115,12 @@ class Controller
                 && $this->request->getRequestParam('action', '') !== 'edit_message_template'
             )
         ) {
-            //get out because we don't want this loading on this request.
+            // get out because we don't want this loading on this request.
             return false;
         }
 
-        //made to the first check, the next check is to make sure we're only adding this to editors for the new message
-        //types
+        // made to the first check, the next check is to make sure we're only adding this to editors for the new message
+        // types
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
                && (
@@ -202,7 +199,7 @@ class Controller
      */
     private function messageTemplateGroup($id = 0)
     {
-        //if the id is 0 then let's attempt to get from request
+        // if the id is 0 then let's attempt to get from request
         $id = $id
             ? absint($id)
             : absint($this->request->getRequestParam('id'));
@@ -231,20 +228,20 @@ class Controller
         $where_params = is_array($query_params) && isset($query_params[0]) && is_array($query_params[0])
             ? $query_params[0]
             : array();
-        $GRP_ID       = isset($where_params['GRP_ID'])
+        $GRP_ID = isset($where_params['GRP_ID'])
             ? $where_params['GRP_ID']
             : 0;
         if (! $GRP_ID) {
             return;
         }
-        //can we get the object for this?
+        // can we get the object for this?
         $message_template_group = EEM_Message_Template_Group::instance()->get_one_by_ID($GRP_ID);
 
-        //get out if this update doesn't apply (because it means it hasn't been saved yet and we don't have an id for
-        //the model object)  In our scenario this is okay because user's will only ever see an already
-        //created message template group in the ui
+        // get out if this update doesn't apply (because it means it hasn't been saved yet and we don't have an id for
+        // the model object)  In our scenario this is okay because user's will only ever see an already
+        // created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
-            //yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
+            // yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
             || ! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
                 $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
@@ -254,14 +251,14 @@ class Controller
             return;
         }
 
-        //we're here so let's just load the form and allow it to process.
+        // we're here so let's just load the form and allow it to process.
         try {
             if ($form = $this->schedulingForm($message_template_group)) {
                 $form->process(
                     array(
                         Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->getRequestParam(
                             Domain::META_KEY_DAYS_BEFORE_THRESHOLD
-                        )
+                        ),
                     )
                 );
             }
@@ -273,6 +270,7 @@ class Controller
 
     /**
      * Return the value for context as set in the request.
+     *
      * @return string
      */
     protected function getContext()

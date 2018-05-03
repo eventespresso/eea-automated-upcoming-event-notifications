@@ -5,8 +5,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 use EEM_Base;
 use EventEspresso\core\services\commands\Command;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * ItemsNotifiedCommand
  * Command for tracking items (EE_Base_Class ids) that have been notified.
@@ -33,6 +31,7 @@ class ItemsNotifiedCommand extends Command
 
     /**
      * This will be the message type context for which these items received notifications.
+     *
      * @var string
      */
     private $context;
@@ -62,7 +61,7 @@ class ItemsNotifiedCommand extends Command
      */
     private function validateItemIds(array $ids)
     {
-        //make sure these are all ints
+        // make sure these are all ints
         $ids = array_map(
             function ($id) {
                 return (int) $id;
