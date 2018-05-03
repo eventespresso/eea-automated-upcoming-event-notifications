@@ -1,6 +1,8 @@
 <?php
 
 use EventEspresso\AutomateUpcomingEventNotificationsTests\mocks\AdminControllerMock;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 
 /**
  * AdminControllerTest
@@ -37,8 +39,14 @@ class ControllerTest extends EE_UnitTestCase
 
     /**
      * Helper to return a message template group with the given message type for testing.
+     *
      * @param string $message_type
      * @return EE_Message_Template_Group
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     protected function messageTemplateGroup($message_type)
     {

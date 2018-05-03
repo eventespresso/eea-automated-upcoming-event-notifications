@@ -19,13 +19,6 @@ class LoadAddonTest extends EE_UnitTestCase
      */
     public function test_loadingAddon()
     {
-        $this->assertEquals(
-            has_action(
-                'AHEE__EE_System__load_espresso_addons',
-                'load_espresso_automated_upcoming_event_notification'
-            ),
-            10
-        );
-        $this->assertTrue(class_exists('EE_Automated_Upcoming_Event_Notification'));
+        $this->assertTrue(class_exists('EventEspresso\AutomatedUpcomingEventNotifications\domain\AutomatedUpcomingEventNotifications'));
     }
 }

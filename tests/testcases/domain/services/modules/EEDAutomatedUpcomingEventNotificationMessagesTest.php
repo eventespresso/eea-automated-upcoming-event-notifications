@@ -51,6 +51,7 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
      *
      * @param $message_type  What message type is being tested.
      * @return array   data for the message type being tested.
+     * @throws PHPUnit_Framework_Exception
      */
     private function getRegistrationsAndDatetimeForTest($message_type)
     {
@@ -114,17 +115,22 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             }
         }
 
+        $expected_content = htmlentities(
+            "We're reaching out to remind you of an upcoming event you registered for on our website. "
+            . 'You have access to this event on '
+            . $datetime->get_i18n_datetime('DTT_EVT_start')
+            . ' - '
+            . $datetime->get_i18n_datetime('DTT_EVT_end')
+            . ". Here's a copy of your registration details:",
+            ENT_QUOTES
+        );
+
         //test content outputs for attendee
         //datetime in content
         $this->assertNotFalse(
             strpos(
                 $messages['attendee']->content(),
-                'We\'re reaching out to remind you of an upcoming event you registered for on our website. '
-                . 'You have access to this event on '
-                . $datetime->get_i18n_datetime('DTT_EVT_start')
-                . ' - '
-                . $datetime->get_i18n_datetime('DTT_EVT_end')
-                . '. Here\'s a copy of your registration details:'
+                $expected_content
             )
         );
 
@@ -178,13 +184,17 @@ class EEDAutomatedUpcomingEventNotificationMessagesTest extends EE_UnitTestCase
             }
         }
 
+        $expected_content = htmlentities(
+            'We\'re reaching out to remind you of upcoming events you registered for on our website. '
+            . 'Here\'s a copy of your registration details:',
+            ENT_QUOTES
+        );
         //test content outputs for attendee
         //datetime in content
         $this->assertNotFalse(
             strpos(
                 $messages['attendee']->content(),
-                'We\'re reaching out to remind you of upcoming events you registered for on our website. '
-                . 'Here\'s a copy of your registration details:'
+                $expected_content
             )
         );
 
