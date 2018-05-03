@@ -1,4 +1,8 @@
 <?php
+
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
 
 /**
@@ -44,9 +48,14 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
 
     /**
      * Parses incoming shortcode string.
+     *
      * @param string $shortcode
      * @return string
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     protected function _parser($shortcode)
     {
