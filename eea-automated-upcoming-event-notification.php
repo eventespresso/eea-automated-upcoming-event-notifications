@@ -36,64 +36,21 @@
  *
  * ------------------------------------------------------------------------
  */
+
 // define versions and this file
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.093');
-define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE', __FILE__);
 
-
-
-/**
- *    captures plugin activation errors for debugging
- */
-function espresso_automated_upcoming_event_notification_plugin_activation_errors()
-{
-
-    if (WP_DEBUG && defined('EVENT_ESPRESSO_UPLOAD_DIR')) {
-        $activation_errors = ob_get_contents();
-        file_put_contents(
-            EVENT_ESPRESSO_UPLOAD_DIR
-            . 'logs/'
-            . 'espresso_automated_upcoming_event_notification_plugin_activation_errors.html',
-            $activation_errors
-        );
-    }
+//check php version, if not sufficient then deactivate and show notice
+//requires PHP 5.6 ++
+if ( ! defined('PHP_VERSION_ID')
+    || PHP_VERSION_ID < 50600
+) {
+    add_action('admin_notices', 'eea_auen_php_version_deactivation_and_notice');
+} else {
+    require_once __DIR__ . '/bootstrap.php';
 }
 
-add_action('activated_plugin', 'espresso_automated_upcoming_event_notification_plugin_activation_errors');
-
-
-/**
- *    registers addon with EE core
- */
-function load_espresso_automated_upcoming_event_notification()
-{
-    if (class_exists('EE_Addon')
-        && class_exists('EventEspresso\core\domain\DomainBase')
-    ) {
-        espresso_load_required(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain',
-            plugin_dir_path(__FILE__) . 'domain/Domain.php'
-        );
-        EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::init(
-            EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE,
-            EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION
-        );
-        espresso_load_required(
-            'EE_Automated_Upcoming_Event_Notification',
-            EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain::pluginPath()
-            . 'EE_Automated_Upcoming_Event_Notification.class.php'
-        );
-        EE_Automated_Upcoming_Event_Notification::register_addon();
-    } else {
-        add_action('admin_notices', 'espresso_automated_upcoming_event_notification_activation_error');
-    }
-}
-add_action('AHEE__EE_System__load_espresso_addons', 'load_espresso_automated_upcoming_event_notification');
-
-/**
- *    displays activation error admin notice
- */
-function espresso_automated_upcoming_event_notification_activation_error()
+function eea_auen_php_version_deactivation_and_notice()
 {
     unset($_GET['activate'], $_REQUEST['activate']);
     if (! function_exists('deactivate_plugins')) {
@@ -105,10 +62,10 @@ function espresso_automated_upcoming_event_notification_activation_error()
         <p>
             <?php printf(
                 esc_html__(
-                    'Event Espresso Automated Upcoming Event Notifications add-on could not be activated. Please ensure that Event Espresso version %1$s or higher is running',
+                    'Event Espresso Automated Upcoming Event Notifications add-on could not be activated because it requires PHP version %s or greater.',
                     'event_espresso'
                 ),
-                '4.9.51.rc.009'
+                '5.6.0'
             ); ?>
         </p>
     </div>
