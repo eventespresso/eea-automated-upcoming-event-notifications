@@ -83,11 +83,12 @@ jobs:
         - composer install || exit 1
         - composer config-eventespressocs || exit 1
         - npm run lint-php || exit 1
-    - env:
-        - JAVASCRIPT_TESTS=1
-      script:
-        - npm install || exit 1
-        - npm run ci || exit 1
+## skipping for now because there's no javascript to test!
+#    - env:
+#        - JAVASCRIPT_TESTS=1
+#      script:
+#        - npm install || exit 1
+#        - npm run ci || exit 1
     - php: 7.2
     - php: 7.1
     - php: 7.0
