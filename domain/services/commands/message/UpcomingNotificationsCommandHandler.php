@@ -247,7 +247,6 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array $message_template_groups
      * @return EE_Message_Template_Group
-     * @throws EE_Error
      */
     protected function extractGlobalMessageTemplateGroup(array $message_template_groups)
     {
@@ -303,6 +302,10 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * @param string             $context
      * @return int
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getEndTimeForQuery(SchedulingSettings $settings, $context)
     {
@@ -342,7 +345,6 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $registered_schedules = wp_get_schedules();
         $registered_cron_frequency = $scheduler->getCronFrequency();
         $this->cron_frequency_buffer = isset(
-            $registered_schedules[$registered_cron_frequency],
             $registered_schedules[$registered_cron_frequency]['interval']
         )
             ? $registered_schedules[$registered_cron_frequency]['interval']
@@ -425,7 +427,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * @param SchedulingSettings $scheduling_settings
      * @param string             $context   What context this is for.
      * @param array              $registrations_to_exclude_where_query
-     * @return
+     * @return array
      */
     abstract protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
