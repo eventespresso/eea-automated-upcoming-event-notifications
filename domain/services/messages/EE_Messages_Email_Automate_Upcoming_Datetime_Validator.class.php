@@ -18,9 +18,10 @@ class EE_Messages_Email_Automate_Upcoming_Datetime_Validator extends EE_Messages
     /**
      * EE_Messages_Email_Automate_Upcoming_Datetime_Validator constructor.
      *
-     * @param array $fields
-     * @param string     $context
+     * @param array  $fields
+     * @param string $context
      * @throws EE_Error
+     * @throws ReflectionException
      */
     public function __construct($fields, $context)
     {
