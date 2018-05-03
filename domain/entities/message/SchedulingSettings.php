@@ -5,7 +5,11 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\mess
 use EE_Error;
 use EE_Message_Template_Group;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidIdentifierException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+use InvalidArgumentException;
+use ReflectionException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -51,6 +55,10 @@ class SchedulingSettings
      * @param string $context
      * @return int
      * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     public function currentThreshold($context)
     {
@@ -69,10 +77,14 @@ class SchedulingSettings
     /**
      * Sets the days before threshold to the provided value for the given context.
      *
-     * @param int $new_threshold
+     * @param int    $new_threshold
      * @param string $context
      * @return bool|int @see EE_Base_Class::update_extra_meta
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public function setCurrentThreshold($new_threshold, $context)
     {
