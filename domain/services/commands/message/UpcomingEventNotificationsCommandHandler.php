@@ -16,6 +16,7 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
 use InvalidArgumentException;
+use ReflectionException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -70,6 +71,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     protected function process(array $data)
     {
@@ -82,12 +84,12 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         $event_ids = array();
         /**
          * @var int $message_template_group_id
-         * @var EE_Registration[] $context_and_registrations
+         * @var EE_Registration[] $context_and_registration_data
          */
         foreach ($data as $message_template_group_id => $context_and_registration_data) {
             /**
              * @var string $context
-             * @var EE_Registration[] $registrations
+             * @var EE_Registration[] $registration_data
              */
             foreach ($context_and_registration_data as $context => $registration_data) {
                 $registration_ids = array_keys($registration_data);
@@ -115,6 +117,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param array                                          $registrations_to_exclude_where_query
      * @return array An array of data for processing.
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -136,6 +142,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param array              $additional_where_parameters
      * @return EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getRegistrationsForMessageTemplateGroup(
         SchedulingSettings $settings,
@@ -190,6 +200,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param array                                          $registrations_to_exclude_where_query
      * @return array
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForGlobalMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -232,6 +246,10 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *                                                 'ATT_ID', 'REG_ID', and 'EVT_ID';
      * @return array
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function combineDataByGroupAndContext(
         EE_Message_Template_Group $message_template_group,
@@ -290,7 +308,6 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param array             $incoming_event_ids
      * @param string            $context
      * @return array
-     * @throws EE_Error
      */
     protected function aggregateEventsForContext(
         array $registration_result_records,
@@ -314,6 +331,9 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      */
     protected function shouldBatch($data)
     {
+        /**
+         * @var array $context_and_registration_data
+         */
         foreach ($data as $message_template_group_id => $context_and_registration_data) {
             foreach ($context_and_registration_data as $context => $registration_data) {
                 if (count($registration_data) > $this->getRegistrationBatchThreshold()) {
@@ -334,11 +354,15 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function processBatches($data)
     {
         $non_batched_items_for_processing = array();
-        //process batches for each context and message template group.
+        /**
+         * process batches for each context and message template group.
+         * @var array $context_and_registration_data
+         */
         foreach ($data as $message_template_group_id => $context_and_registration_data) {
             foreach ($context_and_registration_data as $context => $registration_data) {
                 //only batch if necessary
