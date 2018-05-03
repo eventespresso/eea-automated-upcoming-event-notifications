@@ -20,6 +20,7 @@ class EE_Messages_Email_Automate_Upcoming_Event_Validator extends EE_Messages_Va
      * @param array  $fields
      * @param string $context
      * @throws EE_Error
+     * @throws ReflectionException
      */
     public function __construct($fields, $context)
     {
