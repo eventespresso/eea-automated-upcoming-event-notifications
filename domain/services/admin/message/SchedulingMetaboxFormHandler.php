@@ -8,6 +8,7 @@ use EE_Form_Section_Proper;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidFormSubmissionException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\libraries\form_sections\form_handlers\FormHandler;
 use EE_Message_Template_Group;
 use EE_Registry;
@@ -19,6 +20,7 @@ use EE_Int_Normalization;
 use InvalidArgumentException;
 use LogicException;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use ReflectionException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
 
@@ -85,6 +87,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
      * @return EE_Form_Section_Proper
      * @throws LogicException
      * @throws EE_Error
+     * @throws ReflectionException
      */
     public function generate()
     {
@@ -99,6 +102,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
      * @throws EE_Error
      * @throws InvalidFormSubmissionException
      * @throws LogicException
+     * @throws ReflectionException
      */
     public function process($form_data = array())
     {
@@ -120,6 +124,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
      *
      * @return EE_Form_Section_Proper
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws ReflectionException
+     * @throws InvalidInterfaceException
      */
     protected function getSchedulingForm()
     {
@@ -152,6 +160,10 @@ class SchedulingMetaboxFormHandler extends FormHandler
      *
      * @return string
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getContentString()
     {
