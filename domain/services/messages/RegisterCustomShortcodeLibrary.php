@@ -1,14 +1,13 @@
 <?php
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages;
 
-use DomainException;
 use EE_Error;
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
 use EE_messenger;
 use EE_message_type;
-use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
+use EventEspresso\core\domain\DomainInterface;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -24,14 +23,24 @@ defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 class RegisterCustomShortcodeLibrary
 {
 
+
+    /**
+     * @var DomainInterface
+     */
+    private $domain;
+
+
     /**
      * RegisterCustomShortcodes constructor.
      * Hooks are set in construct because it is _expected_ this class only gets instantiated once.
      * It is recommended to use the EventEspresso\core\services\loaders\Loader for instantiating/retrieving a shared
      * instance of this class which should ensure its only loaded once.
+     *
+     * @param DomainInterface $domain
      */
-    public function __construct()
+    public function __construct(DomainInterface $domain)
     {
+        $this->domain = $domain;
         add_action(
             'EE_Brewing_Regular___messages_caf',
             array($this, 'registration')
@@ -54,7 +63,6 @@ class RegisterCustomShortcodeLibrary
      * Callback on `EE_Brewing_Regular___messages_caf` for registering the custom library.
      *
      * @throws EE_Error
-     * @throws DomainException
      */
     public function registration()
     {
@@ -62,7 +70,7 @@ class RegisterCustomShortcodeLibrary
             'specific_datetime_shortcode_library',
             array(
                 'name'                    => 'specific_datetime',
-                'autoloadpaths'           => Domain::pluginPath()
+                'autoloadpaths'           => $this->domain->pluginPath()
                                              . 'core/messages/shortcodes/',
                 'msgr_validator_callback' => array($this, 'messengerValidatorCallback'),
             )
