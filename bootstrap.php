@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Capture any activation errors for debugging
  */
@@ -39,7 +38,7 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
             DomainInterface::class,
             AutomatedUpcomingEventNotifications::class
         );
-        //register dependencies
+        // register dependencies
         EE_Dependency_Map::register_dependencies(
             AutomatedUpcomingEventNotifications::class,
             array(
@@ -48,7 +47,7 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
                 Loader::class => EE_Dependency_Map::load_from_cache
             )
         );
-        //initialize add-on
+        // initialize add-on
         AutomatedUpcomingEventNotifications::registerAddon(
             DomainFactory::getShared(
                 new FullyQualifiedName(Domain::class),
