@@ -2,7 +2,6 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
-use EE_Error;
 use EEM_Base;
 use EventEspresso\core\services\commands\Command;
 
@@ -45,7 +44,6 @@ class ItemsNotifiedCommand extends Command
      * @param EEM_Base     $model
      * @param        array $ids
      * @param              $context
-     * @throws EE_Error
      */
     public function __construct(EEM_Base $model, array $ids, $context)
     {
@@ -61,7 +59,6 @@ class ItemsNotifiedCommand extends Command
      *
      * @param  array $ids
      * @return array
-     * @throws EE_Error
      */
     private function validateItemIds(array $ids)
     {
