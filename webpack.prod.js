@@ -28,12 +28,11 @@ common.forEach( ( config, index ) => {
 					NODE_ENV: JSON.stringify( 'production' ),
 				},
 			} ),
-			// @todo this is what needs to have any new js files with i18n added.
-			// new wpi18nExtractor( {
-			//     aliases: {
-			//         'wp-plugins-page': 'ee-wp-plugins-page',
-			//     },
-			// } ),
+			new wpi18nExtractor( {
+				// aliases: {
+				//     'wp-plugins-page': 'ee-wp-plugins-page',
+				// },
+			} ),
 			new webpack.optimize.UglifyJsPlugin( {
 				sourceMap: true,
 				output: {

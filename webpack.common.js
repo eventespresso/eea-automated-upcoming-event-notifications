@@ -1,5 +1,4 @@
 const path = require( 'path' );
-const assets = './assets/src/';
 const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 const combineLoaders = require( 'webpack-combine-loaders' );
 const autoprefixer = require( 'autoprefixer' );
