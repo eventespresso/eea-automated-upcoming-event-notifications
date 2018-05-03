@@ -14,11 +14,11 @@ $I->loginAsAdmin();
 
 //check that default templates are available in the Global Message Template list table.
 $I->amOnDefaultMessageTemplateListTablePage();
+$I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->waitForText('Automated Upcoming Event Notification');
 $I->see('Automated Upcoming Datetime Notification');
 
 //make sure these message types have the metabox for scheduling with the one setting.
-$I->click(CoreAdmin::ADMIN_LIST_TABLE_NEXT_PAGE_CLASS);
 $I->clickToEditMessageTemplateByMessageType(
     AuenMessageTemplate::UPCOMING_DATETIME_MESSAGE_TYPE_SLUG,
     MessagesAdmin::ADMIN_CONTEXT_SLUG
