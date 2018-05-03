@@ -4,13 +4,10 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 
 use EEM_Base;
 use EEM_Extra_Meta;
-use EventEspresso\core\exceptions\InvalidDataTypeException;
-use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandHandler;
 use EventEspresso\core\services\commands\CommandInterface;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
-use InvalidArgumentException;
 
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
@@ -34,9 +31,6 @@ class ItemsNotifiedCommandHandler extends CommandHandler
      * EventsNotifiedCommandHandler constructor.
      *
      * @param EEM_Extra_Meta          $extra_meta_model
-     * @throws InvalidArgumentException
-     * @throws InvalidDataTypeException
-     * @throws InvalidInterfaceException
      */
     public function __construct(EEM_Extra_Meta $extra_meta_model)
     {
