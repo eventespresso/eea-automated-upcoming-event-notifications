@@ -10,7 +10,6 @@ use EE_Message_Template_Group;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
-use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
@@ -81,7 +80,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         //loop through each Message Template Group and it queue up its registrations for generation.
         /**
          * @var int $message_template_group_id
-         * @var array $context_datetimes_and_registrations
+         * @var array $context_datetime_ids_and_registrations
          */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
             /**
@@ -119,7 +118,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                                          $registrations_to_exclude_where_query
      * @return array An array of data for processing.
      * @throws EE_Error
-     * @throws InvalidIdentifierException
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -143,7 +145,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                                          $registrations_to_exclude_where_query
      * @return array
      * @throws EE_Error
-     * @throws InvalidIdentifierException
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForGlobalMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -205,7 +210,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array              $datetime_additional_where_conditions
      * @return array
      * @throws EE_Error
-     * @internal param EE_Message_Template_Group $message_template_group
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
@@ -244,7 +252,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array              $additional_where_parameters
      * @return array (an array of datetime ids)
      * @throws EE_Error
-     * @internal param EE_Message_Template_Group $message_template_group
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDatetimesForMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
@@ -343,6 +354,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                     $datetimes_and_registrations
      * @return array
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function combineDataByGroupAndContext(
         EE_Message_Template_Group $message_template_group,
@@ -372,7 +387,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      */
     protected function shouldBatch($data)
     {
+        /**
+         * @var array $context_datetime_ids_and_registrations
+         */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            /**
+             * @var array $datetime_ids_and_registrations
+             */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
                     if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
@@ -400,8 +421,14 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function processBatches($data)
     {
         $non_batched_items_for_processing = array();
-        //process batches for each context and message template group.
+        /**
+         * process batches for each context and message template group.
+         * @var array $context_datetime_ids_and_registrations
+         */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            /**
+             * @var array $datetime_ids_and_registrations
+             */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 foreach ($datetime_ids_and_registrations as $datetime_id => $datetimeid_and_registration_records) {
                     //popoff $registration records from the second element.
