@@ -1,8 +1,8 @@
 {
-	"name": "eventespresso/event-espresso-core",
+	"name": "eventespresso/eea-automated-upcoming-event-notifications",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"description": "Event Espresso 4 Core for WordPress: Build an Event Ticketing Website Today!",
+	"description": "An add-on for Event Espresso 4 that automates messages for upcoming events.",
 	"authors" : [
 		{
 			"name": "Event Espresso Teem",
@@ -15,10 +15,10 @@
 		"event-espresso", "wordpress", "events", "event-management", "event-tickets", "event-registration", "ticketing-system"
 	],
 	"support": {
-		"issues": "https://github.com/eventespresso/event-espresso-core/issues",
+		"issues": "https://github.com/eventespresso/eea-automated-upcoming-event-notifications/issues",
 		"forum": "https://eventespresso/support/forums",
-		"source": "https://github.com/eventespresso/event-espresso-core",
-		"docs": "https://github.com/eventespresso/event-espresso-core/tree/master/docs"
+		"source": "https://github.com/eventespresso/eea-automated-upcoming-event-notifications",
+		"docs": "https://github.com/eventespresso/eea-automated-upcoming-event-notifications/tree/master/docs"
 	},
 	"repositories": [
 		{
