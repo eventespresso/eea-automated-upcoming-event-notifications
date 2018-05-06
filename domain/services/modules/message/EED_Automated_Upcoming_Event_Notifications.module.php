@@ -5,8 +5,6 @@ use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\loaders\LoaderFactory;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * EED_Automated_Upcoming_Event_Notifications
  * Main module for add-on.
@@ -38,6 +36,6 @@ class EED_Automated_Upcoming_Event_Notifications extends EED_Module
      */
     public function run($WP)
     {
-        //noop
+        // noop
     }
 }

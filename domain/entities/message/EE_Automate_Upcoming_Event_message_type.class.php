@@ -2,8 +2,6 @@
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-
 /**
  * EE_Automate_Upcoming_Event_message_type
  * Message type for automated upcoming event notifications.

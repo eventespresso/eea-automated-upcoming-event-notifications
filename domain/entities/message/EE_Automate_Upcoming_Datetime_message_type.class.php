@@ -4,8 +4,6 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access.');
-
 /**
  * EE_Automate_Upcoming_Datetime_message_type
  * Message type for automated upcoming event notifications.
@@ -90,7 +88,7 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
     protected function _set_data_handler()
     {
         $this->_data_handler = 'Registrations_By_Datetime';
-        //set whether this is a single message or not.
+        // set whether this is a single message or not.
         if (is_array($this->_data) && isset($this->_data[1]) && ! is_array($this->_data[1])) {
             $this->_single_message = $this->_data[1] instanceof EE_Registration ? true : $this->_single_message;
         }
@@ -125,7 +123,7 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
      */
     public function _get_data_for_context($context, EE_Registration $registration, $id)
     {
-        //all contexts require the $id to be set because the data handler for this message type _requires_ a datetime.
+        // all contexts require the $id to be set because the data handler for this message type _requires_ a datetime.
         $datetime = EEM_Datetime::instance()->get_one_by_ID($id);
         if (! $datetime instanceof EE_Datetime) {
             throw new InvalidArgumentException(
@@ -145,8 +143,8 @@ class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_me
                     'default_where_conditions' => EEM_Base::default_where_conditions_this_only,
                 )
             )
-            //yes this is intentionally not an array.  The format for a single registration view (which is what the
-            //registrant context is, is to have just the individual registration as the value.
+            // yes this is intentionally not an array.  The format for a single registration view (which is what the
+            // registrant context is, is to have just the individual registration as the value.
             : $registration;
         return array($datetime, $registrations);
     }

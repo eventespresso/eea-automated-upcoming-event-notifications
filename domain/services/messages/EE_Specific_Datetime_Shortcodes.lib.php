@@ -3,8 +3,6 @@
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
-
 /**
  * EE_Specific_Datetime_Shortcodes
  * Shortcode library parser.
@@ -59,7 +57,7 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
      */
     protected function _parser($shortcode)
     {
-        //we need a specific_datetime to do this
+        // we need a specific_datetime to do this
         if (! $this->_message_type instanceof EE_Automate_Upcoming_Datetime_message_type
             || ! $this->_message_type->get_specific_datetime() instanceof EE_Datetime
         ) {
@@ -94,18 +92,18 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
                 return $specific_datetime->get_i18n_datetime('DTT_EVT_end', get_option('time_format'));
                 break;
             case '[/IF_DATETIME_*]':
-                //we never parse the closing tag but leave that to be handled by the conditional parsing logic.
+                // we never parse the closing tag but leave that to be handled by the conditional parsing logic.
                 return $shortcode;
         }
 
         if (strpos($shortcode, '[IF_DATETIME_*') !== false) {
             $attributes = $this->_get_shortcode_attrs($shortcode);
-            //note for previews we allow the use of a 'preview_show', and 'preview_hide' as the value. So users
-            //can see what it will look like.
+            // note for previews we allow the use of a 'preview_show', and 'preview_hide' as the value. So users
+            // can see what it will look like.
             $show = isset($attributes['DTT_ID'])
                     && $attributes['DTT_ID'] !== 'preview_hide'
                     && (
-                        $specific_datetime->ID() === (int)$attributes['DTT_ID']
+                        $specific_datetime->ID() === (int) $attributes['DTT_ID']
                         || $attributes['DTT_ID'] === 'preview_show'
                     );
             $this->_mutate_conditional_block_in_template($shortcode, $show);
