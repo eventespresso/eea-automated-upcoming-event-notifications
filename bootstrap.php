@@ -29,7 +29,7 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
     if (defined('EVENT_ESPRESSO_VERSION')
         && class_exists('EE_Addon')
         && class_exists('EventEspresso\core\domain\DomainBase')
-        && version_compare(EVENT_ESPRESSO_VERSION, '4.9.54.rc.007', '>')
+        && version_compare(EVENT_ESPRESSO_VERSION, '4.9.59.p', '>')
     ) {
         // register namespace
         EE_Psr4AutoloaderInit::psr4_loader()->addNamespace('EventEspresso\AutomatedUpcomingEventNotifications', __DIR__);
