@@ -4,8 +4,6 @@ namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\comm
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * UpcomingEventNotificationsCommand
  * Used when the command is for upcoming events.

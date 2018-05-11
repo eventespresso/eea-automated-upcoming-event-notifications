@@ -10,14 +10,11 @@ use EE_Message_Template_Group;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
-use EventEspresso\core\exceptions\InvalidIdentifierException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 use EventEspresso\core\services\commands\CommandBusInterface;
 use EventEspresso\core\services\commands\CommandFactoryInterface;
 use InvalidArgumentException;
 use ReflectionException;
-
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
  * UpcomingDatetimeNotificationsCommandHandler
@@ -73,15 +70,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      */
     protected function process(array $data)
     {
-        //initial verification
+        // initial verification
         if (empty($data)) {
             return;
         }
 
-        //loop through each Message Template Group and it queue up its registrations for generation.
+        // loop through each Message Template Group and it queue up its registrations for generation.
         /**
-         * @var int $message_template_group_id
-         * @var array $context_datetimes_and_registrations
+         * @var int   $message_template_group_id
+         * @var array $context_datetime_ids_and_registrations
          */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
             /**
@@ -93,7 +90,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                 foreach ($datetime_ids_and_registrations as $datetime_id => $datetimeid_and_registration_records) {
                     $message_data = array(
                         $datetime_id,
-                        array_keys($datetimeid_and_registration_records[1])
+                        array_keys($datetimeid_and_registration_records[1]),
                     );
                     $this->triggerMessages(
                         $message_data,
@@ -102,7 +99,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                     );
                     $datetimes_processed[] = $datetime_id;
                 }
-                //set the datetimes as having been processed.
+                // set the datetimes as having been processed.
                 $this->setItemsProcessed(
                     array($this->datetime_model, $datetimes_processed, $context)
                 );
@@ -119,7 +116,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                                          $registrations_to_exclude_where_query
      * @return array An array of data for processing.
      * @throws EE_Error
-     * @throws InvalidIdentifierException
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -143,7 +143,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                                          $registrations_to_exclude_where_query
      * @return array
      * @throws EE_Error
-     * @throws InvalidIdentifierException
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDataForGlobalMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -155,9 +158,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             return $data;
         }
 
-        //extract the ids of the datetimes already in the data so we exclude them from the global message template group
-        //based query.
-        $datetime_ids                         = $this->getDateTimeIdsFromData($data, $context);
+        // extract the ids of the datetimes already in the data so we exclude them from the global message template group
+        // based query.
+        $datetime_ids = $this->getDateTimeIdsFromData($data, $context);
         $additional_datetime_where_conditions = array();
         if ($datetime_ids) {
             $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
@@ -177,7 +180,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     /**
      * Get ids of datetimes from passed in array.
      *
-     * @param array $data
+     * @param array  $data
      * @param string $context
      * @return array
      */
@@ -189,8 +192,8 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
          * @var array $datetime_records
          */
         foreach ($data as $group_id => $datetime_records) {
-            if (isset($datetime_records[$context])) {
-                $datetime_ids = array_keys($datetime_records[$context]);
+            if (isset($datetime_records[ $context ])) {
+                $datetime_ids = array_keys($datetime_records[ $context ]);
             }
         }
         return array_unique($datetime_ids);
@@ -205,14 +208,17 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array              $datetime_additional_where_conditions
      * @return array
      * @throws EE_Error
-     * @internal param EE_Message_Template_Group $message_template_group
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
         $context,
         array $datetime_additional_where_conditions = array()
     ) {
-        $data     = array();
+        $data = array();
         $datetime_ids = $this->getDatetimesForMessageTemplateGroupAndContext(
             $settings,
             $context,
@@ -230,7 +236,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             if (! $registration_records) {
                 continue;
             }
-            $data[$datetime_id] = array($datetime_id, $registration_records);
+            $data[ $datetime_id ] = array($datetime_id, $registration_records);
         }
         return $data;
     }
@@ -244,7 +250,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array              $additional_where_parameters
      * @return array (an array of datetime ids)
      * @throws EE_Error
-     * @internal param EE_Message_Template_Group $message_template_group
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getDatetimesForMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
@@ -286,8 +295,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *                  array( 'REG_ID' => %d, 'ATT_ID' => %d, 'EVT_ID' => %d )
      * @throws EE_Error
      */
-    protected function getRegistrationsForDatetime($datetime_id) {
-        //get registration ids for each datetime and include with the array.
+    protected function getRegistrationsForDatetime($datetime_id)
+    {
+        // get registration ids for each datetime and include with the array.
         $where = array(
             'STS_ID'                 => EEM_Registration::status_id_approved,
             'Ticket.Datetime.DTT_ID' => $datetime_id,
@@ -301,7 +311,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                     'REG_ID' => array('REG_ID', '%d'),
                     'ATT_ID' => array('ATT_ID', '%d'),
                     'EVT_ID' => array('Registration.EVT_ID', '%d'),
-                    'TXN_ID' => array('Registration.TXN_ID', '%d')
+                    'TXN_ID' => array('Registration.TXN_ID', '%d'),
                 )
             )
         );
@@ -320,16 +330,16 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      */
     protected function registrationsToExcludeWhereQueryConditions($context)
     {
-        //get all datetimes that have already been notified (greater than now)
+        // get all datetimes that have already been notified (greater than now)
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
-            'DTT_EVT_start' => array('>', time()),
-            'Extra_Meta.EXM_key' => $meta_key
+            'DTT_EVT_start'      => array('>', time()),
+            'Extra_Meta.EXM_key' => $meta_key,
         );
         $datetime_ids_notified = $this->datetime_model->get_col(array($where));
         return $datetime_ids_notified
             ? array(
-                'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified)
+                'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified),
             )
             : array();
     }
@@ -343,6 +353,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param array                     $datetimes_and_registrations
      * @return array
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function combineDataByGroupAndContext(
         EE_Message_Template_Group $message_template_group,
@@ -350,16 +364,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         array $data,
         array $datetimes_and_registrations
     ) {
-        //here the incoming data is an array of arrays where the key is datetime_ID and the value is
+        // here the incoming data is an array of arrays where the key is datetime_ID and the value is
         // an array where the first value is the datetime_id, and the second value is the registration query results for
-        //the registrations attached to that datetime ('ATT_ID', 'EVT_ID', and 'REG_ID' is with each result)
+        // the registrations attached to that datetime ('ATT_ID', 'EVT_ID', and 'REG_ID' is with each result)
         foreach ($datetimes_and_registrations as $datetime_id => $datetime_id_and_registrations) {
             $datetime_id = (int) $datetime_id;
-            $data[$message_template_group->ID()][$context][$datetime_id] = $datetime_id_and_registrations;
+            $data[ $message_template_group->ID() ][ $context ][ $datetime_id ] = $datetime_id_and_registrations;
         }
         return $data;
     }
-
 
 
     /**
@@ -372,7 +385,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      */
     protected function shouldBatch($data)
     {
+        /**
+         * @var array $context_datetime_ids_and_registrations
+         */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            /**
+             * @var array $datetime_ids_and_registrations
+             */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 foreach ($datetime_ids_and_registrations as $datetime_id => $registration_records) {
                     if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
@@ -400,13 +419,20 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function processBatches($data)
     {
         $non_batched_items_for_processing = array();
-        //process batches for each context and message template group.
+        /**
+         * process batches for each context and message template group.
+         *
+         * @var array $context_datetime_ids_and_registrations
+         */
         foreach ($data as $message_template_group_id => $context_datetime_ids_and_registrations) {
+            /**
+             * @var array $datetime_ids_and_registrations
+             */
             foreach ($context_datetime_ids_and_registrations as $context => $datetime_ids_and_registrations) {
                 foreach ($datetime_ids_and_registrations as $datetime_id => $datetimeid_and_registration_records) {
-                    //popoff $registration records from the second element.
+                    // popoff $registration records from the second element.
                     $registration_records = $datetimeid_and_registration_records[1];
-                    //only batch if necessary.
+                    // only batch if necessary.
                     if (count($registration_records) > $this->getRegistrationBatchThreshold()) {
                         $batches = $context === 'admin'
                             ? $this->split_data_service->splitDataByEventId(
@@ -422,15 +448,15 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
                                 $message_template_group_id => array(
                                     $context => array(
                                         (int) $datetime_id,
-                                        $this->split_data_service->convertStringIndexesToIdFor($batch)
-                                    )
-                                )
+                                        $this->split_data_service->convertStringIndexesToIdFor($batch),
+                                    ),
+                                ),
                             );
                             $this->process($item_for_processing);
                         }
                         continue;
                     }
-                    $non_batched_items_for_processing[$message_template_group_id][$context][$datetime_id]
+                    $non_batched_items_for_processing[ $message_template_group_id ][ $context ][ $datetime_id ]
                         = $registration_records;
                 }
             }

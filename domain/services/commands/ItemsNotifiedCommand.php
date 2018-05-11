@@ -2,11 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands;
 
-use EE_Error;
 use EEM_Base;
 use EventEspresso\core\services\commands\Command;
-
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
  * ItemsNotifiedCommand
@@ -34,6 +31,7 @@ class ItemsNotifiedCommand extends Command
 
     /**
      * This will be the message type context for which these items received notifications.
+     *
      * @var string
      */
     private $context;
@@ -45,7 +43,6 @@ class ItemsNotifiedCommand extends Command
      * @param EEM_Base     $model
      * @param        array $ids
      * @param              $context
-     * @throws EE_Error
      */
     public function __construct(EEM_Base $model, array $ids, $context)
     {
@@ -61,11 +58,10 @@ class ItemsNotifiedCommand extends Command
      *
      * @param  array $ids
      * @return array
-     * @throws EE_Error
      */
     private function validateItemIds(array $ids)
     {
-        //make sure these are all ints
+        // make sure these are all ints
         $ids = array_map(
             function ($id) {
                 return (int) $id;

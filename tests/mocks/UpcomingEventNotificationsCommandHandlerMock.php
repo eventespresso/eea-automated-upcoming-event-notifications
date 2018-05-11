@@ -1,12 +1,30 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
+use EE_Error;
 use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommandHandler;
 use EEM_Registration;
 use EE_Registry;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\commands\CommandBus;
+use EventEspresso\core\services\commands\CommandFactory;
+use EventEspresso\core\services\loaders\LoaderFactory;
+use InvalidArgumentException;
+use ReflectionException;
 
+/** @noinspection LongInheritanceChainInspection */
+
+/**
+ * UpcomingEventNotificationsCommandHandlerMock
+ *
+ *
+ * @package EventEspresso\AutomateUpcomingEventNotificationsTests\mocks
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotificationsCommandHandler
 {
     /**
@@ -24,15 +42,20 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
     private $trigger_actual_messages = false;
 
 
+    /**
+     * UpcomingEventNotificationsCommandHandlerMock constructor.
+     *
+     * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
+     */
     public function __construct()
     {
         parent::__construct(
-            EE_Registry::instance()->create(
-                'EventEspresso\core\services\commands\CommandBus'
-            ),
-            EE_Registry::instance()->create(
-                'EventEspresso\core\services\commands\CommandFactory'
-            ),
+            LoaderFactory::getLoader()->getShared(CommandBus::class),
+            LoaderFactory::getLoader()->getShared(CommandFactory::class),
             EEM_Registration::instance(),
             EEM_Event::instance(),
             new SplitRegistrationDataRecordForBatches()
@@ -70,6 +93,11 @@ class UpcomingEventNotificationsCommandHandlerMock extends UpcomingEventNotifica
      * @param array  $data
      * @param string $message_type
      * @param        $context
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public function triggerMessages(array $data, $message_type, $context)
     {

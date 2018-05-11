@@ -1,6 +1,6 @@
 <?php
-namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages;
 
+namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages;
 
 /**
  * SplitRegistrationDataRecordForBatches
@@ -36,15 +36,13 @@ class SplitRegistrationDataRecordForBatches
      * This will ensure that when possible each batch will contain all the registrations belonging to an attendee.
      * When the registration count for an attendee exceeds the batch limit, then they will be grouped by the event.
      * When they exceed the batch for an event, then they will be grouped by transaction.
-     *
      * Note: the batch limit is not what the count of registrations will be for each batch, but rather the limit of
      * registrations for each batch.  It's possible batches will be smaller than this count.
-     *
      * Note: the incoming format for the data expected is described in the class header doc. Any elements not matching
      * the expected format will be silently discarded.
      *
-     * @param array $records  registration records coming in the expected format.
-     * @param int $batch_limit
+     * @param array $records registration records coming in the expected format.
+     * @param int   $batch_limit
      * @return array    @see class doc header for example format of returned array.
      */
     public function splitDataByAttendeeId(array $records, $batch_limit)
@@ -54,7 +52,7 @@ class SplitRegistrationDataRecordForBatches
             array(
                 'ATT_ID',
                 'EVT_ID',
-                'TXN_ID'
+                'TXN_ID',
             ),
             $records,
             array(),
@@ -62,7 +60,6 @@ class SplitRegistrationDataRecordForBatches
             $batch_limit
         );
     }
-
 
 
     /**
@@ -78,7 +75,7 @@ class SplitRegistrationDataRecordForBatches
         return $this->splitGroupedData(
             array(
                 'EVT_ID',
-                'TXN_ID'
+                'TXN_ID',
             ),
             $records,
             array(),
@@ -101,7 +98,7 @@ class SplitRegistrationDataRecordForBatches
         $batch_limit = (int) $batch_limit;
         return $this->splitGroupedData(
             array(
-                'TXN_ID'
+                'TXN_ID',
             ),
             $records,
             array(),
@@ -126,7 +123,7 @@ class SplitRegistrationDataRecordForBatches
         foreach ($values_to_modify as $key_to_modify => $value) {
             $key_to_modify = str_replace($key_prefix, '', $key_to_modify);
             $key_to_modify = (int) $key_to_modify;
-            $modified_values[$key_to_modify] = $value;
+            $modified_values[ $key_to_modify ] = $value;
         }
         return $modified_values;
     }
@@ -135,13 +132,13 @@ class SplitRegistrationDataRecordForBatches
     /**
      * Method intended to use recursively create batches from the given data and grouping methods.
      *
-     * @param array $keys_to_group_by  These are the various keys to recurse through when fitting records into a batch.
+     * @param array $keys_to_group_by These are the various keys to recurse through when fitting records into a batch.
      * @param array $records
      * @param array $current_batch
      * @param int   $batch_remaining
-     * @param int   $batch_limit               The max that can be in a batch.
-     * @param array $batches                   The assembled batches array.
-     * @param int  $batch_count               The current count for the batch.
+     * @param int   $batch_limit      The max that can be in a batch.
+     * @param array $batches          The assembled batches array.
+     * @param int   $batch_count      The current count for the batch.
      * @return array
      */
     protected function splitGroupedData(
@@ -153,7 +150,7 @@ class SplitRegistrationDataRecordForBatches
         array $batches = array(),
         $batch_count = 1
     ) {
-        //shift off the first method for use.
+        // shift off the first method for use.
         $key_to_group_by = array_shift($keys_to_group_by);
         $leftover_threshold = $this->getLeftoverThreshold();
         foreach ($this->groupRecordsBy($key_to_group_by, $records) as $registration_records_grouped) {
@@ -161,25 +158,25 @@ class SplitRegistrationDataRecordForBatches
             if (count($registration_records_grouped) <= $batch_remaining) {
                 $batch_remaining -= count($registration_records_grouped);
                 $current_batch += $registration_records_grouped;
-                //if $batch_remaining is less than the leftover threshold., then let's just start a new batch anyways, to save some looping.
+                // if $batch_remaining is less than the leftover threshold., then let's just start a new batch anyways, to save some looping.
                 if ($batch_remaining < $leftover_threshold) {
-                    $batches[$batch_index] = $current_batch;
+                    $batches[ $batch_index ] = $current_batch;
                     $current_batch = array();
                     $batch_remaining = $batch_limit;
                     $batch_count++;
                 }
                 continue;
             }
-            //if there's no more methods to recurse, then append current batch to the batches and continue.
-            //Essentially this means that we've grouped the data into as small of chunks as we can so if there's no more
-            //room then we start a new batch with the current data set and continue.
+            // if there's no more methods to recurse, then append current batch to the batches and continue.
+            // Essentially this means that we've grouped the data into as small of chunks as we can so if there's no more
+            // room then we start a new batch with the current data set and continue.
             if (empty($keys_to_group_by)) {
-                $batches[$batch_index] = $current_batch;
+                $batches[ $batch_index ] = $current_batch;
                 $current_batch = $registration_records_grouped;
                 $batch_remaining -= $batch_limit - count($registration_records_grouped);
-                //if $batch_remaining is less than 10, then let's just start a new batch anyways, to save some looping.
+                // if $batch_remaining is less than 10, then let's just start a new batch anyways, to save some looping.
                 if ($batch_remaining < $leftover_threshold) {
-                    $batches[$batch_index] = $current_batch;
+                    $batches[ $batch_index ] = $current_batch;
                     $current_batch = array();
                     $batch_remaining = $batch_limit;
                     $batch_count++;
@@ -187,7 +184,8 @@ class SplitRegistrationDataRecordForBatches
                 continue;
             }
 
-            //recurse
+            // recurse
+            /** @noinspection AdditionOperationOnArraysInspection */
             $batches += $this->splitGroupedData(
                 $keys_to_group_by,
                 $registration_records_grouped,
@@ -198,15 +196,15 @@ class SplitRegistrationDataRecordForBatches
                 $batch_count
             );
 
-            //pop off the last element in the batch if it's under our batch threshold then assign it to $current_batch.
-            //if its not under our batch threshold then we'll leave things reset for a new batch.
+            // pop off the last element in the batch if it's under our batch threshold then assign it to $current_batch.
+            // if its not under our batch threshold then we'll leave things reset for a new batch.
             $current_batch = array_pop($batches);
             $batch_remaining = $batch_limit - count($current_batch);
             $batch_count = count($batches);
             $batch_count = $batch_count === 0 ? 2 : $batch_count + 1;
             $batch_index = 'B_' . $batch_count;
             if ($batch_remaining < $leftover_threshold) {
-                $batches[$batch_index] = $current_batch;
+                $batches[ $batch_index ] = $current_batch;
                 $current_batch = array();
                 $batch_remaining = $batch_limit;
                 $batch_count++;
@@ -219,7 +217,7 @@ class SplitRegistrationDataRecordForBatches
             $batch_index = isset($batch_index)
                 ? $batch_index
                 : 'B_' . $batch_count;
-            $batches[$batch_index] = $current_batch;
+            $batches[ $batch_index ] = $current_batch;
         }
         return $batches;
     }
@@ -241,20 +239,20 @@ class SplitRegistrationDataRecordForBatches
      * The array will be sorted by the element with the highest number of registrations first.
      *
      * @param string $key_for_grouping_by
-     * @param array $records
+     * @param array  $records
      * @return array
      */
     protected function groupRecordsBy($key_for_grouping_by, array $records)
     {
         $grouped = array();
         foreach ($records as $registration_id => $record) {
-            if (isset($record[$key_for_grouping_by])) {
-                //so usort doesn't mess things up index wise.
-                $index = $key_for_grouping_by . '_' . $record[$key_for_grouping_by];
+            if (isset($record[ $key_for_grouping_by ])) {
+                // so usort doesn't mess things up index wise.
+                $index = $key_for_grouping_by . '_' . $record[ $key_for_grouping_by ];
                 $registration_index = strpos($registration_id, 'REG_ID_') === false
                     ? 'REG_ID_' . $registration_id
                     : $registration_id;
-                $grouped[$index][$registration_index] = $record;
+                $grouped[ $index ][ $registration_index ] = $record;
             }
         }
         return $this->sortByCountOfRecordsDescending($grouped);
@@ -289,7 +287,6 @@ class SplitRegistrationDataRecordForBatches
      *
      * @see https://github.com/vanderlee/PHP-stable-sort-functions/blob/master/classes/StableSort.php where code was
      *      obtained.
-     *
      * @param array $items_to_sort
      * @param       $value_compare_function
      * @return bool
@@ -302,9 +299,10 @@ class SplitRegistrationDataRecordForBatches
         }
         unset($item);
         $result = uasort($items_to_sort, function ($a, $b) use ($value_compare_function) {
-            $result = call_user_func($value_compare_function, $a[1], $b[1]);
+            $result = $value_compare_function($a[1], $b[1]);
             return $result === 0 ? $a[0] - $b[0] : $result;
         });
+        /** @noinspection ReferenceMismatchInspection */
         foreach ($items_to_sort as &$item) {
             $item = $item[1];
         }

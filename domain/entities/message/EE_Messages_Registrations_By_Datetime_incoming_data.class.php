@@ -4,9 +4,6 @@ use EventEspresso\core\exceptions\EntityNotFoundException;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
-
-
 /**
  * This prepares data for message types that send messages for multiple registrations that have access to a specific
  * datetime.  This data handler is required usage for the specific_datetimes messages shortcode library.
@@ -63,10 +60,11 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public static function convert_data_for_persistent_storage($datetime_and_registrations)
     {
-        //make sure $registrations are an array.
+        // make sure $registrations are an array.
         /** @noinspection ArrayCastingEquivalentInspection */
         $datetime_and_registrations[1] = is_array($datetime_and_registrations[1])
             ? $datetime_and_registrations[1]
@@ -114,7 +112,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      */
     protected static function validate_incoming_data(array $datetime_and_registrations)
     {
-        //first split the array into its component parts for validation
+        // first split the array into its component parts for validation
         /**
          * We allow null for the first argument.  But if its not null, then it must be either a `EE_Datetime` object or
          * an integer ($datetime_id).
@@ -126,15 +124,15 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
             return false;
         }
 
-        //next is the registrations.
+        // next is the registrations.
         $first_item = reset($datetime_and_registrations[1]);
 
         if ($first_item instanceof EE_Registration) {
             return true;
         }
 
-        //okay we've made it here so we likely have a set of registration ids.  In which case let's do some simple
-        //validation that at least ensures these reg_ids exist for registrations in the db.
+        // okay we've made it here so we likely have a set of registration ids.  In which case let's do some simple
+        // validation that at least ensures these reg_ids exist for registrations in the db.
         if (is_int($first_item)) {
             $count_of_actual_registrations = EEM_Registration::instance()->count(
                 array(
@@ -146,7 +144,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
             return $count_of_actual_registrations === count($datetime_and_registrations[1]);
         }
 
-        //made it here, then it ain't valid.
+        // made it here, then it ain't valid.
         return false;
     }
 
@@ -183,17 +181,18 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     protected function _setup_data()
     {
         $data                    = $this->data();
         $this->specific_datetime = $data[0];
 
-        //assign registrations
+        // assign registrations
         $this->reg_objs = is_array($data[1]) ? $data[1] : array();
 
-        //if the incoming registration value is not in an array format then set that as the reg_obj.  Then we get the
-        //matching registrations linked to the same datetime as this registration and assign that to the reg_objs
+        // if the incoming registration value is not in an array format then set that as the reg_obj.  Then we get the
+        // matching registrations linked to the same datetime as this registration and assign that to the reg_objs
         // property.
         if (empty($this->reg_objs)) {
             $this->reg_obj  = $data[1];
@@ -207,7 +206,7 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
             );
         }
 
-        //now set the transaction object if possible
+        // now set the transaction object if possible
         $this->txn = $this->reg_obj instanceof EE_Registration
             ? $this->reg_obj->transaction()
             : $this->_maybe_get_transaction();
@@ -230,16 +229,13 @@ class EE_Messages_Registrations_By_Datetime_incoming_data extends EE_Messages_in
         $first_transaction = null;
         foreach ($this->reg_objs as $registration) {
             $transaction = $registration->transaction();
-            if ($transaction instanceof EE_Transaction) {
-                //do they match
-                if ($first_transaction !== $transaction) {
-                    //has $first_transaction been set yet?
-                    if ($first_transaction === null) {
-                        $first_transaction = $transaction;
-                        continue;
-                    }
-                    return null;
+            if ($transaction instanceof EE_Transaction && $first_transaction !== $transaction) {
+                // has $first_transaction been set yet?
+                if ($first_transaction === null) {
+                    $first_transaction = $transaction;
+                    continue;
                 }
+                return null;
             }
         }
         return $first_transaction;

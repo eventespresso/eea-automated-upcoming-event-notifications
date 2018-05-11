@@ -2,29 +2,50 @@
 
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
+use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller;
-use EE_Request;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\request\Request;
+use EventEspresso\core\services\request\RequestInterface;
+use InvalidArgumentException;
 
 class AdminControllerMock extends Controller
 {
+
+    /**
+     * @var RequestInterface
+     */
+    private $mocked_request;
+
     /**
      * AdminControllerMock constructor.
      * Note: By default this will call the parent constructor.  However, for testing methods in isolation without running
      * the usual construction setup, you can avoid calling parent constructor.
-     * @param bool $call_parent  Whether to call parent constructor or not.
+     *
+     * @param bool $call_parent Whether to call parent constructor or not.
+     * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
      */
     public function __construct($call_parent = true)
     {
         if ($call_parent === true) {
             $this->maybeSetRequest();
-            parent::__construct($this->request);
+            parent::__construct($this->mocked_request);
         }
     }
 
     /**
      * Use this to test the `canLoad` method
      * Use the WPUnitTestCase::goto method to simulate a request before calling this method.
+     *
      * @return bool
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
      */
     public function canLoad()
     {
@@ -52,6 +73,12 @@ class AdminControllerMock extends Controller
      * - messageTemplateGroup
      * - schedulingForm
      * @return string
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws \DomainException
+     * @throws \LogicException
      */
     public function schedulingMetabox()
     {
@@ -72,8 +99,9 @@ class AdminControllerMock extends Controller
      */
     private function maybeSetRequest()
     {
-        $this->request = $this->request instanceof EE_Request
-            ? $this->request
-            : new EE_Request($_GET, $_POST, $_COOKIE);
+        $this->mocked_request = $this->mocked_request instanceof RequestInterface
+            ? $this->mocked_request
+            : new Request($_GET, $_POST, $_COOKIE, $_SERVER);
+        $this->request = $this->mocked_request;
     }
 }

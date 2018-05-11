@@ -2,8 +2,6 @@
 
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * EE_Messages_Email_Automate_Upcoming_Datetime_Validator
  * Shortcode validator for Email messenger and automate_upcoming_datetime message type.
@@ -18,9 +16,10 @@ class EE_Messages_Email_Automate_Upcoming_Datetime_Validator extends EE_Messages
     /**
      * EE_Messages_Email_Automate_Upcoming_Datetime_Validator constructor.
      *
-     * @param array $fields
-     * @param string     $context
+     * @param array  $fields
+     * @param string $context
      * @throws EE_Error
+     * @throws ReflectionException
      */
     public function __construct($fields, $context)
     {
@@ -53,7 +52,7 @@ class EE_Messages_Email_Automate_Upcoming_Datetime_Validator extends EE_Messages
         $this->_messenger->set_validator_config($new_config);
 
         if ($this->_context !== 'admin') {
-            $this->_valid_shortcodes_modifier[$this->_context]['event_list'] = array(
+            $this->_valid_shortcodes_modifier[ $this->_context ]['event_list'] = array(
                 'event',
                 'attendee_list',
                 'ticket_list',

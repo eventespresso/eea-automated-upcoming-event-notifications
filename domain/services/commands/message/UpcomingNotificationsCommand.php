@@ -2,11 +2,8 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
-use EE_Error;
 use EE_Message_Template_Group;
 use EventEspresso\core\services\commands\Command;
-
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
 
 /**
  * UpcomingNotificationsCommand
@@ -29,7 +26,6 @@ abstract class UpcomingNotificationsCommand extends Command
      * UpcomingNotificationsCommand constructor.
      *
      * @param array $message_template_groups
-     * @throws EE_Error
      */
     public function __construct(array $message_template_groups)
     {
@@ -43,12 +39,11 @@ abstract class UpcomingNotificationsCommand extends Command
      *
      * @param EE_Message_Template_Group[] $message_template_groups
      * @return EE_Message_Template_Group[]
-     * @throws EE_Error
      */
     private function validateGroups(array $message_template_groups)
     {
-        //make sure we only have instances of EE_Message_Template_Group in this array.
-        //also make sure the instance is only for a message type this is command is being implemented for.
+        // make sure we only have instances of EE_Message_Template_Group in this array.
+        // also make sure the instance is only for a message type this is command is being implemented for.
         return array_filter(
             $message_template_groups,
             function ($message_template_group) {

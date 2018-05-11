@@ -23,8 +23,6 @@ use EventEspresso\core\services\loaders\LoaderFactory;
 use InvalidArgumentException;
 use ReflectionException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * UpcomingNotificationsCommandHandler
  * Abstract class for all notifications command handlers.
@@ -50,6 +48,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * This will hold the set cron schedule frequency buffer in seconds.  Used by the queries involving threshold range.
+     *
      * @var int
      */
     protected $cron_frequency_buffer;
@@ -129,7 +128,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             $registrations_to_exclude_where_query = array();
             /** @var EE_Message_Template_Group $message_template_group */
             foreach ($message_template_groups as $message_template_group) {
-                //if this is a global group then assign to global group property and continue (will be used later)
+                // if this is a global group then assign to global group property and continue (will be used later)
                 if ($message_template_group->is_global()) {
                     $global_group = $message_template_group;
                     continue;
@@ -140,15 +139,15 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                     continue;
                 }
                 foreach ($active_contexts as $context) {
-                    $registrations_to_exclude_where_query[$context] = isset(
-                        $registrations_to_exclude_where_query[$context]
+                    $registrations_to_exclude_where_query[ $context ] = isset(
+                        $registrations_to_exclude_where_query[ $context ]
                     )
-                        ? $registrations_to_exclude_where_query[$context]
+                        ? $registrations_to_exclude_where_query[ $context ]
                         : $this->registrationsToExcludeWhereQueryConditions($context);
                     $retrieved_data = $this->getDataForCustomMessageTemplateGroup(
                         $settings,
                         $context,
-                        $registrations_to_exclude_where_query[$context]
+                        $registrations_to_exclude_where_query[ $context ]
                     );
                     $data = $this->combineDataByGroupAndContext(
                         $message_template_group,
@@ -163,16 +162,16 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                 $active_contexts = $settings->allActiveContexts();
                 if (count($active_contexts) > 0) {
                     foreach ($active_contexts as $context) {
-                        $registrations_to_exclude_where_query[$context] = isset(
-                            $registrations_to_exclude_where_query[$context]
+                        $registrations_to_exclude_where_query[ $context ] = isset(
+                            $registrations_to_exclude_where_query[ $context ]
                         )
-                           ? $registrations_to_exclude_where_query[$context]
-                           : $this->registrationsToExcludeWhereQueryConditions($context);
+                            ? $registrations_to_exclude_where_query[ $context ]
+                            : $this->registrationsToExcludeWhereQueryConditions($context);
                         $retrieved_data = $this->getDataForGlobalMessageTemplateGroup(
                             $settings,
                             $context,
                             $data,
-                            $registrations_to_exclude_where_query[$context]
+                            $registrations_to_exclude_where_query[ $context ]
                         );
                         $data = $this->combineDataByGroupAndContext(
                             $global_group,
@@ -224,7 +223,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     /**
      * Receives an array of EE_BaseClass Items and sends them to the correct command handler for the given $model_name.
      *
-     * @param array           $arguments                          The arguments sent to the processing command.
+     * @param array $arguments The arguments sent to the processing command.
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
@@ -247,7 +246,6 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param array $message_template_groups
      * @return EE_Message_Template_Group
-     * @throws EE_Error
      */
     protected function extractGlobalMessageTemplateGroup(array $message_template_groups)
     {
@@ -257,13 +255,14 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                 return $message_template_group->is_global();
             }
         );
-        //there should only be one global group, so we only handle one.
+        // there should only be one global group, so we only handle one.
         return $global_groups ? reset($global_groups) : null;
     }
 
 
     /**
      * Returns filtered array of Event Statuses to include in the query arguments for getting registrations to notify.
+     *
      * @return array
      */
     protected function eventStatusForRegistrationsQuery()
@@ -303,6 +302,10 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * @param string             $context
      * @return int
      * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     protected function getEndTimeForQuery(SchedulingSettings $settings, $context)
     {
@@ -314,6 +317,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * Return the correct notification meta key for items that have already been notified for the given context.
+     *
      * @param string $context
      * @return string
      */
@@ -327,14 +331,15 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * Sets the cron_frequency property that is used in queries
+     *
      * @throws InvalidArgumentException
      * @throws InvalidDataTypeException
      * @throws InvalidInterfaceException
      */
     private function setCronFrequencyBuffer()
     {
-        //Even though $this->commandBus->getCommandHandlerManager() has an instance of the Loader cached in a property
-        //it's not accessible, once/if that changes then I can use it instead of the LoaderFactory.
+        // Even though $this->commandBus->getCommandHandlerManager() has an instance of the Loader cached in a property
+        // it's not accessible, once/if that changes then I can use it instead of the LoaderFactory.
         /** @var Scheduler $scheduler */
         $scheduler = LoaderFactory::getLoader()->getShared(
             'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
@@ -342,12 +347,11 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $registered_schedules = wp_get_schedules();
         $registered_cron_frequency = $scheduler->getCronFrequency();
         $this->cron_frequency_buffer = isset(
-            $registered_schedules[$registered_cron_frequency],
-            $registered_schedules[$registered_cron_frequency]['interval']
+            $registered_schedules[ $registered_cron_frequency ]['interval']
         )
-            ? $registered_schedules[$registered_cron_frequency]['interval']
+            ? $registered_schedules[ $registered_cron_frequency ]['interval']
             : HOUR_IN_SECONDS * 3;
-        //let's add a filterable buffer (why? Because wp-cron is imprecise and won't ALWAYS fire on the set interval).
+        // let's add a filterable buffer (why? Because wp-cron is imprecise and won't ALWAYS fire on the set interval).
         $this->cron_frequency_buffer += $this->getCronFrequencyBuffer();
     }
 
@@ -356,6 +360,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * WordPress Cron (wp-cron) is imprecise.  We cannot rely on the events being processed exactly on the interval.
      * This buffer (filterable) allows for extending the query range beyond the next cron scheduled event to cover
      * impreciseness of the schedule.
+     *
      * @return int  number of seconds for buffer.
      */
     private function getCronFrequencyBuffer()
@@ -365,8 +370,6 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
             MINUTE_IN_SECONDS * 30
         );
     }
-
-
 
 
     /**
@@ -380,15 +383,15 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $final_result = array();
         foreach ($registration_query_results as $registration_query_result) {
             if (isset($registration_query_result['REG_ID'])) {
-                //set all values to ints
+                // set all values to ints
                 $registration_query_result = array_map(
-                //using (int) because its significantly faster than intval.
+                    // using (int) because its significantly faster than intval.
                     function ($value) {
                         return (int) $value;
                     },
                     $registration_query_result
                 );
-                $final_result[$registration_query_result['REG_ID']] = $registration_query_result;
+                $final_result[ $registration_query_result['REG_ID'] ] = $registration_query_result;
             }
         }
         return $final_result;
@@ -397,6 +400,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * Returns the count at which batching is triggered for the notifications.
+     *
      * @return int
      */
     protected function getRegistrationBatchThreshold()
@@ -412,9 +416,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * The purpose for this method is to get the where condition for excluding registrations that have already been
      * notified.
      *
-     * @param string $context  The context we're getting the notified registrations for.
+     * @param string $context The context we're getting the notified registrations for.
      * @return array  The array should be in the format used for EE model where conditions.  Eg.
-     *                array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      */
     abstract protected function registrationsToExcludeWhereQueryConditions($context);
 
@@ -423,9 +427,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * This retrieves the data for the given SchedulingSettings
      *
      * @param SchedulingSettings $scheduling_settings
-     * @param string             $context   What context this is for.
+     * @param string             $context What context this is for.
      * @param array              $registrations_to_exclude_where_query
-     * @return
+     * @return array
      */
     abstract protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
@@ -453,9 +457,9 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * @param EE_Message_Template_Group $message_template_group
-     * @param string                    $context The context for the data
-     * @param array                     $data    The data to be combined with
-     * @param array                     $incoming_data  The incoming data for combining
+     * @param string                    $context       The context for the data
+     * @param array                     $data          The data to be combined with
+     * @param array                     $incoming_data The incoming data for combining
      * @return array
      */
     abstract protected function combineDataByGroupAndContext(
@@ -466,21 +470,20 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
     );
 
 
-
     /**
      * Determines whether the number of registrations within the given data warrants processing these as batches.
      * "Batching" in this context is simply ensuring that the messages queued up for generation have a limited number of
      * registrations attached to them so that there's less risk of a server timing out while generating the messages.
+     *
      * @param array $data
      * @return bool
      */
     abstract protected function shouldBatch($data);
 
 
-
-
     /**
      * This method takes care of dividing up the data into appropriate batches and processing each batch.
+     *
      * @param array $data
      */
     abstract protected function processBatches($data);

@@ -4,8 +4,6 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 
-defined('EVENT_ESPRESSO_VERSION') || exit('No direct access allowed.');
-
 /**
  * Module for handling automated upcoming event and datetime notification sends.
  *
@@ -23,7 +21,7 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function set_hooks()
     {
-        //noop
+        // noop
     }
 
 
@@ -32,7 +30,7 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function set_hooks_admin()
     {
-        //noop
+        // noop
     }
 
 
@@ -50,8 +48,8 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      */
     public static function prep_and_queue_messages($message_type_name, array $data, $context)
     {
-        //only continue if the message type is one of the allowed message types
-        //to be processed by this handler or is active
+        // only continue if the message type is one of the allowed message types
+        // to be processed by this handler or is active
         if (! EEH_MSG_Template::is_mt_active($message_type_name)
             || ! in_array($message_type_name, self::allowed_message_types(), true)
         ) {

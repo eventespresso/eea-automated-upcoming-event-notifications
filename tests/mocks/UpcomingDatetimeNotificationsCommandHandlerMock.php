@@ -1,23 +1,43 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
+use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingDatetimeNotificationsCommandHandler;
-use EE_Registry;
 use EEM_Registration;
 use EEM_Datetime;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\messages\SplitRegistrationDataRecordForBatches;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+use EventEspresso\core\services\commands\CommandBus;
+use EventEspresso\core\services\commands\CommandFactory;
+use EventEspresso\core\services\loaders\LoaderFactory;
+use InvalidArgumentException;
 
+/** @noinspection LongInheritanceChainInspection */
+
+/**
+ * UpcomingDatetimeNotificationsCommandHandlerMock
+ *
+ *
+ * @package EventEspresso\AutomateUpcomingEventNotificationsTests\mocks
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNotificationsCommandHandler
 {
+    /**
+     * UpcomingDatetimeNotificationsCommandHandlerMock constructor.
+     *
+     * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
+     */
     public function __construct()
     {
         parent::__construct(
-            EE_Registry::instance()->create(
-                'EventEspresso\core\services\commands\CommandBus'
-            ),
-            EE_Registry::instance()->create(
-                'EventEspresso\core\services\commands\CommandFactory'
-            ),
+            LoaderFactory::getLoader()->getShared(CommandBus::class),
+            LoaderFactory::getLoader()->getShared(CommandFactory::class),
             EEM_Registration::instance(),
             EEM_Datetime::instance(),
             new SplitRegistrationDataRecordForBatches()
@@ -46,7 +66,6 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
      */
     public function triggerMessages(array $data, $message_type, $context)
     {
-        return;
     }
 
 

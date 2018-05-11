@@ -1,16 +1,38 @@
 <?php
 namespace EventEspresso\AutomateUpcomingEventNotificationsTests\mocks;
 
+use EE_Error;
 use EE_Specific_Datetime_Shortcodes;
 use EE_Automate_Upcoming_Datetime_message_type;
+use EventEspresso\core\exceptions\InvalidDataTypeException;
+use EventEspresso\core\exceptions\InvalidInterfaceException;
+use InvalidArgumentException;
+use ReflectionException;
 
+/** @noinspection LongInheritanceChainInspection */
+
+/**
+ * SpecificDatetimeShortcodesMock
+ *
+ *
+ * @package EventEspresso\AutomateUpcomingEventNotificationsTests\mocks
+ * @author  Darren Ethier
+ * @since   1.0.0
+ */
 class SpecificDatetimeShortcodesMock extends EE_Specific_Datetime_Shortcodes
 {
     /**
      * Sets up things for testing the `parser` method of the EE_Specific_Datetime_Shortcodes library.
+     *
      * @param       $shortcode
      * @param array $datetime_and_registrations  Expect an array with the first element a Datetime and the second an
      *                                           array of registrations.
+     * @return string
+     * @throws EE_Error
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws InvalidArgumentException
+     * @throws ReflectionException
      */
     public function parserMockWithData($shortcode, array $datetime_and_registrations)
     {
@@ -31,6 +53,14 @@ class SpecificDatetimeShortcodesMock extends EE_Specific_Datetime_Shortcodes
     /**
      * This is for testing expectations when there is not any data available to parse the shortcode correctly with.
      * It should return an empty string and NOT fatal.
+     *
+     * @param $shortcode
+     * @return string
+     * @throws EE_Error
+     * @throws InvalidArgumentException
+     * @throws InvalidDataTypeException
+     * @throws InvalidInterfaceException
+     * @throws ReflectionException
      */
     public function parserMockWithoutData($shortcode)
     {
