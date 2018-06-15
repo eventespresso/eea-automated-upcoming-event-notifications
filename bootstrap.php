@@ -52,7 +52,7 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
             DomainFactory::getShared(
                 new FullyQualifiedName(Domain::class),
                 array(
-                    new FilePath(__FILE__),
+                    new FilePath(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE),
                     Version::fromString(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION)
                 )
             )

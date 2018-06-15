@@ -39,6 +39,7 @@
 
 // define versions and this file
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.0.rc.096');
+define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE', __FILE__);
 
 // check php version, if not sufficient then deactivate and show notice
 // requires PHP 5.6 ++
