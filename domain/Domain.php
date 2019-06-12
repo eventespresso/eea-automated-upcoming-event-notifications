@@ -22,6 +22,12 @@ class Domain extends DomainBase
 
 
     /**
+     * WordPress Version Required for Add-on
+     */
+    const WP_VERSION_REQUIRED = '5.2';
+
+
+    /**
      * String used as the prefix for the registration tracker meta key for the RegistrationsNotifiedCommand
      */
     const META_KEY_PREFIX_REGISTRATION_TRACKER = 'ee_auen_processed_';
