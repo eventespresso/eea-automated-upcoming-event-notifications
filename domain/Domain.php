@@ -18,7 +18,13 @@ class Domain extends DomainBase
     /**
      * EE Core Version Required for Add-on
      */
-    const CORE_VERSION_REQUIRED = '4.9.54.rc.007';
+    const CORE_VERSION_REQUIRED = '4.9.81.p';
+
+
+    /**
+     * WordPress Version Required for Add-on
+     */
+    const WP_VERSION_REQUIRED = '5.2';
 
 
     /**

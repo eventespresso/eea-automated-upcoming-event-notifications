@@ -81,6 +81,7 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
                 'version'          => $domain->version(),
                 'plugin_slug'      => 'eea_automated_upcoming_event_notifications',
                 'min_core_version' => Domain::CORE_VERSION_REQUIRED,
+                'min_wp_version'   => Domain::WP_VERSION_REQUIRED,
                 'main_file_path'   => $domain->pluginFile(),
                 'domain_fqcn'      => Domain::class,
                 'pue_options'      => array(
