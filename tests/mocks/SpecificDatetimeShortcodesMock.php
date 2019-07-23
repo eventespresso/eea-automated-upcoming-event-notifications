@@ -9,6 +9,7 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
 use InvalidArgumentException;
 use ReflectionException;
 
+require_once(EE_AUTOMATED_UPCOMING_EVENT_PLUGIN_DIR . 'domain/services/messages/EE_Specific_Datetime_Shortcodes.lib.php');
 /** @noinspection LongInheritanceChainInspection */
 
 /**

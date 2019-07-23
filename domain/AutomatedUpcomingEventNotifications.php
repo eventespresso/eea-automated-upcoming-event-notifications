@@ -106,6 +106,9 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
                     $domain->pluginPath()
                     . 'domain/services/modules/message/EED_Automated_Upcoming_Event_Notification_Messages.module.php',
                 ),
+                'autoloader_paths' => [
+                    'EE_Specific_Datetime_Shortcodes' => $domain->pluginPath() . 'domain/services/messages/EE_Specific_Datetime_Shortcodes.lib.php'
+                ]
             )
         );
     }
