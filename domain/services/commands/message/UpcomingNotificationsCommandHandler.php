@@ -276,19 +276,13 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
     /**
      * The threshold for upcoming notifications is currently in intervals of days.  This means that the accuracy of the
-     * time will be down to the day (not the hour or the minute).  Since our scheduled cron fires daily at midnight, if
-     * the threshold is set to one day before the day of the event, then anything between 00:00 and 23:59 of the day
-     * the cron fired is NOT one day before the event but UNDER one day.  So for accuracy at this interval, the start
-     * time for the query should be one day from the time the cron job is triggered. This means then that if the
-     * threshold is set to one day, and the time the scheduled cron fires is September 21, 00:00:00, we want to query
-     * for start datetimes between September 22, 00:00:00 and September 22, 23:59:59 (we'll actually do the query for to
-     * include that last minute so `September 23, 00:00:00 for simplicity).
+     * time will be down to the day (not the hour or the minute).
      *
      * @return int
      */
     protected function getStartTimeForQuery()
     {
-        return time() + DAY_IN_SECONDS;
+        return time();
     }
 
 
