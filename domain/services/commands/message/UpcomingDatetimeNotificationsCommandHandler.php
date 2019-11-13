@@ -140,7 +140,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
      * @param array                                          $data
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $registrations_to_exclude
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -152,7 +152,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registrations_to_exclude_where_query
+        array $registrations_to_exclude
     ) {
         if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
             return $data;
@@ -160,19 +160,12 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
         // extract the ids of the datetimes already in the data so we exclude them from the global message template group
         // based query.
-        $datetime_ids = $this->getDateTimeIdsFromData($data, $context);
-        $additional_datetime_where_conditions = array();
-        if ($datetime_ids) {
-            $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
-        }
-        $additional_datetime_where_conditions = array_merge(
-            $additional_datetime_where_conditions,
-            $registrations_to_exclude_where_query
-        );
+        $datetimes_to_exclude = $this->getDateTimeIdsFromData($data, $context);
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
             $context,
-            $additional_datetime_where_conditions
+            $registrations_to_exclude,
+            $datetimes_to_exclude
         );
     }
 
@@ -328,7 +321,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      * @throws EE_Error
      */
-    protected function registrationsToExcludeWhereQueryConditions($context)
+    protected function registrationsToExclude($context)
     {
         // get all datetimes that have already been notified (greater than now)
         $meta_key = $this->getNotificationMetaKeyForContext($context);
@@ -336,12 +329,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'DTT_EVT_start'      => array('>', time()),
             'Extra_Meta.EXM_key' => $meta_key,
         );
-        $datetime_ids_notified = $this->datetime_model->get_col(array($where));
-        return $datetime_ids_notified
-            ? array(
-                'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified),
-            )
-            : array();
+        return $this->datetime_model->get_col(array($where));
     }
 
     /**
