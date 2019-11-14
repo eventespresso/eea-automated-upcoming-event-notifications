@@ -113,7 +113,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $items_to_exclude
      * @return array An array of data for processing.
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -124,12 +124,12 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     ) {
         $registrations = $this->getRegistrationsForMessageTemplateGroup(
             $scheduling_settings,
             $context,
-            $registrations_to_exclude_where_query
+            $items_to_exclude
         );
         return $registrations ? $registrations : array();
     }
@@ -169,16 +169,16 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
           LEFT JOIN {$wpdb->prefix}esp_event_message_template AS Event___Event_Message_Template ON Event___Event_Message_Template.EVT_ID=Event_CPT.ID AND Event___Event_Message_Template.GRP_ID=%d
           LEFT JOIN {$wpdb->prefix}esp_message_template_group AS Event___Message_Template_Group ON Event___Message_Template_Group.GRP_ID=Event___Event_Message_Template.GRP_ID
         WHERE 
-          Registration.REG_deleted = 0 AND  
-          (Event_CPT.post_type = 'espresso_events') AND  
-          ( (Event___Datetime.DTT_deleted = 0) OR Event___Datetime.DTT_ID IS NULL) AND  
-          ( (Event___Message_Template_Group.MTP_deleted = 0) OR Event___Message_Template_Group.GRP_ID IS NULL) AND 
-          Event_CPT.post_status IN ('publish','sold_out') AND 
-          Event___Datetime.DTT_EVT_start BETWEEN %s AND %s AND 
-          Registration.STS_ID = 'RAP' AND
+          Registration.REG_deleted = 0  
+          AND (Event_CPT.post_type = 'espresso_events')  
+          AND ( (Event___Datetime.DTT_deleted = 0) OR Event___Datetime.DTT_ID IS NULL)  
+          AND ( (Event___Message_Template_Group.MTP_deleted = 0) OR Event___Message_Template_Group.GRP_ID IS NULL) 
+          AND Event_CPT.post_status IN ('publish','sold_out') 
+          AND Event___Datetime.DTT_EVT_start BETWEEN %s AND %s 
+          AND Registration.STS_ID = 'RAP'
         ";
         if ($settings->getMessageTemplateGroup()->is_global()) {
-            $query_with_placeholders .= ' Event___Message_Template_Group.GRP_ID IS NULL';
+            $query_with_placeholders .= ' AND Event___Message_Template_Group.GRP_ID IS NULL';
         }
         if ($registrations_to_exclude) {
             $query_with_placeholders .= ' AND Registration.REG_ID NOT IN (' . implode(',', $registrations_to_exclude) . ')';
@@ -203,7 +203,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
      * @param array                                          $data
-     * @param array                                          $registrations_to_exclude
+     * @param array                                          $items_to_exclude
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -215,7 +215,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registrations_to_exclude
+        array $items_to_exclude
     ) {
         if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
             return array();
@@ -223,7 +223,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         $registrations = $this->getRegistrationsForMessageTemplateGroup(
             $scheduling_settings,
             $context,
-            $registrations_to_exclude
+            $items_to_exclude
         );
         return $registrations ? $registrations : array();
     }
@@ -269,7 +269,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
      * @throws EE_Error
      */
-    protected function registrationsToExclude($context)
+    protected function itemsToExclude($context)
     {
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
