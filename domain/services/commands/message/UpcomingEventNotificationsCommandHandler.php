@@ -138,7 +138,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     /**
      * @param SchedulingSettings $settings
      * @param string             $context
-     * @param array              $registrations_to_exclude of registration IDs
+     * @param array              $events_to_exclude of registration IDs
      * @return EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -149,7 +149,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function getRegistrationsForMessageTemplateGroup(
         SchedulingSettings $settings,
         $context,
-        array $registrations_to_exclude = array()
+        array $events_to_exclude = array()
     ) {
         global $wpdb;
         // Use good-old wpdb directly here, because we need to do a sub-query to join the event-message-template table
@@ -189,8 +189,8 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             $query_with_placeholders .= ' OR emt_mtp.GRP_ID IS NULL';
         }
         $query_with_placeholders .= ')';
-        if ($registrations_to_exclude) {
-            $query_with_placeholders .= ' AND Registration.REG_ID NOT IN (' . implode(',', $registrations_to_exclude) . ')';
+        if ($events_to_exclude) {
+            $query_with_placeholders .= ' AND Event_CPT.ID NOT IN (' . implode(',', $events_to_exclude) . ')';
         }
         $query_with_placeholders .= " GROUP BY Registration.REG_ID";
         $query = $wpdb->prepare(

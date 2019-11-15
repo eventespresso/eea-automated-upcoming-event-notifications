@@ -410,7 +410,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * The purpose for this method is to get the list of registrations that have already been notified.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array  of registration IDs
+     * @return array  of IDs for the primary model associated with this handler (eg events or datetimes)
      */
     abstract protected function itemsToExclude($context);
 
