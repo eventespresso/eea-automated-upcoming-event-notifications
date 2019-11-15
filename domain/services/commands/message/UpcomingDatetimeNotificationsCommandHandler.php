@@ -254,7 +254,9 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         array $datetimes_to_exclude = array()
     ) {
         global $wpdb;
-        $event_statuses_sql = implode(',', array_map(function($input){return "'$input'";},$this->eventStatusForRegistrationsQuery()));
+        $event_statuses_sql = implode(',', array_map(function ($input) {
+            return "'$input'";
+        }, $this->eventStatusForRegistrationsQuery()));
         $query_with_placeholders = "
         SELECT 
           Datetime.DTT_ID  

@@ -284,7 +284,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
             'Datetime.DTT_EVT_start' => array('>', time()),
             'Extra_Meta.EXM_key'     => $meta_key,
         );
-        return (array)$this->event_model->get_col(array($where));
+        return (array) $this->event_model->get_col(array($where));
     }
 
 
