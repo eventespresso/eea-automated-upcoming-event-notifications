@@ -166,30 +166,32 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
           LEFT JOIN {$wpdb->prefix}posts AS Event_CPT ON Event_CPT.ID=Registration.EVT_ID 
           LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID  
           LEFT JOIN {$wpdb->prefix}esp_datetime AS Event___Datetime ON Event___Datetime.EVT_ID=Event_CPT.ID 
-          LEFT JOIN {$wpdb->prefix}esp_event_message_template AS Event___Event_Message_Template ON Event___Event_Message_Template.EVT_ID=Event_CPT.ID AND Event___Event_Message_Template.GRP_ID=%d
-          LEFT JOIN {$wpdb->prefix}esp_message_template_group AS Event___Message_Template_Group ON Event___Message_Template_Group.GRP_ID=Event___Event_Message_Template.GRP_ID
+          LEFT JOIN {$wpdb->prefix}esp_event_message_template AS Event___Event_Message_Template ON Event___Event_Message_Template.EVT_ID=Event_CPT.ID
+          LEFT JOIN {$wpdb->prefix}esp_message_template_group AS Event___Message_Template_Group ON Event___Message_Template_Group.GRP_ID=Event___Event_Message_Template.GRP_ID AND Event___Message_Template_Group.MTP_message_type='automate_upcoming_event'
         WHERE 
           Registration.REG_deleted = 0  
           AND (Event_CPT.post_type = 'espresso_events')  
           AND ( (Event___Datetime.DTT_deleted = 0) OR Event___Datetime.DTT_ID IS NULL)  
           AND ( (Event___Message_Template_Group.MTP_deleted = 0) OR Event___Message_Template_Group.GRP_ID IS NULL) 
           AND Event_CPT.post_status IN ('publish','sold_out') 
-          AND Event___Datetime.DTT_EVT_start BETWEEN %s AND %s 
+          AND Event___Datetime.DTT_EVT_start BETWEEN %s AND %s
           AND Registration.STS_ID = 'RAP'
+          AND (Event___Event_Message_Template.GRP_ID=%d
         ";
+        // If it's a global template, select registrations for events with no message template.
         if ($settings->getMessageTemplateGroup()->is_global()) {
-            $query_with_placeholders .= ' AND Event___Message_Template_Group.GRP_ID IS NULL';
+            $query_with_placeholders .= ' OR Event___Message_Template_Group.GRP_ID IS NULL';
         }
+        $query_with_placeholders .= ')';
         if ($registrations_to_exclude) {
             $query_with_placeholders .= ' AND Registration.REG_ID NOT IN (' . implode(',', $registrations_to_exclude) . ')';
         }
-
         $query_with_placeholders .= " GROUP BY Registration.REG_ID";
         $query = $wpdb->prepare(
             $query_with_placeholders,
-            $settings->getMessageTemplateGroup()->ID(),
             date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery()),
-            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context))
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
+            $wpdb_prepare_args[] = $settings->getMessageTemplateGroup()->ID()
         );
         return $this->setKeysToRegistrationIds(
             $wpdb->get_results($query, ARRAY_A)
