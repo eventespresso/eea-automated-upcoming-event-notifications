@@ -261,57 +261,35 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         FROM  
           {$wpdb->prefix}esp_datetime AS Datetime  
           LEFT JOIN {$wpdb->prefix}posts AS Event_CPT ON Event_CPT.ID=Datetime.EVT_ID 
-          LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID  
-          LEFT JOIN {$wpdb->prefix}esp_event_message_template AS Event___Event_Message_Template ON Event___Event_Message_Template.EVT_ID=Event_CPT.ID AND Event___Event_Message_Template.GRP_ID=%d
-          LEFT JOIN {$wpdb->prefix}esp_message_template_group AS Event___Message_Template_Group ON Event___Message_Template_Group.GRP_ID=Event___Event_Message_Template.GRP_ID 
-        WHERE 
+          LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID 
+          LEFT JOIN (
+            SELECT emt.GRP_ID, emt.EVT_ID, mtp.MTP_deleted FROM 
+            {$wpdb->prefix}esp_event_message_template AS emt
+            LEFT JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_datetime'
+            ) AS emt_mtp ON Event_CPT.ID = emt_mtp.EVT_ID  
+          WHERE 
           Datetime.DTT_deleted = 0 
           AND (Event_CPT.post_type = 'espresso_events') 
-          AND  ( (Event___Message_Template_Group.MTP_deleted = 0) OR Event___Message_Template_Group.GRP_ID IS NULL) 
+          AND  ( (emt_mtp.MTP_deleted = 0) OR emt_mtp.GRP_ID IS NULL) 
           AND Datetime.DTT_EVT_start BETWEEN %s AND %s
           AND Event_CPT.post_status IN ($event_statuses_sql) 
-          AND  (Event___Message_Template_Group.GRP_ID = 7 OR Event___Message_Template_Group.GRP_ID IS NULL) 
-        
+          AND  (emt_mtp.GRP_ID = %d 
         ";
         if ($settings->getMessageTemplateGroup()->is_global()) {
-            $query_with_placeholders .= ' AND Event___Message_Template_Group.GRP_ID IS NULL';
+            $query_with_placeholders .= ' OR emt_mtp.GRP_ID IS NULL';
         }
+        $query_with_placeholders .= ')';
         if ($datetimes_to_exclude) {
             $query_with_placeholders .= ' AND Datetime.DTT_ID NOT IN (' . implode(',', $datetimes_to_exclude) . ')';
         }
         $query_with_placeholders .= " GROUP BY Datetime.DTT_ID";
         $query = $wpdb->prepare(
             $query_with_placeholders,
-            $settings->getMessageTemplateGroup()->ID(),
             date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery()),
-            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context))
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
+            $settings->getMessageTemplateGroup()->ID()
         );
         return $wpdb->get_col($query);
-
-        $where = array(
-            'DTT_EVT_start' => array(
-                'BETWEEN',
-                array(
-                    $this->getStartTimeForQuery(),
-                    $this->getEndTimeForQuery($settings, $context),
-                ),
-            ),
-            'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),
-        );
-
-        if ($additional_where_parameters) {
-            $where = array_merge($where, $additional_where_parameters);
-        }
-        if ($settings->getMessageTemplateGroup()->is_global()) {
-            $where['OR*global_conditions'] = array(
-                'Event.Message_Template_Group.GRP_ID'      => $settings->getMessageTemplateGroup()->ID(),
-                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
-            );
-        } else {
-            $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
-        }
-        $this->datetime_model->show_next_x_db_queries(2);
-        $this->datetime_model->get_col(array($where, 'group_by' => 'DTT_ID'));
     }
 
 
