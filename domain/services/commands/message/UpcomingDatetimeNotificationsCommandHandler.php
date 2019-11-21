@@ -267,7 +267,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
           LEFT JOIN (
             SELECT emt.GRP_ID, emt.EVT_ID, mtp.MTP_deleted FROM 
             {$wpdb->prefix}esp_event_message_template AS emt
-            LEFT JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_datetime'
+            INNER JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_datetime'
             ) AS emt_mtp ON Event_CPT.ID = emt_mtp.EVT_ID  
           WHERE 
           Datetime.DTT_deleted = 0 
