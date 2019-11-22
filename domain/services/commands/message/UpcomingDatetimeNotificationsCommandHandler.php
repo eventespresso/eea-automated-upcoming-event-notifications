@@ -161,11 +161,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
         // extract the ids of the datetimes already in the data so we exclude them from the global message template group
         // based query.
-        $datetimes_to_exclude = $this->getDateTimeIdsFromData($data, $context);
+        $datetime_ids_from_data = $this->getDateTimeIdsFromData($data, $context);
+        // combine the datetimes from data with the items we already know we want to exclude.
+        $items_to_exclude = array_merge($items_to_exclude, $datetime_ids_from_data);
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
             $context,
-            $datetimes_to_exclude
+            $items_to_exclude
         );
     }
 
