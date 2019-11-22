@@ -273,8 +273,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * where query that will then be used in the eventual registrations query.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array The array should be in the format used for EE model where conditions.  Eg.
-     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     * @return array The array should be numeric and contain event ID's that have already been notified. 
      * @throws EE_Error
      */
     protected function itemsToExclude($context)

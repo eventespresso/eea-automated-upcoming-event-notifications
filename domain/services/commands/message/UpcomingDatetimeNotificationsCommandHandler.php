@@ -334,8 +334,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * datetimes that have been notified and this conditional will be used in the initial query for getting datetimes.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array The array should be in the format used for EE model where conditions.  Eg.
-     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     * @return array The array should be numeric and contain datetime ID's that have already been notified.
      * @throws EE_Error
      */
     protected function itemsToExclude($context)
