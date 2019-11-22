@@ -113,6 +113,15 @@ class UpcomingDatetimeNotificationsCommandHandlerTests extends AddonTestCase
             $this->assertArrayHasKey('TXN_ID', $registration_record);
             $this->assertEquals($registration_id, $registration_record['REG_ID']);
         }
+
+        //Lastly, check that when we mark the datetime as notified, it doesn't come up again.
+        $expected_datetime->add_extra_meta($this->command_handler_mock->getNotificationMetaKeyForContext('admin'), 'whatever');
+        $data2 = $this->command_handler_mock->getData($this->message_template_groups['datetime']);
+        $datetime_id_and_registration_items = reset($data2);
+        $this->assertTrue(isset($datetime_id_and_registration_items['admin']));
+        $this->assertArrayNotHasKey($expected_datetime->ID(), $datetime_id_and_registration_items['admin']);
+
+
     }
 
 
