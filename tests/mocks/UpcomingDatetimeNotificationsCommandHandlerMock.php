@@ -76,7 +76,7 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
 
     /**
      * Wrappers of the protected function for getting the meta's name
-     * @since $VID:$
+     * @since 1.0.3.p
      * @param string $context
      * @return mixed|string
      */
