@@ -73,4 +73,14 @@ class UpcomingDatetimeNotificationsCommandHandlerMock extends UpcomingDatetimeNo
     {
         return parent::extractGlobalMessageTemplateGroup($message_template_groups);
     }
+
+    /**
+     * Wrappers of the protected function for getting the meta's name
+     * @since $VID:$
+     * @param string $context
+     * @return mixed|string
+     */
+    public function getNotificationMetaKeyForContext($context){
+        return parent::getNotificationMetaKeyForContext($context);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EE_Datetime_Field;
 use EEM_Event;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
@@ -112,7 +113,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      *
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $items_to_exclude
      * @return array An array of data for processing.
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -123,12 +124,12 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     ) {
         $registrations = $this->getRegistrationsForMessageTemplateGroup(
             $scheduling_settings,
             $context,
-            $registrations_to_exclude_where_query
+            $items_to_exclude
         );
         return $registrations ? $registrations : array();
     }
@@ -137,7 +138,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     /**
      * @param SchedulingSettings $settings
      * @param string             $context
-     * @param array              $additional_where_parameters
+     * @param array              $events_to_exclude of registration IDs
      * @return EE_Base_Class[]|EE_Registration[]
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -148,43 +149,58 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
     protected function getRegistrationsForMessageTemplateGroup(
         SchedulingSettings $settings,
         $context,
-        array $additional_where_parameters = array()
+        array $events_to_exclude = array()
     ) {
-        $where = array(
-            'Event.status'                 => array('IN', $this->eventStatusForRegistrationsQuery()),
-            'Event.Datetime.DTT_EVT_start' => array(
-                'BETWEEN',
-                array(
-                    $this->getStartTimeForQuery(),
-                    $this->getEndTimeForQuery($settings, $context),
-                ),
-            ),
-            'STS_ID'                       => EEM_Registration::status_id_approved,
-            'REG_deleted'                  => 0,
-        );
-
-        if ($additional_where_parameters) {
-            $where = array_merge($where, $additional_where_parameters);
-        }
+        global $wpdb;
+        // Use good-old wpdb directly here, because we need to do a sub-query to join the event-message-template table
+        // with the message-template-group table first, using the message type as a joining condition, and afterwards
+        // join to it from the other tables. This way query for registrations using the global template will include
+        // registrations for events with no upcoming event notification template; but not registrations for events using
+        // a custom upcoming event notification template.
+        // See https://github.com/eventespresso/eea-automated-upcoming-event-notifications/issues/14#issuecomment-550464526
+        $query_with_placeholders = "
+        SELECT 
+          REG_ID AS REG_ID, 
+          ATT_ID AS ATT_ID, 
+          Registration.EVT_ID AS EVT_ID, 
+          Registration.TXN_ID AS TXN_ID  
+        FROM  
+          {$wpdb->prefix}esp_registration AS Registration 
+          LEFT JOIN {$wpdb->prefix}posts AS Event_CPT ON Event_CPT.ID=Registration.EVT_ID 
+          LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID  
+          LEFT JOIN {$wpdb->prefix}esp_datetime AS Event___Datetime ON Event___Datetime.EVT_ID=Event_CPT.ID 
+          LEFT JOIN (
+            SELECT emt.GRP_ID, emt.EVT_ID, mtp.MTP_deleted FROM 
+            {$wpdb->prefix}esp_event_message_template AS emt
+            INNER JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_event'
+            ) AS emt_mtp ON Event_CPT.ID = emt_mtp.EVT_ID 
+        WHERE 
+          Registration.REG_deleted = 0  
+          AND (Event_CPT.post_type = 'espresso_events')  
+          AND ( (Event___Datetime.DTT_deleted = 0) OR Event___Datetime.DTT_ID IS NULL)  
+          AND ( (emt_mtp.MTP_deleted = 0) OR emt_mtp.GRP_ID IS NULL) 
+          AND Event_CPT.post_status IN ('publish','sold_out') 
+          AND Event___Datetime.DTT_EVT_start BETWEEN %s AND %s
+          AND Registration.STS_ID = 'RAP'
+          AND (emt_mtp.GRP_ID=%d
+        ";
+        // If it's a global template, select registrations for events with no message template.
         if ($settings->getMessageTemplateGroup()->is_global()) {
-            $where['OR*global_conditions'] = array(
-                'Event.Message_Template_Group.GRP_ID'      => $settings->getMessageTemplateGroup()->ID(),
-                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
-            );
-        } else {
-            $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
+            $query_with_placeholders .= ' OR emt_mtp.GRP_ID IS NULL';
         }
+        $query_with_placeholders .= ')';
+        if ($events_to_exclude) {
+            $query_with_placeholders .= ' AND Event_CPT.ID NOT IN (' . implode(',', $events_to_exclude) . ')';
+        }
+        $query_with_placeholders .= " GROUP BY Registration.REG_ID";
+        $query = $wpdb->prepare(
+            $query_with_placeholders,
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery()),
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
+            $wpdb_prepare_args[] = $settings->getMessageTemplateGroup()->ID()
+        );
         return $this->setKeysToRegistrationIds(
-            $this->registration_model->get_all_wpdb_results(
-                array($where, 'group_by' => 'REG_ID'),
-                ARRAY_A,
-                array(
-                    'REG_ID' => array('REG_ID', '%d'),
-                    'ATT_ID' => array('ATT_ID', '%d'),
-                    'EVT_ID' => array('Registration.EVT_ID', '%d'),
-                    'TXN_ID' => array('Registration.TXN_ID', '%d'),
-                )
-            )
+            $wpdb->get_results($query, ARRAY_A)
         );
     }
 
@@ -195,7 +211,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
      * @param array                                          $data
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $items_to_exclude
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -207,28 +223,15 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     ) {
         if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
             return array();
         }
-
-        // extract the ids of registrations already in the data array.
-        $additional_where_conditions = array();
-        $registration_ids = isset($data[ $context ])
-            ? array_keys($data[ $context ])
-            : array();
-        if ($registration_ids) {
-            $additional_where_conditions['REG_ID'] = array('NOT_IN', $registration_ids);
-        }
-        $additional_where_conditions = array_merge(
-            $additional_where_conditions,
-            $registrations_to_exclude_where_query
-        );
         $registrations = $this->getRegistrationsForMessageTemplateGroup(
             $scheduling_settings,
             $context,
-            $additional_where_conditions
+            $items_to_exclude
         );
         return $registrations ? $registrations : array();
     }
@@ -270,23 +273,17 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
      * where query that will then be used in the eventual registrations query.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array The array should be in the format used for EE model where conditions.  Eg.
-     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     * @return array The array should be numeric and contain event ID's that have already been notified.
      * @throws EE_Error
      */
-    protected function registrationsToExcludeWhereQueryConditions($context)
+    protected function itemsToExclude($context)
     {
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
             'Datetime.DTT_EVT_start' => array('>', time()),
             'Extra_Meta.EXM_key'     => $meta_key,
         );
-        $event_ids_notified = $this->event_model->get_col(array($where));
-        return $event_ids_notified
-            ? array(
-                'EVT_ID*already_notified' => array('NOT IN', $event_ids_notified),
-            )
-            : array();
+        return (array) $this->event_model->get_col(array($where));
     }
 
 

@@ -291,6 +291,15 @@ class AddonTestCase extends EE_UnitTestCase
                 unset($datetimes[$dkey]);
                 $dtt_count++;
             }
+            // In order to test properly and reproduce the live environment, it's important that the event
+            // be attached to another message template group.
+            // See https://github.com/eventespresso/eea-automated-upcoming-event-notifications/issues/14#issuecomment-550464526
+            $message_templates = EEM_Message_Template_Group::instance()->get_global_message_template_by_m_and_mt(
+                'email',
+                'payment'
+            );
+            $message_template = reset($message_templates);
+            $event->_add_relation_to($message_template,'Message_Template_Group');
             //save event
             $event->save();
         }

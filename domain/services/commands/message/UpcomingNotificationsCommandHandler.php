@@ -125,7 +125,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
         $data = array();
         if (! empty($message_template_groups)) {
             $global_group = null;
-            $registrations_to_exclude_where_query = array();
+            $items_to_exclude = array();
             /** @var EE_Message_Template_Group $message_template_group */
             foreach ($message_template_groups as $message_template_group) {
                 // if this is a global group then assign to global group property and continue (will be used later)
@@ -139,15 +139,15 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                     continue;
                 }
                 foreach ($active_contexts as $context) {
-                    $registrations_to_exclude_where_query[ $context ] = isset(
-                        $registrations_to_exclude_where_query[ $context ]
+                    $items_to_exclude[ $context ] = isset(
+                        $items_to_exclude[ $context ]
                     )
-                        ? $registrations_to_exclude_where_query[ $context ]
-                        : $this->registrationsToExcludeWhereQueryConditions($context);
+                        ? $items_to_exclude[ $context ]
+                        : $this->itemsToExclude($context);
                     $retrieved_data = $this->getDataForCustomMessageTemplateGroup(
                         $settings,
                         $context,
-                        $registrations_to_exclude_where_query[ $context ]
+                        $items_to_exclude[ $context ]
                     );
                     $data = $this->combineDataByGroupAndContext(
                         $message_template_group,
@@ -162,16 +162,16 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
                 $active_contexts = $settings->allActiveContexts();
                 if (count($active_contexts) > 0) {
                     foreach ($active_contexts as $context) {
-                        $registrations_to_exclude_where_query[ $context ] = isset(
-                            $registrations_to_exclude_where_query[ $context ]
+                        $items_to_exclude[ $context ] = isset(
+                            $items_to_exclude[ $context ]
                         )
-                            ? $registrations_to_exclude_where_query[ $context ]
-                            : $this->registrationsToExcludeWhereQueryConditions($context);
+                            ? $items_to_exclude[ $context ]
+                            : $this->itemsToExclude($context);
                         $retrieved_data = $this->getDataForGlobalMessageTemplateGroup(
                             $settings,
                             $context,
                             $data,
-                            $registrations_to_exclude_where_query[ $context ]
+                            $items_to_exclude[ $context ]
                         );
                         $data = $this->combineDataByGroupAndContext(
                             $global_group,
@@ -407,14 +407,12 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * The purpose for this method is to get the where condition for excluding registrations that have already been
-     * notified.
+     * The purpose for this method is to get the list of registrations that have already been notified.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array  The array should be in the format used for EE model where conditions.  Eg.
-     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     * @return array  of IDs for the primary model associated with this handler (eg events or datetimes)
      */
-    abstract protected function registrationsToExcludeWhereQueryConditions($context);
+    abstract protected function itemsToExclude($context);
 
 
     /**
@@ -422,13 +420,13 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      *
      * @param SchedulingSettings $scheduling_settings
      * @param string             $context What context this is for.
-     * @param array              $registrations_to_exclude_where_query
+     * @param array              $items_to_exclude
      * @return array
      */
     abstract protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     );
 
 
@@ -438,14 +436,14 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
      * @param SchedulingSettings $scheduling_settings This should contain a global EE_Message_Template_Group object.
      * @param string             $context
      * @param array              $data
-     * @param array              $registrations_to_exclude_where_query
+     * @param array              $items_to_exclude
      * @return array
      */
     abstract protected function getDataForGlobalMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     );
 
 

@@ -2,6 +2,7 @@
 
 namespace EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message;
 
+use EE_Datetime_Field;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\entities\message\SchedulingSettings;
 use EEM_Registration;
 use EEM_Datetime;
@@ -113,7 +114,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $items_to_exclude
      * @return array An array of data for processing.
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -124,12 +125,12 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function getDataForCustomMessageTemplateGroup(
         SchedulingSettings $scheduling_settings,
         $context,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     ) {
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
             $context,
-            $registrations_to_exclude_where_query
+            $items_to_exclude
         );
     }
 
@@ -140,7 +141,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * @param EE_Message_Template_Group[]|SchedulingSettings $scheduling_settings
      * @param string                                         $context
      * @param array                                          $data
-     * @param array                                          $registrations_to_exclude_where_query
+     * @param array                                          $items_to_exclude
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -152,7 +153,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
         SchedulingSettings $scheduling_settings,
         $context,
         array $data,
-        array $registrations_to_exclude_where_query
+        array $items_to_exclude
     ) {
         if (! $scheduling_settings->getMessageTemplateGroup()->is_global()) {
             return $data;
@@ -160,19 +161,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
 
         // extract the ids of the datetimes already in the data so we exclude them from the global message template group
         // based query.
-        $datetime_ids = $this->getDateTimeIdsFromData($data, $context);
-        $additional_datetime_where_conditions = array();
-        if ($datetime_ids) {
-            $additional_datetime_where_conditions['DTT_ID'] = array('NOT IN', $datetime_ids);
-        }
-        $additional_datetime_where_conditions = array_merge(
-            $additional_datetime_where_conditions,
-            $registrations_to_exclude_where_query
-        );
+        $datetime_ids_from_data = $this->getDateTimeIdsFromData($data, $context);
+        // combine the datetimes from data with the items we already know we want to exclude.
+        $items_to_exclude = array_merge($items_to_exclude, $datetime_ids_from_data);
         return $this->getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
             $scheduling_settings,
             $context,
-            $additional_datetime_where_conditions
+            $items_to_exclude
         );
     }
 
@@ -205,7 +200,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      *
      * @param SchedulingSettings $settings
      * @param string             $context
-     * @param array              $datetime_additional_where_conditions
+     * @param array              $items_to_exclude
      * @return array
      * @throws EE_Error
      * @throws InvalidArgumentException
@@ -216,13 +211,13 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function getRegistrationsForDatetimeAndMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
         $context,
-        array $datetime_additional_where_conditions = array()
+        array $items_to_exclude = array()
     ) {
         $data = array();
         $datetime_ids = $this->getDatetimesForMessageTemplateGroupAndContext(
             $settings,
             $context,
-            $datetime_additional_where_conditions
+            $items_to_exclude
         );
         if (! $datetime_ids) {
             return $data;
@@ -258,32 +253,47 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
     protected function getDatetimesForMessageTemplateGroupAndContext(
         SchedulingSettings $settings,
         $context,
-        array $additional_where_parameters = array()
+        array $datetimes_to_exclude = array()
     ) {
-        $where = array(
-            'DTT_EVT_start' => array(
-                'BETWEEN',
-                array(
-                    $this->getStartTimeForQuery(),
-                    $this->getEndTimeForQuery($settings, $context),
-                ),
-            ),
-            'Event.status'  => array('IN', $this->eventStatusForRegistrationsQuery()),
-        );
-
-        if ($additional_where_parameters) {
-            $where = array_merge($where, $additional_where_parameters);
-        }
+        global $wpdb;
+        $event_statuses_sql = implode(',', array_map(function ($input) {
+            return "'$input'";
+        }, $this->eventStatusForRegistrationsQuery()));
+        $query_with_placeholders = "
+        SELECT 
+          Datetime.DTT_ID  
+        FROM  
+          {$wpdb->prefix}esp_datetime AS Datetime  
+          LEFT JOIN {$wpdb->prefix}posts AS Event_CPT ON Event_CPT.ID=Datetime.EVT_ID 
+          LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID 
+          LEFT JOIN (
+            SELECT emt.GRP_ID, emt.EVT_ID, mtp.MTP_deleted FROM 
+            {$wpdb->prefix}esp_event_message_template AS emt
+            INNER JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_datetime'
+            ) AS emt_mtp ON Event_CPT.ID = emt_mtp.EVT_ID  
+          WHERE 
+          Datetime.DTT_deleted = 0 
+          AND (Event_CPT.post_type = 'espresso_events') 
+          AND  ( (emt_mtp.MTP_deleted = 0) OR emt_mtp.GRP_ID IS NULL) 
+          AND Datetime.DTT_EVT_start BETWEEN %s AND %s
+          AND Event_CPT.post_status IN ($event_statuses_sql) 
+          AND  (emt_mtp.GRP_ID = %d 
+        ";
         if ($settings->getMessageTemplateGroup()->is_global()) {
-            $where['OR*global_conditions'] = array(
-                'Event.Message_Template_Group.GRP_ID'      => $settings->getMessageTemplateGroup()->ID(),
-                'Event.Message_Template_Group.GRP_ID*null' => array('IS NULL'),
-            );
-        } else {
-            $where['Event.Message_Template_Group.GRP_ID'] = $settings->getMessageTemplateGroup()->ID();
+            $query_with_placeholders .= ' OR emt_mtp.GRP_ID IS NULL';
         }
-
-        return $this->datetime_model->get_col(array($where, 'group_by' => 'DTT_ID'));
+        $query_with_placeholders .= ')';
+        if ($datetimes_to_exclude) {
+            $query_with_placeholders .= ' AND Datetime.DTT_ID NOT IN (' . implode(',', $datetimes_to_exclude) . ')';
+        }
+        $query_with_placeholders .= " GROUP BY Datetime.DTT_ID";
+        $query = $wpdb->prepare(
+            $query_with_placeholders,
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery()),
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
+            $settings->getMessageTemplateGroup()->ID()
+        );
+        return $wpdb->get_col($query);
     }
 
 
@@ -324,11 +334,10 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
      * datetimes that have been notified and this conditional will be used in the initial query for getting datetimes.
      *
      * @param string $context The context we're getting the notified registrations for.
-     * @return array The array should be in the format used for EE model where conditions.  Eg.
-     *                        array('EVT_ID' => array( 'NOT IN', array(1,2,3))
+     * @return array The array should be numeric and contain datetime ID's that have already been notified.
      * @throws EE_Error
      */
-    protected function registrationsToExcludeWhereQueryConditions($context)
+    protected function itemsToExclude($context)
     {
         // get all datetimes that have already been notified (greater than now)
         $meta_key = $this->getNotificationMetaKeyForContext($context);
@@ -336,12 +345,7 @@ class UpcomingDatetimeNotificationsCommandHandler extends UpcomingNotificationsC
             'DTT_EVT_start'      => array('>', time()),
             'Extra_Meta.EXM_key' => $meta_key,
         );
-        $datetime_ids_notified = $this->datetime_model->get_col(array($where));
-        return $datetime_ids_notified
-            ? array(
-                'DTT_ID*already_notified' => array('NOT IN', $datetime_ids_notified),
-            )
-            : array();
+        return $this->datetime_model->get_col(array($where));
     }
 
     /**
