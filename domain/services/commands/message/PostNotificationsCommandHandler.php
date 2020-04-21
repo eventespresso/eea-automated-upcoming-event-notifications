@@ -288,9 +288,9 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 
 
     /**
-     * This returns the end time for the "upcoming" queries.  It's set to:
+     * This returns the end time for the "post" queries.  It's set to:
      * - the start time for the query
-     * - + the current threshold (which is an integer) times a day in seconds.
+     * - - the current threshold (which is an integer) times a day in seconds
      * - + the cron frequency buffer (which is a filtered buffer allowing for wp-cron impreciseness)
      *
      * @param SchedulingSettings $settings
@@ -304,9 +304,8 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
      */
     protected function getEndTimeForQuery(SchedulingSettings $settings, $context)
     {
-        return $this->getStartTimeForQuery()
-               + (DAY_IN_SECONDS * $settings->currentThreshold($context))
-               + $this->cron_frequency_buffer;
+        return (time() - DAY_IN_SECONDS * $settings->currentThreshold($context))
+                + $this->cron_frequency_buffer;
     }
 
 
