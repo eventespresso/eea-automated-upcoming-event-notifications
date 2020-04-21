@@ -20,15 +20,15 @@ use InvalidArgumentException;
 use ReflectionException;
 
 /**
- * UpcomingEventNotificationsCommandHandler
- * CommandHandler for UpcomingEventNotificationsCommand
+ * PostEventNotificationsCommandHandler
+ * CommandHandler for PostEventNotificationsCommand
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\commands\message
  * @author     Darren Ethier
  * @since      1.0.0
  */
-class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsCommandHandler
+class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandler
 {
 
 
@@ -39,7 +39,7 @@ class UpcomingEventNotificationsCommandHandler extends UpcomingNotificationsComm
 
 
     /**
-     * UpcomingEventNotificationsCommandHandler constructor.
+     * PostEventNotificationsCommandHandler constructor.
      *
      * @param CommandBusInterface                   $command_bus
      * @param CommandFactoryInterface               $command_factory
