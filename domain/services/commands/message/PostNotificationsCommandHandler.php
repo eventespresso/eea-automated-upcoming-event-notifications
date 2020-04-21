@@ -205,7 +205,7 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
          * This filter allows client code to handle the actual sending of messages differently if desired
          */
         if (apply_filters(
-            'FHEE__EventEspresso_AutomatedEventNotifications_Domain_Services_Commands_UpcomingNotificationsCommandHandler__triggerMessages__do_default_trigger',
+            'FHEE__EventEspresso_AutomatedEventNotifications_Domain_Services_Commands_PostNotificationsCommandHandler__triggerMessages__do_default_trigger',
             true,
             $data,
             $message_type,
@@ -360,7 +360,7 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
     private function getCronFrequencyBuffer()
     {
         return (int) apply_filters(
-            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_UpcomingNotificationsCommandHandler__getCronFrequencyBuffer',
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_PostNotificationsCommandHandler__getCronFrequencyBuffer',
             MINUTE_IN_SECONDS * 30
         );
     }
@@ -400,7 +400,7 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
     protected function getRegistrationBatchThreshold()
     {
         return apply_filters(
-            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_UpcomingNotificationsCommandHandler__getRegistrationBatchThreshold',
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_PostNotificationsCommandHandler__getRegistrationBatchThreshold',
             150
         );
     }
