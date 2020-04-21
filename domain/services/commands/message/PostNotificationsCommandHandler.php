@@ -24,14 +24,14 @@ use InvalidArgumentException;
 use ReflectionException;
 
 /**
- * UpcomingNotificationsCommandHandler
+ * PostNotificationsCommandHandler
  * Abstract class for all notifications command handlers.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @author  Darren Ethier
  * @since   1.0.0
  */
-abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandler
+abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 {
 
     /**
@@ -55,7 +55,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * UpcomingNotificationsCommandHandler constructor.
+     * PostNotificationsCommandHandler constructor.
      *
      * @param CommandBusInterface                   $command_bus
      * @param CommandFactoryInterface               $command_factory
@@ -79,7 +79,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * @param UpcomingNotificationsCommand|CommandInterface $command
+     * @param PostNotificationsCommand|CommandInterface $command
      * @return bool
      * @throws InvalidIdentifierException
      * @throws EE_Error
@@ -275,7 +275,7 @@ abstract class UpcomingNotificationsCommandHandler extends CompositeCommandHandl
 
 
     /**
-     * The threshold for upcoming notifications is currently in intervals of days.  This means that the accuracy of the
+     * The threshold for post notifications is currently in intervals of days.  This means that the accuracy of the
      * time will be down to the day (not the hour or the minute).
      *
      * @return int
