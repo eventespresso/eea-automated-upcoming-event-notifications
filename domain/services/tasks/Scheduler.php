@@ -81,6 +81,15 @@ class Scheduler
             'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check',
             array($this, 'checkForUpcomingEventNotificationsToSchedule')
         );
+        // register callbacks for scheduled events.
+        add_action(
+            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check',
+            array($this, 'checkForPostDatetimeNotificationsToSchedule')
+        );
+        add_action(
+            'AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check',
+            array($this, 'checkForPostEventNotificationsToSchedule')
+        );
     }
 
 
@@ -181,6 +190,60 @@ class Scheduler
         $this->command_bus->execute(
             $this->loader->getNew(
                 'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingEventNotificationsCommand',
+                array($message_template_groups)
+            )
+        );
+    }
+
+
+    /**
+     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check
+     * schedule and queries the database for any upcoming Datetimes that meet the criteria for any message
+     * template groups that are active for automation.
+     *
+     * @throws EE_Error
+     */
+    public function checkForPostDatetimeNotificationsToSchedule()
+    {
+        // first get all message template groups for the EE_Automated_Upcoming_Datetime_message_type that are set to
+        // active.
+        $message_template_groups = apply_filters(
+            'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__checkForPostDatetimeNotificationsToSchedule__message_template_groups',
+            $this->getActiveMessageTemplateGroupsForAutomation(Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME)
+        );
+        if (empty($message_template_groups)) {
+            return;
+        }
+
+        // execute command
+        $this->command_bus->execute(
+            $this->loader->getNew(
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\PostDatetimeNotificationsCommand',
+                array($message_template_groups)
+            )
+        );
+    }
+
+
+    /**
+     * This is the callback on the AHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__check
+     * schedule and queries the database for any upcoming Events that meet the criteria for any message
+     * template groups that are active for automation.
+     *
+     * @throws EE_Error
+     */
+    public function checkForPostEventNotificationsToSchedule()
+    {
+        $message_template_groups = apply_filters(
+            'FHEE__EventEspresso_AutomatedEventNotifications_core_tasks_Scheduler__checkForPostEventNotificationsToSchedule__message_template_groups',
+            $this->getActiveMessageTemplateGroupsForAutomation(Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT)
+        );
+        if (empty($message_template_groups)) {
+            return;
+        }
+        $this->command_bus->execute(
+            $this->loader->getNew(
+                'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\PostEventNotificationsCommand',
                 array($message_template_groups)
             )
         );
