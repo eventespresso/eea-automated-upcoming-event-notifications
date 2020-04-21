@@ -195,7 +195,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
         $query_with_placeholders .= " GROUP BY Registration.REG_ID";
         $query = $wpdb->prepare(
             $query_with_placeholders,
-            date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery()),
+            date(EE_Datetime_Field::mysql_timestamp_format, $this->getStartTimeForQuery($settings, $context)),
             date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
             $wpdb_prepare_args[] = $settings->getMessageTemplateGroup()->ID()
         );
