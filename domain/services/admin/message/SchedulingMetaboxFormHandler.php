@@ -108,9 +108,14 @@ class SchedulingMetaboxFormHandler extends FormHandler
         if (empty($valid_data)) {
             return false;
         }
+        if (!empty($valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ])) {
+            $threshold = $valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ];
+        } else {
+            $threshold = $valid_data[ Domain::META_KEY_DAYS_AFTER_THRESHOLD ];
+        }
 
         $this->scheduling_settings->setCurrentThreshold(
-            $valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ],
+            $threshold,
             $this->context
         );
         return true;
@@ -129,6 +134,26 @@ class SchedulingMetaboxFormHandler extends FormHandler
      */
     protected function getSchedulingForm()
     {
+        $message_type = $this->message_template_group->message_type();
+        if ($message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+            ||$message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+        ) {
+            $subsections[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ] =  new EE_Text_Input(array(
+                 'validation_strategies'  => new EE_Int_Validation_Strategy(),
+                 'normalization_strategy' => new EE_Int_Normalization(),
+                 'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
+                 'html_label_text'        => '',
+                 'default'                => $this->scheduling_settings->currentThreshold($this->context),
+            ));
+        } else {
+            $subsections[ Domain::META_KEY_DAYS_AFTER_THRESHOLD ] = new EE_Text_Input(array(
+               'validation_strategies'  => new EE_Int_Validation_Strategy(),
+               'normalization_strategy' => new EE_Int_Normalization(),
+               'html_name'              => Domain::META_KEY_DAYS_AFTER_THRESHOLD,
+               'html_label_text'        => '',
+               'default'                => $this->scheduling_settings->currentThreshold($this->context),
+            ));
+        }
         return new EE_Form_Section_Proper(
             array(
                 'name'             => 'messages_scheduling_settings',
@@ -139,15 +164,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
                     $this->getContentString(),
                     array('<p class="automated-message-scheduling-input-wrapper">', '<p>')
                 ),
-                'subsections'      => array(
-                    Domain::META_KEY_DAYS_BEFORE_THRESHOLD => new EE_Text_Input(array(
-                        'validation_strategies'  => new EE_Int_Validation_Strategy(),
-                        'normalization_strategy' => new EE_Int_Normalization(),
-                        'html_name'              => Domain::META_KEY_DAYS_BEFORE_THRESHOLD,
-                        'html_label_text'        => '',
-                        'default'                => $this->scheduling_settings->currentThreshold($this->context),
-                    )),
-                ),
+                // Subsection for BEFORE or POST
+                'subsections'      => $subsections
             )
         );
     }
@@ -168,6 +186,8 @@ class SchedulingMetaboxFormHandler extends FormHandler
         $message_type = $this->message_template_group->message_type();
         if ($message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
+            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
         ) {
             return esc_html__(
                 'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime message type templates',
@@ -179,22 +199,43 @@ class SchedulingMetaboxFormHandler extends FormHandler
          * Note because of the way the form is setup, the 3rd argument is the fully rendered html for the form. So we
          * need to make sure to exclude that from our format strings.
          */
-        return $message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-            ? esc_html(
-                _n(
-                    '%1$sSend notifications %4$s day before the datetime.%2$',
-                    '%1$sSend notifications %4$s days before the datetime.%2$',
-                    $this->scheduling_settings->currentThreshold($this->context),
-                    'event_espresso'
-                )
-            )
-            : esc_html(
-                _n(
-                    '%1$sSend notifications %4$s day before the event.%2$s',
-                    '%1$sSend notifications %4$s days before the event.%2$s',
-                    $this->scheduling_settings->currentThreshold($this->context),
-                    'event_espresso'
-                )
-            );
+        switch ($message_type) {
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME:
+                return esc_html(
+                    _n(
+                        '%1$sSend notifications %4$s day before the datetime.%2$',
+                        '%1$sSend notifications %4$s days before the datetime.%2$',
+                        $this->scheduling_settings->currentThreshold($this->context),
+                        'event_espresso'
+                    )
+                );
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT:
+                return esc_html(
+                    _n(
+                        '%1$sSend notifications %4$s day before the event.%2$s',
+                        '%1$sSend notifications %4$s days before the event.%2$s',
+                        $this->scheduling_settings->currentThreshold($this->context),
+                        'event_espresso'
+                    )
+                );
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME:
+                return esc_html(
+                    _n(
+                        '%1$sSend notifications %4$s day after the datetime.%2$s',
+                        '%1$sSend notifications %4$s days after the datetime.%2$s',
+                        $this->scheduling_settings->currentThreshold($this->context),
+                        'event_espresso'
+                    )
+                );
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT:
+                return esc_html(
+                    _n(
+                        '%1$sSend notifications %4$s day after the event.%2$s',
+                        '%1$sSend notifications %4$s days after the event.%2$s',
+                        $this->scheduling_settings->currentThreshold($this->context),
+                        'event_espresso'
+                    )
+                );
+        }
     }
 }
