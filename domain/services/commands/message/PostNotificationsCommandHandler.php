@@ -87,15 +87,15 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
      */
     public function handle(CommandInterface $command)
     {
-        if (! $command instanceof UpcomingNotificationsCommand) {
+        if (! $command instanceof PostNotificationsCommand) {
             throw new InvalidArgumentException(
                 sprintf(
                     esc_html__(
                         'The %1$s is expected to receive an instance of %2$s, however an instance of %3$s received instead.',
                         'event_espresso'
                     ),
-                    'UpcomingNotificationsCommandHandler',
-                    'UpcomingNotificationsCommand',
+                    'PostNotificationsCommandHandler',
+                    'PostNotificationsCommand',
                     get_class($command)
                 )
             );
