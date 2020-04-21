@@ -280,9 +280,10 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
      *
      * @return int
      */
-    protected function getStartTimeForQuery()
+    protected function getStartTimeForQuery(SchedulingSettings $settings, $context)
     {
-        return time();
+        return time()
+                - ((DAY_IN_SECONDS * $settings->currentThreshold($context)) + $this->cron_frequency_buffer);
     }
 
 
