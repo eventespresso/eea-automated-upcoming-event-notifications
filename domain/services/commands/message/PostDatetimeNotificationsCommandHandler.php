@@ -342,7 +342,7 @@ class PostDatetimeNotificationsCommandHandler extends PostNotificationsCommandHa
         // get all datetimes that have already been notified (greater than now)
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
-            'DTT_EVT_start'      => array('>', time()),
+            'DTT_EVT_end'      => array('<', time()),
             'Extra_Meta.EXM_key' => $meta_key,
         );
         return $this->datetime_model->get_col(array($where));
