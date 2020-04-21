@@ -94,7 +94,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
                 $registration_ids = array_keys($registration_data);
                 // collect event-ids for the registrations for marking as notified for this context.
                 $event_ids = $this->aggregateEventsForContext($registration_data, $event_ids, $context);
-                $this->triggerMessages($registration_ids, Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT, $context);
+                $this->triggerMessages($registration_ids, Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT, $context);
             }
         }
 
