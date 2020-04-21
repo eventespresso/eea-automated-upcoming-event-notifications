@@ -172,7 +172,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
           LEFT JOIN (
             SELECT emt.GRP_ID, emt.EVT_ID, mtp.MTP_deleted FROM 
             {$wpdb->prefix}esp_event_message_template AS emt
-            INNER JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_upcoming_event'
+            INNER JOIN {$wpdb->prefix}esp_message_template_group mtp ON emt.GRP_ID = mtp.GRP_ID AND mtp.MTP_message_type = 'automate_post_event'
             ) AS emt_mtp ON Event_CPT.ID = emt_mtp.EVT_ID 
         WHERE 
           Registration.REG_deleted = 0  
@@ -180,7 +180,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
           AND ( (Event___Datetime.DTT_deleted = 0) OR Event___Datetime.DTT_ID IS NULL)  
           AND ( (emt_mtp.MTP_deleted = 0) OR emt_mtp.GRP_ID IS NULL) 
           AND Event_CPT.post_status IN ('publish','sold_out') 
-          AND Event___Datetime.DTT_EVT_start BETWEEN %s AND %s
+          AND Event___Datetime.DTT_EVT_end BETWEEN %s AND %s
           AND Registration.STS_ID = 'RAP'
           AND (emt_mtp.GRP_ID=%d
         ";
