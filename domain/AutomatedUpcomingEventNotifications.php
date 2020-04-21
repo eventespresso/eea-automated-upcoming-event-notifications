@@ -292,6 +292,8 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
             && strpos($meta_key, EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX) !== false
             && ($model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                 || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
+                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
             )
         ) {
             return false;
