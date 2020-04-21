@@ -126,6 +126,8 @@ class Controller
                && (
                    $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
                    || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
+                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
+                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
                );
     }
 
@@ -236,16 +238,17 @@ class Controller
         }
         // can we get the object for this?
         $message_template_group = EEM_Message_Template_Group::instance()->get_one_by_ID($GRP_ID);
-
         // get out if this update doesn't apply (because it means it hasn't been saved yet and we don't have an id for
         // the model object)  In our scenario this is okay because user's will only ever see an already
         // created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             // yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
+            //|| ! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
             || (
                 $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
                 && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
+                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
             )
         ) {
             return;
@@ -258,6 +261,9 @@ class Controller
                     array(
                         Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->getRequestParam(
                             Domain::META_KEY_DAYS_BEFORE_THRESHOLD
+                        ),
+                        Domain::META_KEY_DAYS_AFTER_THRESHOLD => $this->request->getRequestParam(
+                            Domain::META_KEY_DAYS_AFTER_THRESHOLD
                         ),
                     )
                 );
