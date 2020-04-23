@@ -9,6 +9,7 @@ use EE_Dependency_Map;
 use EE_Error;
 use EE_Message_Template_Group;
 use EE_Register_Addon;
+use EED_Automated_Upcoming_Event_Notification_Messages;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\Controller;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\ItemsNotifiedCommandHandler;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message\UpcomingDatetimeNotificationsCommandHandler;
@@ -290,11 +291,7 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         // only modify default for the active context meta key
         if ($model instanceof EE_Message_Template_Group
             && strpos($meta_key, EE_Message_Template_Group::ACTIVE_CONTEXT_RECORD_META_KEY_PREFIX) !== false
-            && ($model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
-                || $model->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
-            )
+            && in_array($model->message_type(), EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types())
         ) {
             return false;
         }
