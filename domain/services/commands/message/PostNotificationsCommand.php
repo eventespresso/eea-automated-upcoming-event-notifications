@@ -11,8 +11,8 @@ use EventEspresso\core\services\commands\Command;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 abstract class PostNotificationsCommand extends Command
 {

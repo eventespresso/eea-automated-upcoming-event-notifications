@@ -11,8 +11,8 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  * sent ONCE.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 class EE_Automate_Post_Event_message_type extends EE_Registration_Base_message_type
 {

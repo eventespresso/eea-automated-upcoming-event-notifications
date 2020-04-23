@@ -25,8 +25,8 @@ use ReflectionException;
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\commands\message
- * @author     Darren Ethier
- * @since      1.0.0
+ * @author     Tony Warwick
+ * @since      $VID:$
  */
 class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandler
 {
@@ -163,8 +163,8 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
           REG_ID AS REG_ID, 
           ATT_ID AS ATT_ID, 
           Registration.EVT_ID AS EVT_ID, 
-          Registration.TXN_ID AS TXN_ID  
-        FROM  
+          Registration.TXN_ID AS TXN_ID 
+        FROM 
           {$wpdb->prefix}esp_registration AS Registration 
           LEFT JOIN {$wpdb->prefix}posts AS Event_CPT ON Event_CPT.ID=Registration.EVT_ID 
           LEFT JOIN {$wpdb->prefix}esp_event_meta AS Event_Meta ON Event_CPT.ID = Event_Meta.EVT_ID  
@@ -199,6 +199,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
             date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
             $wpdb_prepare_args[] = $settings->getMessageTemplateGroup()->ID()
         );
+        write_log($query);
         return $this->setKeysToRegistrationIds(
             $wpdb->get_results($query, ARRAY_A)
         );
