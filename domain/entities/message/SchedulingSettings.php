@@ -136,16 +136,18 @@ class SchedulingSettings
     {
         $meta_key = null;
         $message_type = $this->message_template_group->message_type();
-        if ($message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-            || $message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-        ) {
-            // 'Upcoming' message type, so use DAYS_BEFORE threshold
-            $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
-        } elseif ($message_type === Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
-            || $message_type === Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
-        ) {
-            // 'Post' message type, use DAYS_AFTER threshold
-            $meta_key = Domain::META_KEY_DAYS_AFTER_THRESHOLD . '_' . $context;
+        switch ($message_type) {
+            // 'Post' message types use DAYS_AFTER threshold
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT:
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME:
+                $meta_key = Domain::META_KEY_DAYS_AFTER_THRESHOLD . '_' . $context;
+                break;
+            // 'Upcoming' message types use DAYS_BEFORE threshold
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT:
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME:
+            default: // <== this line is actually not necessary
+                $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
+                break;
         }
         return $meta_key;
     }
