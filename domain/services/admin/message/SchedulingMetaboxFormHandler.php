@@ -137,6 +137,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
      */
     protected function getSchedulingForm()
     {
+        $subsections = [];
         $message_type = $this->message_template_group->message_type();
         if ($message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
             ||$message_type === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
