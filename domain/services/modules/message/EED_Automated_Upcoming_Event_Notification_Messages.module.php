@@ -78,7 +78,7 @@ class EED_Automated_Upcoming_Event_Notification_Messages extends EED_Messages
      *
      * @return array
      */
-    protected static function allowed_message_types()
+    public static function allowed_message_types()
     {
         return array(
             Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME,
