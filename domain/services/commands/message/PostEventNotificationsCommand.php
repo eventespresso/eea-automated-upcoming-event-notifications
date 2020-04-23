@@ -10,8 +10,8 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 class PostEventNotificationsCommand extends PostNotificationsCommand
 {

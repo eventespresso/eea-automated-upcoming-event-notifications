@@ -7,8 +7,8 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  * Shortcode validator for Email messenger and automate_post_datetime message type.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 class EE_Messages_Email_Automate_Post_Datetime_Validator extends EE_Messages_Validator
 {

@@ -28,8 +28,8 @@ use ReflectionException;
  * Abstract class for all notifications command handlers.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 {

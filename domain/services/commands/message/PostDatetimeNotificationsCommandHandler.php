@@ -23,8 +23,8 @@ use ReflectionException;
  *
  * @package    EventEspresso\AutomatedUpcomingEventNotifications
  * @subpackage \domain\services\commands\message
- * @author     Darren Ethier
- * @since      1.0.0
+ * @author     Tony Warwick
+ * @since      $VID:$
  */
 class PostDatetimeNotificationsCommandHandler extends PostNotificationsCommandHandler
 {

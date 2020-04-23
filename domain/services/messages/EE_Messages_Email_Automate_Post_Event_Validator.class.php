@@ -7,8 +7,8 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  * Validator for email messenger and automate_post_event message type.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
 class EE_Messages_Email_Automate_Post_Event_Validator extends EE_Messages_Validator
 {
