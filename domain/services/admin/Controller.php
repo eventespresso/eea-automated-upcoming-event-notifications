@@ -17,6 +17,7 @@ use Exception;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message\SchedulingMetaboxFormHandler;
+use EED_Automated_Upcoming_Event_Notification_Messages;
 
 /**
  * This is the controller for things hooking into the EE admin for the addon.
@@ -123,12 +124,7 @@ class Controller
         // types
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
-               && (
-                   $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
-                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
-               );
+               && in_array($message_template_group->message_type(), EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types());
     }
 
 
@@ -246,9 +242,10 @@ class Controller
             || (! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
                 && ! $this->request->getRequestParam(Domain::META_KEY_DAYS_AFTER_THRESHOLD, false)
             )
-            || Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
-                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
+            || ! in_array(
+                $message_template_group->message_type(),
+                EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types(),
+                true
             )
         ) {
             return;
