@@ -108,10 +108,13 @@ class SchedulingMetaboxFormHandler extends FormHandler
         if (empty($valid_data)) {
             return false;
         }
-        if (!empty($valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ])) {
+        if (! empty($valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ])) {
             $threshold = $valid_data[ Domain::META_KEY_DAYS_BEFORE_THRESHOLD ];
-        } else {
+        } elseif (! empty($valid_data[ Domain::META_KEY_DAYS_AFTER_THRESHOLD ])) {
             $threshold = $valid_data[ Domain::META_KEY_DAYS_AFTER_THRESHOLD ];
+        } else {
+            // If no threshold value is set we can't process anything.
+            return false;
         }
 
         $this->scheduling_settings->setCurrentThreshold(
