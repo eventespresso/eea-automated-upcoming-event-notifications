@@ -49,6 +49,7 @@ class Domain extends DomainBase
      * Represents the string used to reference the extra meta for holding the days before threshold.
      *
      * @var string
+     * @since $VID:$
      */
     const META_KEY_DAYS_AFTER_THRESHOLD = 'automation_days_after';
 
@@ -64,11 +65,13 @@ class Domain extends DomainBase
 
     /**
      * Slug for the Automate Post Event message type
+     * @since $VID:$
      */
     const MESSAGE_TYPE_AUTOMATE_POST_EVENT = 'automate_post_event';
 
     /**
      * Slug for the Automate Post Datetime message type
+     * @since $VID:$
      */
     const MESSAGE_TYPE_AUTOMATE_POST_DATETIME = 'automate_post_datetime';
 }
