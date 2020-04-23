@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use LogicException;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use ReflectionException;
+use EED_Automated_Upcoming_Event_Notification_Messages;
 
 /**
  * Form (and handler) for the scheduling metabox content.
@@ -188,10 +189,7 @@ class SchedulingMetaboxFormHandler extends FormHandler
     protected function getContentString()
     {
         $message_type = $this->message_template_group->message_type();
-        if ($message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME
-            && $message_type !== Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT
+        if (! in_array($message_type, EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types())
         ) {
             return esc_html__(
                 'This metabox should only be displayed for Automated Upcoming Event or Automated Upcoming Datetime message type templates',
