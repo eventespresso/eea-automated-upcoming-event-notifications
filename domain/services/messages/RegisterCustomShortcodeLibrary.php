@@ -6,6 +6,8 @@ use EE_Error;
 use EE_Register_Messages_Shortcode_Library;
 use EE_Automate_Upcoming_Datetime_message_type;
 use EE_Automate_Upcoming_Event_message_type;
+use EE_Automate_Post_Datetime_message_type;
+use EE_Automate_Post_Event_message_type;
 use EE_messenger;
 use EE_message_type;
 use EventEspresso\core\domain\DomainInterface;
@@ -101,12 +103,16 @@ class RegisterCustomShortcodeLibrary
      */
     public function modifyValidShortcodes($valid_shortcodes, $message_type)
     {
-        if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type) {
+        if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type
+            || $message_type instanceof EE_Automate_Post_Datetime_message_type
+        ) {
             $valid_shortcodes['admin'][] = 'specific_datetime';
             $valid_shortcodes['attendee'][] = 'specific_datetime';
         }
         if ($message_type instanceof EE_Automate_Upcoming_Datetime_message_type
             || $message_type instanceof EE_Automate_Upcoming_Event_message_type
+            || $message_type instanceof EE_Automate_Post_Datetime_message_type
+            || $message_type instanceof EE_Automate_Post_Event_message_type
         ) {
             // now we need to remove the primary_registrant shortcodes
             $shortcode_libraries_to_remove = array(
