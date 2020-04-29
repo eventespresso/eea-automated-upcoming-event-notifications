@@ -58,8 +58,8 @@ class EE_Specific_Datetime_Shortcodes extends EE_Shortcodes
     protected function _parser($shortcode)
     {
         // we need a specific_datetime to do this
-        if (! $this->_message_type instanceof EE_Automate_Upcoming_Datetime_message_type
-            || ! $this->_message_type instanceof EE_Automate_Post_Datetime_message_type
+        if ((! $this->_message_type instanceof EE_Automate_Upcoming_Datetime_message_type
+            && ! $this->_message_type instanceof EE_Automate_Post_Datetime_message_type)
             || ! $this->_message_type->get_specific_datetime() instanceof EE_Datetime
         ) {
             return '';
