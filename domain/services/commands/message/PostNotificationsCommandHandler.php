@@ -259,7 +259,7 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
     protected function eventStatusForRegistrationsQuery()
     {
         return (array) apply_filters(
-            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message__eventStatusForRegistrationsQuery',
+            'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_PostNotificationsCommandHandler__eventStatusForRegistrationsQuery',
             array('publish', EEM_Event::sold_out)
         );
     }
