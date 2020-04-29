@@ -282,8 +282,11 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
      */
     protected function getStartTimeForQuery(SchedulingSettings $settings, $context)
     {
+        // Start time should be the current threshold - a 'buffer' to allow for wp_cron.
+        // By default the buffer is 7 days after the threshold, if notifications haven't
+        // been triggered within that timeframe they are ignored.
         return time()
-                - ((DAY_IN_SECONDS * $settings->currentThreshold($context)) + $this->cron_frequency_buffer);
+                - (DAY_IN_SECONDS * $settings->currentThreshold($context)) - $this->getCronFrequencyBuffer();
     }
 
 
@@ -304,8 +307,8 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
      */
     protected function getEndTimeForQuery(SchedulingSettings $settings, $context)
     {
-        return (time() - DAY_IN_SECONDS * $settings->currentThreshold($context))
-                + $this->cron_frequency_buffer;
+        // End Time should be the days set as the threshold.
+        return time() - (DAY_IN_SECONDS * $settings->currentThreshold($context));
     }
 
 
