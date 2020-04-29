@@ -199,7 +199,6 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
             date(EE_Datetime_Field::mysql_timestamp_format, $this->getEndTimeForQuery($settings, $context)),
             $wpdb_prepare_args[] = $settings->getMessageTemplateGroup()->ID()
         );
-        write_log($query);
         return $this->setKeysToRegistrationIds(
             $wpdb->get_results($query, ARRAY_A)
         );
