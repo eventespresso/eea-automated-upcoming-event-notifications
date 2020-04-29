@@ -9,8 +9,7 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
  * Message type for automated upcoming event notifications.
  * On a daily cron schedule, this message type will grab all the events where the earliest datetime is within the
  * threshold set by the user (i.e. within x days), then send a notification based on the template generated for this
- * message type.  No matter how many datetimes are present on the event, the notification for this message type is only
- * sent ONCE.
+ * message type. This notification is sent for each individual datetime within an event.
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
  * @author  Darren Ethier
