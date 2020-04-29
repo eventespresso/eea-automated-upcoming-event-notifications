@@ -275,7 +275,7 @@ class PostDatetimeNotificationsCommandHandler extends PostNotificationsCommandHa
           Datetime.DTT_deleted = 0 
           AND (Event_CPT.post_type = 'espresso_events') 
           AND  ( (emt_mtp.MTP_deleted = 0) OR emt_mtp.GRP_ID IS NULL) 
-          AND Datetime.DTT_EVT_start BETWEEN %s AND %s
+          AND Datetime.DTT_EVT_end BETWEEN %s AND %s
           AND Event_CPT.post_status IN ($event_statuses_sql) 
           AND  (emt_mtp.GRP_ID = %d 
         ";
