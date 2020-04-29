@@ -47,14 +47,6 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 
 
     /**
-     * This will hold the set cron schedule frequency buffer in seconds.  Used by the queries involving threshold range.
-     *
-     * @var int
-     */
-    protected $cron_frequency_buffer;
-
-
-    /**
      * PostNotificationsCommandHandler constructor.
      *
      * @param CommandBusInterface                   $command_bus
@@ -74,7 +66,6 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
         $this->registration_model = $registration_model;
         $this->split_data_service = $split_data_service;
         parent::__construct($command_bus, $command_factory);
-        $this->setCronFrequencyBuffer();
     }
 
 
@@ -327,33 +318,6 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 
 
     /**
-     * Sets the cron_frequency property that is used in queries
-     *
-     * @throws InvalidArgumentException
-     * @throws InvalidDataTypeException
-     * @throws InvalidInterfaceException
-     */
-    private function setCronFrequencyBuffer()
-    {
-        // Even though $this->commandBus->getCommandHandlerManager() has an instance of the Loader cached in a property
-        // it's not accessible, once/if that changes then I can use it instead of the LoaderFactory.
-        /** @var Scheduler $scheduler */
-        $scheduler = LoaderFactory::getLoader()->getShared(
-            'EventEspresso\AutomatedUpcomingEventNotifications\domain\services\tasks\Scheduler'
-        );
-        $registered_schedules = wp_get_schedules();
-        $registered_cron_frequency = $scheduler->getCronFrequency();
-        $this->cron_frequency_buffer = isset(
-            $registered_schedules[ $registered_cron_frequency ]['interval']
-        )
-            ? $registered_schedules[ $registered_cron_frequency ]['interval']
-            : HOUR_IN_SECONDS * 3;
-        // let's add a filterable buffer (why? Because wp-cron is imprecise and won't ALWAYS fire on the set interval).
-        $this->cron_frequency_buffer += $this->getCronFrequencyBuffer();
-    }
-
-
-    /**
      * WordPress Cron (wp-cron) is imprecise.  We cannot rely on the events being processed exactly on the interval.
      * This buffer (filterable) allows for extending the query range beyond the next cron scheduled event to cover
      * impreciseness of the schedule.
@@ -364,7 +328,7 @@ abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
     {
         return (int) apply_filters(
             'FHEE__EventEspresso_AutomatedUpcomingEventNotifications_domain_services_commands_message_PostNotificationsCommandHandler__getCronFrequencyBuffer',
-            MINUTE_IN_SECONDS * 30
+            DAY_IN_SECONDS * 7
         );
     }
 
