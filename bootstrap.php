@@ -38,6 +38,12 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
             DomainInterface::class,
             AutomatedUpcomingEventNotifications::class
         );
+        EE_Dependency_Map::register_class_loader(
+            'EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain',
+            static function () {
+                return getAuenDomain();
+            }
+        );
         // register dependencies
         EE_Dependency_Map::register_dependencies(
             AutomatedUpcomingEventNotifications::class,
@@ -48,19 +54,27 @@ add_action('AHEE__EE_System__load_espresso_addons', function () {
             )
         );
         // initialize add-on
-        AutomatedUpcomingEventNotifications::registerAddon(
-            DomainFactory::getShared(
-                new FullyQualifiedName(Domain::class),
-                array(
-                    new FilePath(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE),
-                    Version::fromString(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION)
-                )
-            )
-        );
+        AutomatedUpcomingEventNotifications::registerAddon(getAuenDomain());
     } else {
         add_action('admin_notices', 'espresso_automated_upcoming_event_notification_activation_error');
     }
 });
+
+
+/**
+ * @returns EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain
+ */
+function getAuenDomain()
+{
+    static $domain;
+    if (! $domain instanceof Domain) {
+        $domain = DomainFactory::getShared(
+            new FullyQualifiedName(Domain::class),
+            [EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE, EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION]
+        );
+    }
+    return $domain;
+}
 
 /**
  * This is a simple verification that EE core is active.  If its not, then we need to deactivate and show a notice.
