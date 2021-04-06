@@ -48,7 +48,18 @@ if (! defined('PHP_VERSION_ID')
 ) {
     add_action('admin_notices', 'eea_auen_php_version_deactivation_and_notice');
 } else {
-    require_once __DIR__ . '/bootstrap.php';
+    add_action(
+        'plugins_loaded',
+        function () {
+            // register namespace
+            EE_Psr4AutoloaderInit::psr4_loader()->addNamespace(
+                'EventEspresso\AutomatedUpcomingEventNotifications',
+                __DIR__
+            );
+            new EventEspresso\AutomatedUpcomingEventNotifications\domain\Bootstrap();
+        },
+        1
+    );
 }
 
 function eea_auen_php_version_deactivation_and_notice()
