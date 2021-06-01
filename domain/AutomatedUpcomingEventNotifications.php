@@ -125,11 +125,15 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         $this->registerDependencies();
         // these have to happen earlier than module loading but after add-ons are loaded because
         // the modules `set_hooks` methods run at `init 9`.
-        if (is_admin()) {
-            $this->loader->getShared(Controller::class);
-        }
         $this->loader->getShared(Scheduler::class);
         $this->loader->getShared(RegisterCustomShortcodeLibrary::class);
+        $loader = $this->loader;
+        add_action(
+            'admin_init',
+            function () use ($loader) {
+                $loader->getShared(Controller::class);
+            }
+        );
         add_filter(
             'FHEE__EE_Base_Class__get_extra_meta__default_value',
             [$this, 'setDefaultActiveStateForMessageTypes'],
