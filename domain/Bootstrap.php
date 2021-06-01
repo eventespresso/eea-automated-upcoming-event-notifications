@@ -62,7 +62,7 @@ class Bootstrap
         $loader = function () {
             return Bootstrap::getAuenDomain();
         };
-        EE_Dependency_Map::instance()->registerClassLoader(Domain::class, $loader);
+        EE_Dependency_Map::register_class_loader(Domain::class, $loader);
         EE_Dependency_Map::register_dependencies(
             AutomatedUpcomingEventNotifications::class,
             [
@@ -78,7 +78,7 @@ class Bootstrap
     /**
      * @returns Domain
      */
-    public static function getAuenDomain(): Domain
+    public static function getAuenDomain()
     {
         static $domain;
         if (! $domain instanceof Domain) {
