@@ -127,19 +127,21 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
         // the modules `set_hooks` methods run at `init 9`.
         $this->loader->getShared(Scheduler::class);
         $this->loader->getShared(RegisterCustomShortcodeLibrary::class);
-        $loader = $this->loader;
-        add_action(
-            'admin_init',
-            function () use ($loader) {
-                $loader->getShared(Controller::class);
-            }
-        );
+        if (is_admin()) {
+            add_action('AHEE__EE_System__core_loaded_and_ready', [$this, 'loadAdminController']);
+        }
         add_filter(
             'FHEE__EE_Base_Class__get_extra_meta__default_value',
             [$this, 'setDefaultActiveStateForMessageTypes'],
             10,
             4
         );
+    }
+
+
+    public function loadAdminController()
+    {
+        $this->loader->getShared(Controller::class);
     }
 
     // phpcs:enable
