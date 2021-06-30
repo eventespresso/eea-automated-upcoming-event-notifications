@@ -8,7 +8,7 @@ use EventEspresso\core\domain\values\FilePath;
 use EventEspresso\core\domain\values\FullyQualifiedName;
 use EventEspresso\core\domain\values\Version;
 use EventEspresso\core\services\loaders\Loader;
-
+use EventEspresso\core\services\loaders\LoaderFactory;
 
 
 add_action(
@@ -46,6 +46,7 @@ add_action(
                     Version::fromString(EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION),
                 ]
             );
+            LoaderFactory::getLoader()->share(Domain::class, $domain);
             // initialize add-on
             AutomatedUpcomingEventNotifications::registerAddon($domain);
         } else {
