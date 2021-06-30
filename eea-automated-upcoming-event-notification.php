@@ -33,8 +33,6 @@
  * @ license		http://eventespresso.com/support/terms-conditions/   * see Plugin Licensing *
  * @ link			http://www.eventespresso.com
  * @ version	 	EE4
- *
- * ------------------------------------------------------------------------
  */
 
 // define versions and this file
@@ -43,18 +41,7 @@ define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE', __FILE__);
 
 // check php version: requires PHP 5.6 ++
 if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50600) {
-    add_action(
-        'plugins_loaded',
-        function () {
-            // register namespace
-            EE_Psr4AutoloaderInit::psr4_loader()->addNamespace(
-                'EventEspresso\AutomatedUpcomingEventNotifications',
-                __DIR__
-            );
-            new EventEspresso\AutomatedUpcomingEventNotifications\domain\Bootstrap();
-        },
-        1
-    );
+    require_once __DIR__ . '/bootstrap.php';
 } else {
     // if not sufficient then deactivate and show notice
     add_action(
