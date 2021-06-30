@@ -41,13 +41,8 @@
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION', '1.0.5.rc.000');
 define('EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_FILE', __FILE__);
 
-// check php version, if not sufficient then deactivate and show notice
-// requires PHP 5.6 ++
-if (! defined('PHP_VERSION_ID')
-    || PHP_VERSION_ID < 50600
-) {
-    add_action('admin_notices', 'eea_auen_php_version_deactivation_and_notice');
-} else {
+// check php version: requires PHP 5.6 ++
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50600) {
     add_action(
         'plugins_loaded',
         function () {
@@ -60,26 +55,30 @@ if (! defined('PHP_VERSION_ID')
         },
         1
     );
+} else {
+    // if not sufficient then deactivate and show notice
+    add_action(
+        'admin_notices',
+        function () {
+            unset($_GET['activate'], $_REQUEST['activate']);
+            if (! function_exists('deactivate_plugins')) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+            deactivate_plugins(plugin_basename(__FILE__));
+            ?>
+            <div class="error">
+                <p>
+                    <?php printf(
+                        esc_html__(
+                            'Event Espresso Automated Upcoming Event Notifications add-on could not be activated because it requires PHP version %s or greater.',
+                            'event_espresso'
+                        ),
+                        '5.6.0'
+                    ); ?>
+                </p>
+            </div>
+            <?php
+        }
+    );
 }
 
-function eea_auen_php_version_deactivation_and_notice()
-{
-    unset($_GET['activate'], $_REQUEST['activate']);
-    if (! function_exists('deactivate_plugins')) {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-    deactivate_plugins(plugin_basename(__FILE__));
-    ?>
-    <div class="error">
-        <p>
-            <?php printf(
-                esc_html__(
-                    'Event Espresso Automated Upcoming Event Notifications add-on could not be activated because it requires PHP version %s or greater.',
-                    'event_espresso'
-                ),
-                '5.6.0'
-            ); ?>
-        </p>
-    </div>
-    <?php
-}
