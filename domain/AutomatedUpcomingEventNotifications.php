@@ -182,6 +182,11 @@ class AutomatedUpcomingEventNotifications extends EE_Addon
             Controller::class,
             [Request::class => EE_Dependency_Map::load_from_cache]
         );
+        $this->dependencyMap()->add_alias(
+            Domain::class,
+            DomainInterface::class,
+            RegisterCustomShortcodeLibrary::class
+        );
         $this->dependencyMap()->registerDependencies(
             RegisterCustomShortcodeLibrary::class,
             [Domain::class => EE_Dependency_Map::load_from_cache]
