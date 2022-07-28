@@ -59,7 +59,7 @@ class SchedulingSettings
      */
     public function currentThreshold($context)
     {
-        $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
+        $meta_key = $this->getMessageTypeMetaKey($context);
         if (! isset($this->cache[ $meta_key ])) {
             $this->cache[ $meta_key ] = (int) $this->message_template_group->get_extra_meta(
                 $meta_key,
@@ -85,7 +85,7 @@ class SchedulingSettings
      */
     public function setCurrentThreshold($new_threshold, $context)
     {
-        $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
+        $meta_key = $this->getMessageTypeMetaKey($context);
         $saved = $this->message_template_group->update_extra_meta(
             $meta_key,
             (int) $new_threshold
@@ -126,5 +126,29 @@ class SchedulingSettings
     public function getMessageTemplateGroup()
     {
         return $this->message_template_group;
+    }
+
+    /**
+     * @return string|null
+     * @param string $context
+     */
+    public function getMessageTypeMetaKey($context)
+    {
+        $meta_key = null;
+        $message_type = $this->message_template_group->message_type();
+        switch ($message_type) {
+            // 'Post' message types use DAYS_AFTER threshold
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_EVENT:
+            case Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME:
+                $meta_key = Domain::META_KEY_DAYS_AFTER_THRESHOLD . '_' . $context;
+                break;
+            // 'Upcoming' message types use DAYS_BEFORE threshold
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT:
+            case Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME:
+            default: // <== this line is actually not necessary
+                $meta_key = Domain::META_KEY_DAYS_BEFORE_THRESHOLD . '_' . $context;
+                break;
+        }
+        return $meta_key;
     }
 }

@@ -5,32 +5,32 @@ use EventEspresso\core\exceptions\InvalidDataTypeException;
 use EventEspresso\core\exceptions\InvalidInterfaceException;
 
 /**
- * EE_Automate_Upcoming_Datetime_message_type
- * Message type for automated upcoming event notifications.
+ * EE_Automate_Post_Datetime_message_type
+ * Message type for automated post event notifications.
  * On a daily cron schedule, this message type will grab all the events where the earliest datetime is within the
- * threshold set by the user (i.e. within x days), then send a notification based on the template generated for this
- * message type. This notification is sent for each individual datetime within an event.
+ * threshold set by the user (i.e. x days after), then send a notification based on the template generated for this
+ * message type. This notification is sent for each individual datetime within an event
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
- * @author  Darren Ethier
- * @since   1.0.0
+ * @author  Tony Warwick
+ * @since   $VID:$
  */
-class EE_Automate_Upcoming_Datetime_message_type extends EE_Registration_Base_message_type
+class EE_Automate_Post_Datetime_message_type extends EE_Registration_Base_message_type
 {
 
     /**
-     * EE_Automate_Upcoming_Datetime_message_type constructor.
+     * EE_Automate_Post_Datetime_message_type constructor.
      */
     public function __construct()
     {
-        $this->name              = Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME;
+        $this->name              = Domain::MESSAGE_TYPE_AUTOMATE_POST_DATETIME;
         $this->description       = esc_html__(
-            'This message type automates sending messages to registrations for an upcoming datetime. Messages are sent at the threshold you define (eg 3 days before) prior to a datetime on an event. Messages for this message type are sent to approved registrations and are only triggered for datetimes on upcoming and/or sold out, and published upcoming events. Note that this will send the message for each datetime on the event.',
+            'This message type automates sending messages to registrations for an expired datetime. Messages are sent at the threshold you define (eg 3 days after) after a datetime on an event. Messages for this message type are sent to approved registrations and are only triggered for expired datetimes on published events. Note that this will send the message for each datetime on the event.',
             'event_espresso'
         );
         $this->label             = array(
-            'singular' => esc_html__('automated upcoming datetime notification', 'event_espresso'),
-            'plural'   => esc_html__('automated upcoming datetime notifications', 'event_espresso'),
+            'singular' => esc_html__('automated post datetime notification', 'event_espresso'),
+            'plural'   => esc_html__('automated post datetime notifications', 'event_espresso'),
         );
         $this->_master_templates = array(
             'email' => 'registration',

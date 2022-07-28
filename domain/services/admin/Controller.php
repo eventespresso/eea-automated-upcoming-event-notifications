@@ -17,6 +17,7 @@ use Exception;
 use EE_Error;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
 use EventEspresso\AutomatedUpcomingEventNotifications\domain\services\admin\message\SchedulingMetaboxFormHandler;
+use EED_Automated_Upcoming_Event_Notification_Messages;
 
 /**
  * This is the controller for things hooking into the EE admin for the addon.
@@ -123,10 +124,7 @@ class Controller
         // types
         $message_template_group = $this->messageTemplateGroup();
         return $message_template_group instanceof EE_Message_Template_Group
-               && (
-                   $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
-                   || $message_template_group->message_type() === Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-               );
+               && in_array($message_template_group->message_type(), EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types());
     }
 
 
@@ -236,16 +234,18 @@ class Controller
         }
         // can we get the object for this?
         $message_template_group = EEM_Message_Template_Group::instance()->get_one_by_ID($GRP_ID);
-
         // get out if this update doesn't apply (because it means it hasn't been saved yet and we don't have an id for
         // the model object)  In our scenario this is okay because user's will only ever see an already
         // created message template group in the ui
         if (! $message_template_group instanceof EE_Message_Template_Group
             // yes this intentionally will catch if someone sets the value to 0 because 0 is not allowed.
-            || ! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
-            || (
-                $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_DATETIME
-                && $message_template_group->message_type() !== Domain::MESSAGE_TYPE_AUTOMATE_UPCOMING_EVENT
+            || (! $this->request->getRequestParam(Domain::META_KEY_DAYS_BEFORE_THRESHOLD, false)
+                && ! $this->request->getRequestParam(Domain::META_KEY_DAYS_AFTER_THRESHOLD, false)
+            )
+            || ! in_array(
+                $message_template_group->message_type(),
+                EED_Automated_Upcoming_Event_Notification_Messages::allowed_message_types(),
+                true
             )
         ) {
             return;
@@ -258,6 +258,9 @@ class Controller
                     array(
                         Domain::META_KEY_DAYS_BEFORE_THRESHOLD => $this->request->getRequestParam(
                             Domain::META_KEY_DAYS_BEFORE_THRESHOLD
+                        ),
+                        Domain::META_KEY_DAYS_AFTER_THRESHOLD => $this->request->getRequestParam(
+                            Domain::META_KEY_DAYS_AFTER_THRESHOLD
                         ),
                     )
                 );
