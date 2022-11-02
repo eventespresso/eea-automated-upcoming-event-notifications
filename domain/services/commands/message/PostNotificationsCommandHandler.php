@@ -29,7 +29,7 @@ use ReflectionException;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 abstract class PostNotificationsCommandHandler extends CompositeCommandHandler
 {

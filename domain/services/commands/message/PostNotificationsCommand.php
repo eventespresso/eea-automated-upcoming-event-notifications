@@ -12,7 +12,7 @@ use EventEspresso\core\services\commands\Command;
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 abstract class PostNotificationsCommand extends Command
 {

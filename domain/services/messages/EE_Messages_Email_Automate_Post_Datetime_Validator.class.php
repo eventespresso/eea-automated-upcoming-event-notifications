@@ -8,7 +8,7 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 class EE_Messages_Email_Automate_Post_Datetime_Validator extends EE_Messages_Validator
 {

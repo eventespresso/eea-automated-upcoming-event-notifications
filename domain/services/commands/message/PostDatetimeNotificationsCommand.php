@@ -11,7 +11,7 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  * @package EventEspresso\AutomatedUpcomingEventNotifications\domain\services\commands\message
  * @subpackage
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 class PostDatetimeNotificationsCommand extends PostNotificationsCommand
 {

@@ -12,7 +12,7 @@ use EventEspresso\AutomatedUpcomingEventNotifications\domain\Domain;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 class EE_Automate_Post_Event_message_type extends EE_Registration_Base_message_type
 {

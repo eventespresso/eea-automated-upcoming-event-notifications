@@ -13,7 +13,7 @@ use EventEspresso\core\exceptions\InvalidInterfaceException;
  *
  * @package EventEspresso\AutomatedUpcomingEventNotifications
  * @author  Tony Warwick
- * @since   $VID:$
+ * @since   1.0.6.p
  */
 class EE_Automate_Post_Datetime_message_type extends EE_Registration_Base_message_type
 {
