@@ -280,7 +280,7 @@ class PostEventNotificationsCommandHandler extends PostNotificationsCommandHandl
     {
         $meta_key = $this->getNotificationMetaKeyForContext($context);
         $where = array(
-            'Datetime.DTT_EVT_end' => array('>', time()),
+            'Datetime.DTT_EVT_end' => array('<', time()),
             'Extra_Meta.EXM_key'     => $meta_key,
         );
         return (array) $this->event_model->get_col(array($where));
